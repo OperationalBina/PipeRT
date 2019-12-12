@@ -1,0 +1,32 @@
+#!/bin/bash
+
+source ~/anaconda3/etc/profile.d/conda.sh
+conda activate dataenv
+
+service redis-server stop
+redis-server /etc/redis/6379.conf
+redis-cli flushall
+sleep 2
+
+python src/flask_display.py -i camera:2 -z 4246 &
+PID1=$!
+python src/cv2_display.py -i camera:1 -z 4245 &
+PID2=$!
+python src/canny.py -i camera:0 -o camera:1 -z 4244 &
+PID3=$!
+python src/yolov3.py -i camera:0 -o camera:2 -z 4243 &
+PID4=$!
+sleep 3
+python src/vid_capture.py &
+PID5=$!
+
+sleep 90
+kill $PID1
+kill $PID2
+kill $PID3
+kill $PID4
+kill $PID5
+
+redis-cli flushall
+redis-cli shutdown
+

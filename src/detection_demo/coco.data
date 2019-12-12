@@ -1,0 +1,6 @@
+classes=80
+train=../coco/trainvalno5k.txt
+valid=../coco/5k.txt
+names=/home/itamar/PycharmProjects/Inference/src/yolov3_demo/coco.names
+backup=backup/
+eval=coco
