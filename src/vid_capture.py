@@ -15,10 +15,10 @@ import sys
 
 class VideoCapture(BaseComponent):
 
-    def __init__(self, stream_address, out_key, redis_url, fps=30.0, maxlen=100):
+    def __init__(self, stream_address, out_key, redis_url, fps=30.0, maxlen=10):
         super().__init__(out_key, stream_address)
         # TODO: should queue maxsize be configurable?
-        self.queue = Queue(maxsize=10)
+        self.queue = Queue(maxsize=1)
 
         t_stream_class = add_logic_to_thread(Listen2Stream)
         t_update_class = add_logic_to_thread(Frames2Redis)

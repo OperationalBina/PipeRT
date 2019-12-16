@@ -7,6 +7,9 @@ import io
 import numpy as np
 from PIL import Image
 # from imutils import resize
+from utils.image_enc_dec import *
+from detectron2.utils.video_visualizer import VideoVisualizer
+from detectron2.data import MetadataCatalog
 
 
 class Listen2Stream(RoutineMixin):
@@ -135,6 +138,122 @@ class FramesFromRedis(RoutineMixin):
 
     def cleanup(self, *args, **kwargs):
         self.conn.close()
+
+
+class MetadataFromRedis(RoutineMixin):
+
+    def __init__(self, stop_event, in_key, url, queue, field, *args, **kwargs):
+        super().__init__(stop_event, *args, **kwargs)
+        self.in_key = in_key
+        self.url = url
+        self.queue = queue
+        self.field = field
+        self.conn = None
+        self.flip = False
+        self.negative = False
+
+    def main_logic(self, *args, **kwargs):
+        # TODO - refactor to use xread instead of xrevrange
+        msg = self.conn.xrevrange(self.in_key, count=1)  # Latest frame
+        # cmsg = self.conn.xread({self.in_key: "$"}, None, 1)
+        if msg:
+            data = metadata_decode(msg[0][1][f"{self.field}"])
+            try:
+                self.queue.put(data, block=False)
+                return True
+            except Full:
+                try:
+                    self.queue.get(block=False)
+                except Empty:
+                    pass
+                finally:
+                    self.queue.put(data, block=False)
+                    return True
+        else:
+            time.sleep(0)
+            return False
+
+    def setup(self, *args, **kwargs):
+        self.conn = redis.Redis(host=self.url.hostname, port=self.url.port)
+        if not self.conn.ping():
+            raise Exception('Redis unavailable')
+
+    def cleanup(self, *args, **kwargs):
+        self.conn.close()
+
+
+class Metadata2Redis(RoutineMixin):
+
+    def __init__(self, stop_event, out_key, url, queue, field, maxlen, *args, **kwargs):
+        super().__init__(stop_event, *args, **kwargs)
+        self.out_key = out_key
+        self.url = url
+        self.queue = queue
+        self.maxlen = 1
+        self.field = field
+
+        self.conn = None
+
+    def main_logic(self, *args, **kwargs):
+        try:
+            data = self.queue.get(block=False)
+            data_msg = metadata_encode(data)
+            msg = {
+                "count": self.state.count,
+                f"{self.field}": data_msg
+            }
+            _id = self.conn.xadd(self.out_key, msg, maxlen=self.maxlen)
+            return True
+        except Empty:
+            time.sleep(0)  # yield the control of the thread
+            return False
+
+    def setup(self, *args, **kwargs):
+        self.conn = redis.Redis(host=self.url.hostname, port=self.url.port)
+        if not self.conn.ping():
+            raise Exception('Redis unavailable')
+
+    def cleanup(self, *args, **kwargs):
+        self.conn.close()
+
+
+# class Visualizer(RoutineMixin):
+#
+#     def __init__(self, stop_event, in_queue, out_queue, *args, **kwargs):
+#         super().__init__(stop_event, *args, **kwargs)
+#         self.in_queue = in_queue
+#         self.out_queue = out_queue
+#         self.vis: VideoVisualizer = None
+#
+#     def main_logic(self, *args, **kwargs):
+#         try:
+#             frame, instances = self.in_queue.get(block=False)
+#
+#             outputs = self.vis.draw_instance_predictions(frame, instances)
+#
+#             # while True:
+#             # try:
+#             try:
+#                 self.out_queue.get(block=False)
+#                 self.state.dropped += 1
+#             except Empty:
+#                 pass
+#             self.out_queue.put(outputs[0])
+#             return True
+#             # except Full:
+#
+#                 # return False
+#
+#         except Empty:
+#             time.sleep(0)
+#             return False
+#
+#     def setup(self, *args, **kwargs):
+#         self.vis = VideoVisualizer(MetadataCatalog.get("coco_2017_train"))
+#         self.state.dropped = 0
+#
+#     def cleanup(self, *args, **kwargs):
+#         pass
 
 
 class DisplayCV2(RoutineMixin):

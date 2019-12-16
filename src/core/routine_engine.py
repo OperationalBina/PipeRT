@@ -7,7 +7,7 @@ import torch.multiprocessing as mp
 
 
 class Events(Enum):
-    """Events that are fired by the :class:`~src.core.RoutineInterface` during execution."""
+    """Events that are fired by the :class:`~core.RoutineInterface` during execution."""
     BEFORE_LOGIC = "before_logic"
     AFTER_LOGIC = "after_logic"
     EXCEPTION_RAISED = "exception_raised"

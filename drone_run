@@ -17,10 +17,10 @@ PID3=$!
 python src/yolov3.py -i camera:0 -o camera:2 -z 4243 &
 PID4=$!
 sleep 3
-python src/vid_capture.py &
+python src/drone_capture.py &
 PID5=$!
 
-sleep 90
+sleep 60
 kill $PID1
 kill $PID2
 kill $PID3

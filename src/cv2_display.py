@@ -19,7 +19,7 @@ class CV2VideoDisplay(BaseComponent):
         super().__init__(output_key, in_key)
 
         self.field = field  # .encode('utf-8')
-        self.queue = Queue(maxsize=10)
+        self.queue = Queue(maxsize=1)
         t_get_class = add_logic_to_thread(FramesFromRedis)
         t_draw_class = add_logic_to_thread(DisplayCV2)
         self.t_get = t_get_class(self.stop_event, in_key, redis_url, self.queue, self.field, name="get_frames")

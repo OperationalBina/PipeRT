@@ -216,8 +216,8 @@ class Canny(BaseComponent):
         # TODO - is field really needed? needs testing
         super().__init__(out_key, in_key)
         self.field = field
-        self.in_queue = Queue(maxsize=10)
-        self.out_queue = Queue(maxsize=10)
+        self.in_queue = Queue(maxsize=1)
+        self.out_queue = Queue(maxsize=1)
         t_get_class = add_logic_to_thread(FramesFromRedis)
         t_det_class = add_logic_to_thread(CannyLogic)
         t_send_class = add_logic_to_thread(Frames2Redis)
