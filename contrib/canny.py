@@ -4,10 +4,10 @@ import numpy as np
 from queue import Empty, Queue
 import time
 from scipy.signal.windows import gaussian
-from base import BaseComponent
-from core.routine_engine import RoutineMixin, Events
-from core.handlers import tick, tock
-from core.mini_logics import add_logic_to_thread, FramesFromRedis, Frames2Redis
+from src.base import BaseComponent
+from src.core.routine_engine import RoutineMixin, Events
+from src.core.handlers import tick, tock
+from src.core.mini_logics import add_logic_to_thread, FramesFromRedis, Frames2Redis
 import zerorpc
 import argparse
 from urllib.parse import urlparse

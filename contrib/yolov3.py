@@ -1,19 +1,22 @@
 import argparse
 # from sys import platform
-from detection_demo.models import *  # set ONNX_EXPORT in models.py
+from contrib.detection_demo.models import *  # set ONNX_EXPORT in models.py
 # from detection_demo.utils.datasets import *
-from detection_demo.parse_config import parse_data_cfg
-from detection_demo.utils import *
-from detection_demo import torch_utils
-from core.routine_engine import RoutineMixin
-from core.mini_logics import FramesFromRedis, Frames2Redis, add_logic_to_thread
-from base import BaseComponent
+from contrib.detection_demo.parse_config import parse_data_cfg
+from contrib.detection_demo.torch_utils import*
+from contrib.detection_demo.utils import *
+from src.core.routine_engine import RoutineMixin
+from src.core.mini_logics import FramesFromRedis, add_logic_to_thread, Metadata2Redis
+from src.base import BaseComponent
 import time
-from queue import Empty, Queue, Full
+from queue import Empty, Queue
 from urllib.parse import urlparse
 import zerorpc
 import gevent
 import signal
+import cv2
+import torch
+from detectron2.structures import Instances, Boxes
 
 
 def letterbox(img, new_shape=416, color=(128, 128, 128), mode='auto'):
@@ -90,28 +93,38 @@ class YoloV3Logic(RoutineMixin):
                 img = img.unsqueeze(0)
             with torch.no_grad():
                 pred, _ = self.model(img)
-            for i, det in enumerate(non_max_suppression(pred, opt.conf_thres, opt.nms_thres)):
-                if det is not None and len(det):
-                    # Rescale boxes from img_size to im0 size
-                    det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
+            det = non_max_suppression(pred,  opt.conf_thres, opt.nms_thres)[0]
+            if det is not None and len(det):
+                # Rescale boxes from img_size to im0 size
+                det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
+                # print(det.shape)
+                # print(det)
+                # for *xyxy, conf, _, cls in det:
+                #     label = '%s %.2f' % (self.classes[int(cls)], conf)
+                #     plot_one_box(xyxy, im0, label=label, color=self.colors[int(cls)])
+                res = Instances(im0.shape)
+                res.set("pred_boxes", Boxes(det[:, :4]))
+                res.set("scores", det[:, 4])
+                res.set("class_scores", det[:, 5])
+                res.set("pred_classes", det[:, 6].round().int())
 
-                    for *xyxy, conf, _, cls in det:
-                        label = '%s %.2f' % (self.classes[int(cls)], conf)
-                        plot_one_box(xyxy, im0, label=label, color=self.colors[int(cls)])
-            while True:
                 try:
-                    self.out_queue.put(im0)
-                    break
-                except Full:
-                    time.sleep(0)
+                    self.out_queue.get(block=False)
+                    self.state.dropped += 1
+                except Empty:
+                    pass
+                self.out_queue.put(res.to("cpu"), block=False)
+            return True
+
         except Empty:
             time.sleep(0)
+            return False
 
     def setup(self, *args, **kwargs):
-        pass
+        self.state.dropped = 0
 
     def cleanup(self, *args, **kwargs):
-        pass
+        del self.model, self.device, self.classes, self.colors
 
 
 class YoloV3(BaseComponent):
@@ -124,11 +137,11 @@ class YoloV3(BaseComponent):
         self.out_queue = Queue(maxsize=1)
         t_get_class = add_logic_to_thread(FramesFromRedis)
         t_det_class = add_logic_to_thread(YoloV3Logic)
-        t_send_class = add_logic_to_thread(Frames2Redis)
+        t_send_class = add_logic_to_thread(Metadata2Redis)
 
         t_get = t_get_class(self.stop_event, in_key, redis_url, self.in_queue, self.field)
         t_det = t_det_class(self.stop_event, self.in_queue, self.out_queue)
-        t_send = t_send_class(self.stop_event, out_key, redis_url, self.out_queue, maxlen)
+        t_send = t_send_class(self.stop_event, out_key, redis_url, self.out_queue, "instances", maxlen)
 
         self.thread_list = [t_get, t_det, t_send]
         self._start()
@@ -151,9 +164,9 @@ if __name__ == '__main__':
     parser.add_argument('--weights', type=str, default='/home/itamar/PycharmProjects/Inference/src/yolov3_demo/yolov3.weights', help='path to weights file')
     parser.add_argument('--source', type=str, default='0', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('-i', '--input', help='Input stream key name', type=str, default='camera:0')
-    parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:1')
+    parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:2')
     parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
-    parser.add_argument('-z', '--zpc', help='zpc port', type=str, default='4245')
+    parser.add_argument('-z', '--zpc', help='zpc port', type=str, default='4243')
     parser.add_argument('--field', help='Image field name', type=str, default='image')
     parser.add_argument('--maxlen', help='Maximum length of output stream', type=int, default=100)
     parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')

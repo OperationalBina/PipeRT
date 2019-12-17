@@ -1,9 +1,9 @@
-from sort_tracker.sort import Sort
+from contrib.sort_tracker import Sort
 import torch
 from detectron2.structures import Instances, Boxes
 import numpy as np
 from base import BaseComponent
-from queue import Queue, Full, Empty
+from queue import Queue, Empty
 import argparse
 from urllib.parse import urlparse
 import zerorpc
@@ -84,8 +84,8 @@ class SORTComponent(BaseComponent):
         t_upload_meta_class = add_logic_to_thread(Metadata2Redis)
 
         t_get_meta = t_get_meta_class(self.stop_event, redis_url, in_key, self.in_queue)
-        t_stream = t_stream_class(self.stop_event, self.queue, fps, name="capture_frame")
-        t_upload = t_update_class(self.stop_event, out_key, redis_url, self.queue, maxlen, name="upload_redis")
+        t_stream = t_sort_class(self.stop_event, self.queue, fps, name="capture_frame")
+        t_upload = t_upload_meta_class(self.stop_event, out_key, redis_url, self.queue, maxlen, name="upload_redis")
 
         self.thread_list = [t_stream, t_upload]
         # for t in self.thread_list:
@@ -108,3 +108,30 @@ class SORTComponent(BaseComponent):
             t.join()
 
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--cfg', type=str, default='/home/itamar/PycharmProjects/Inference/src/yolov3_demo/yolov3.cfg', help='cfg file path')
+    parser.add_argument('--data', type=str, default='/home/itamar/PycharmProjects/Inference/src/yolov3_demo/coco.data', help='coco.data file path')
+    parser.add_argument('--weights', type=str, default='/home/itamar/PycharmProjects/Inference/src/yolov3_demo/yolov3.weights', help='path to weights file')
+    parser.add_argument('--source', type=str, default='0', help='source')  # input file/folder, 0 for webcam
+    parser.add_argument('-i', '--input', help='Input stream key name', type=str, default='camera:0')
+    parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:2')
+    parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
+    parser.add_argument('-z', '--zpc', help='zpc port', type=str, default='4243')
+    parser.add_argument('--field', help='Image field name', type=str, default='image')
+    parser.add_argument('--maxlen', help='Maximum length of output stream', type=int, default=100)
+    parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')
+    parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
+    parser.add_argument('--nms-thres', type=float, default=0.5, help='iou threshold for non-maximum suppression')
+    parser.add_argument('--fourcc', type=str, default='mp4v', help='output video codec (verify ffmpeg support)')
+    parser.add_argument('--half', action='store_true', help='half precision FP16 inference')
+    opt = parser.parse_args()
+
+    url = urlparse(opt.url)
+
+    zpc = zerorpc.Server(SORTComponent(opt.output, opt.input, url, opt.field, opt.maxlen))
+    zpc.bind(f"tcp://0.0.0.0:{opt.zpc}")
+    print("run")
+    gevent.signal(signal.SIGTERM, zpc.stop)
+    zpc.run()
+    print("Killed")

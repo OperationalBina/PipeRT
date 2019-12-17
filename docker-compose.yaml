@@ -5,7 +5,7 @@ services:
     ports:
       - 6379:6379
   init:
-    build: ./src/canny_demo
+    build: contrib/canny_demo
     depends_on:
       - redisedge
     command: ['canny_init.py', '--url', 'redis://redisedge:6379']

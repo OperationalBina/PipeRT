@@ -16,6 +16,7 @@ def image_decode(msg):
 
 
 def metadata_decode(msg):
+    # print(msg)
     return dill.loads(msg)
 
 

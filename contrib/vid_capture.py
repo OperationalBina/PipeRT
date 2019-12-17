@@ -1,14 +1,14 @@
 # import the necessary packages
-from base import BaseComponent
+from src.base import BaseComponent
 from queue import Queue
 import argparse
 from urllib.parse import urlparse
 import zerorpc
 import gevent
 import signal
-from core.mini_logics import Frames2Redis, Listen2Stream, add_logic_to_thread
-from core.routine_engine import Events
-from core.handlers import tick, tock
+from src.core.mini_logics import Frames2Redis, Listen2Stream, add_logic_to_thread
+from src.core.routine_engine import Events
+from src.core.handlers import tick, tock
 import logging
 import sys
 
@@ -18,6 +18,7 @@ class VideoCapture(BaseComponent):
     def __init__(self, stream_address, out_key, redis_url, fps=30.0, maxlen=10):
         super().__init__(out_key, stream_address)
         # TODO: should queue maxsize be configurable?
+        # self.queue = Queue(maxsize=15)
         self.queue = Queue(maxsize=1)
 
         t_stream_class = add_logic_to_thread(Listen2Stream)

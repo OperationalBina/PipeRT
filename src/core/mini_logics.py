@@ -1,4 +1,4 @@
-from core.routine_engine import ExtendedProcess, ExtendedThread, RoutineMixin
+from src.core.routine_engine import ExtendedProcess, ExtendedThread, RoutineMixin
 import time
 import cv2
 from queue import Empty, Full
@@ -7,7 +7,7 @@ import io
 import numpy as np
 from PIL import Image
 # from imutils import resize
-from utils.image_enc_dec import *
+from src.utils.image_enc_dec import *
 from detectron2.utils.video_visualizer import VideoVisualizer
 from detectron2.data import MetadataCatalog
 
@@ -30,11 +30,25 @@ class Listen2Stream(RoutineMixin):
             if not self.isFile:
                 frame = cv2.flip(frame, 1)
             try:
+                self.queue.get(block=False)
+            except Empty:
+                pass
+            finally:
                 self.queue.put(frame)
-                return True
-            except Full:
+                # self.queue.put(frame, block=False)
                 time.sleep(0)
-                return False
+                return True
+            # except Full:
+            #     try:
+            #         self.queue.get(block=False)
+            #     except Empty:
+            #         pass
+            #     finally:
+            #         self.queue.put(frame, block=False)
+            #         time.sleep(0)
+            #         return True
+                # time.sleep(0)
+                # return False
 
     def setup(self, *args, **kwargs):
         self.stream = cv2.VideoCapture(self.stream_address)
@@ -49,6 +63,7 @@ class Listen2Stream(RoutineMixin):
 
     def cleanup(self, *args, **kwargs):
         self.stream.release()
+        del self.stream
 
 
 # TODO: add Error handling to connection
@@ -73,6 +88,7 @@ class Frames2Redis(RoutineMixin):
                 'image': data.tobytes()
             }
             _id = self.conn.xadd(self.out_key, msg, maxlen=self.maxlen)
+            time.sleep(0)
             return True
         except Empty:
             time.sleep(0)  # yield the control of the thread

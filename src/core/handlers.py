@@ -1,6 +1,6 @@
 import time
 import logging
-from core.routine_engine import RoutineMixin
+from src.core.routine_engine import RoutineMixin
 import numpy as np
 
 

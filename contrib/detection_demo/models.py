@@ -1,8 +1,10 @@
 import torch.nn.functional as F
+from torch import nn
 
-from detection_demo.parse_config import *
-from detection_demo.utils import *
-from detection_demo import torch_utils
+from contrib.detection_demo.parse_config import *
+from contrib.detection_demo import torch_utils
+from contrib.detection_demo.utils import *
+
 # from utils.google_utils import *
 
 ONNX_EXPORT = False

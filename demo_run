@@ -6,18 +6,18 @@ conda activate dataenv
 service redis-server stop
 redis-server /etc/redis/6379.conf
 redis-cli flushall
-sleep 2
+sleep 1
 
-python flask_display.py -i camera:2 -z 4246 &
+python -m contrib.flask_display -i camera:0 -m camera:2 -z 4246 &
 PID1=$!
-python cv2_display.py -i camera:1 -z 4245 &
+python -m contrib.cv2_display -i camera:1 -z 4245 &
 PID2=$!
-python canny.py -i camera:0 -o camera:1 -z 4244 &
+python -m contrib.canny -i camera:0 -o camera:1 -z 4244 &
 PID3=$!
-python yolov3.py -i camera:0 -o camera:2 -z 4243 &
+python -m contrib.yolov3 -i camera:0 -o camera:2 -z 4243 &
 PID4=$!
-sleep 3
-python vid_capture.py &
+sleep 10
+python -m contrib.vid_capture &
 PID5=$!
 
 sleep 30
@@ -26,6 +26,8 @@ kill $PID2
 kill $PID3
 kill $PID4
 kill $PID5
+
+sleep 3
 
 redis-cli flushall
 redis-cli shutdown
