@@ -130,7 +130,7 @@ class YoloV3Logic(RoutineMixin):
 class YoloV3(BaseComponent):
 
     def __init__(self, out_key, in_key, redis_url, field, maxlen):
-        #TODO - is field really needed? needs testing
+        #cTODO - is field really needed? needs testing
         super().__init__(out_key, in_key)
         self.field = field
         self.in_queue = Queue(maxsize=1)

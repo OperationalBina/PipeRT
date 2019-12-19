@@ -12,7 +12,8 @@ from src.core.mini_logics import add_logic_to_thread
 from queue import Empty, Full
 from multiprocessing import Process, Queue
 import cv2
-from detectron2.utils.video_visualizer import VideoVisualizer
+from src.utils.visualizer import VideoVisualizer
+# from detectron2.utils.video_visualizer import VideoVisualizer
 from detectron2.data import MetadataCatalog
 from src.utils.image_enc_dec import image_decode, metadata_decode
 import time

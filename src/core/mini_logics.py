@@ -163,7 +163,7 @@ class MetadataFromRedis(RoutineMixin):
         self.in_key = in_key
         self.url = url
         self.queue = queue
-        self.field = field
+        self.field = field.encode('utf-8')
         self.conn = None
         self.flip = False
         self.negative = False
@@ -173,7 +173,7 @@ class MetadataFromRedis(RoutineMixin):
         msg = self.conn.xrevrange(self.in_key, count=1)  # Latest frame
         # cmsg = self.conn.xread({self.in_key: "$"}, None, 1)
         if msg:
-            data = metadata_decode(msg[0][1][f"{self.field}"])
+            data = metadata_decode(msg[0][1][self.field])
             try:
                 self.queue.put(data, block=False)
                 return True

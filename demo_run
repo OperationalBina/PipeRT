@@ -8,24 +8,27 @@ redis-server /etc/redis/6379.conf
 redis-cli flushall
 sleep 1
 
-python -m contrib.flask_display -i camera:0 -m camera:2 -z 4246 &
+python -m contrib.flask_display -i camera:0 -m camera:3 -z 4246 &
 PID1=$!
-python -m contrib.cv2_display -i camera:1 -z 4245 &
-PID2=$!
-python -m contrib.canny -i camera:0 -o camera:1 -z 4244 &
-PID3=$!
+#python -m contrib.cv2_display -i camera:1 -z 4245 &
+#PID2=$!
+#python -m contrib.canny -i camera:0 -o camera:1 -z 4244 &
+#PID3=$!
 python -m contrib.yolov3 -i camera:0 -o camera:2 -z 4243 &
 PID4=$!
+python -m contrib.sort -i camera:2 -o camera:3 -z 4247 --window-size 10 --percent-seen 0.4 &
+PID6=$!
 sleep 10
 python -m contrib.vid_capture &
 PID5=$!
 
 sleep 30
 kill $PID1
-kill $PID2
-kill $PID3
+#kill $PID2
+#kill $PID3
 kill $PID4
 kill $PID5
+kill $PID6
 
 sleep 3
 
