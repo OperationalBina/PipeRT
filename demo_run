@@ -14,10 +14,12 @@ PID1=$!
 #PID2=$!
 #python -m contrib.canny -i camera:0 -o camera:1 -z 4244 &
 #PID3=$!
-python -m contrib.yolov3 -i camera:0 -o camera:2 -z 4243 &
-PID4=$!
-python -m contrib.sort -i camera:2 -o camera:3 -z 4247 --window-size 10 --percent-seen 0.4 &
-PID6=$!
+python -m contrib.face_detection -i camera:0 -o camera:3 -z 4243 &
+PID7=$!
+#python -m contrib.yolov3 -i camera:0 -o camera:2 -z 4243 &
+#PID4=$!
+#python -m contrib.sort -i camera:2 -o camera:3 -z 4247 --max-age 10 --window-size 10 --percent-seen 0.4 &
+#PID6=$!
 sleep 10
 python -m contrib.vid_capture &
 PID5=$!
@@ -26,9 +28,10 @@ sleep 30
 kill $PID1
 #kill $PID2
 #kill $PID3
-kill $PID4
+#kill $PID4
 kill $PID5
-kill $PID6
+#kill $PID6
+kill $PID7
 
 sleep 3
 
