@@ -119,7 +119,7 @@ class VisLogic(RoutineMixin):
         # TODO implement input that takes both frame and metadata
         try:
             image, instances = self.in_queue.get(block=False)
-            if instances:
+            if instances is not None:
                 image = self.vis.draw_instance_predictions(image, instances).get_image()
             # print(type(new_image))
             # print(max(new_image))

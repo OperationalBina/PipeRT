@@ -1,5 +1,5 @@
 # import the necessary packages
-from base import BaseComponent
+from src.base import BaseComponent
 from queue import Queue, Full, Empty
 import argparse
 from urllib.parse import urlparse
@@ -7,11 +7,11 @@ import zerorpc
 import gevent
 import numpy as np
 import signal
-from core.routine_engine import RoutineMixin
-from core.mini_logics import Frames2Redis, Listen2Stream, add_logic_to_thread
+from src.core.routine_engine import RoutineMixin
+from src.core.mini_logics import Frames2Redis, Listen2Stream, add_logic_to_thread
 import cv2
-from core.routine_engine import Events
-from core.handlers import tick, tock
+from src.core.routine_engine import Events
+from src.core.handlers import tick, tock
 import logging
 import sys
 

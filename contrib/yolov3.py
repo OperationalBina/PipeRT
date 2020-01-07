@@ -107,13 +107,16 @@ class YoloV3Logic(RoutineMixin):
                 res.set("scores", det[:, 4])
                 res.set("class_scores", det[:, 5])
                 res.set("pred_classes", det[:, 6].round().int())
+            else:
+                res = Instances(im0.shape)
+                res.set("pred_boxes", [])
 
-                try:
-                    self.out_queue.get(block=False)
-                    self.state.dropped += 1
-                except Empty:
-                    pass
-                self.out_queue.put(res.to("cpu"), block=False)
+            try:
+                self.out_queue.get(block=False)
+                self.state.dropped += 1
+            except Empty:
+                pass
+            self.out_queue.put(res.to("cpu"), block=False)
             return True
 
         except Empty:

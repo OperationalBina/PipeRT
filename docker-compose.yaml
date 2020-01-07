@@ -1,12 +1,15 @@
-version: '2'
+version: '2.3'
 services:
   redisedge:
     build: ./redisedge
     ports:
       - 6379:6379
   init:
-    build: contrib/canny_demo
+    build: ./contrib
+    runtime: nvidia
     depends_on:
       - redisedge
-    command: ['canny_init.py', '--url', 'redis://redisedge:6379']
+    ports:
+    - 5000:5000
+    command: ['run_contrib_app']
 

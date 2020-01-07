@@ -23,10 +23,12 @@ class VideoCapture(BaseComponent):
 
         t_stream_class = add_logic_to_thread(Listen2Stream)
         t_update_class = add_logic_to_thread(Frames2Redis)
+        print(stream_address)
         t_stream = t_stream_class(self.stop_event, stream_address, self.queue, fps, name="capture_frame")
         t_upload = t_update_class(self.stop_event, out_key, redis_url, self.queue, maxlen, name="upload_redis")
 
         self.thread_list = [t_stream, t_upload]
+
         # for t in self.thread_list:
         #     t.add_event_handler(Events.BEFORE_LOGIC, tick)
         #     t.add_event_handler(Events.AFTER_LOGIC, tock)
@@ -49,7 +51,7 @@ class VideoCapture(BaseComponent):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('infile', help='Input file (leave empty to use webcam)', nargs='?', type=str, default=None)
+    parser.add_argument('-i', '--infile', help='Input file (leave empty to use webcam)', nargs='?', type=str, default=None)
     parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:0')
     parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
     parser.add_argument('-w', '--webcam', help='Webcam device number', type=int, default=0)

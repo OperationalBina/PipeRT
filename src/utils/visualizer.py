@@ -92,10 +92,13 @@ class VideoVisualizer:
         Returns:
             output (VisImage): image object with visualizations.
         """
+
         frame_visualizer = Visualizer(frame, self.metadata)
-        num_instances = len(predictions)
-        if num_instances == 0:
+        if not predictions.has("pred_boxes"):
             return frame_visualizer.output
+        num_instances = len(predictions)
+        # if num_instances == 0:
+        #     return frame_visualizer.output
 
         boxes = predictions.pred_boxes.tensor.numpy() if predictions.has("pred_boxes") else None
         scores = predictions.scores if predictions.has("scores") else None

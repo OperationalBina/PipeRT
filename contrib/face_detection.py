@@ -40,17 +40,17 @@ class FaceDetLogic(RoutineMixin):
                 new_instances = Instances(frame.shape[:2])
                 new_instances.set("pred_boxes", Boxes(faces))
                 new_instances.set("pred_classes", torch.zeros(faces.size(0)).int())
+            else:
+                new_instances = Instances(frame.shape[:2])
+                new_instances.set("pred_classes", [])
 
-                try:
-                    self.out_queue.get(block=False)
-                    self.state.dropped += 1
-                except Empty:
-                    pass
-                self.out_queue.put(new_instances)
-                return True
-            # except Full:
-
-            return False
+            try:
+                self.out_queue.get(block=False)
+                self.state.dropped += 1
+            except Empty:
+                pass
+            self.out_queue.put(new_instances)
+            return True
 
         except Empty:
             time.sleep(0)

@@ -6,7 +6,7 @@ import redis
 import io
 import numpy as np
 from PIL import Image
-# from imutils import resize
+from imutils import resize
 from src.utils.image_enc_dec import *
 from detectron2.utils.video_visualizer import VideoVisualizer
 from detectron2.data import MetadataCatalog
@@ -17,16 +17,17 @@ class Listen2Stream(RoutineMixin):
     def __init__(self, stop_event, stream_address, queue, fps=30., *args, **kwargs):
         super().__init__(stop_event, *args, **kwargs)
         self.stream_address = stream_address
-        self.isFile = not str(stream_address).isdecimal()
+        self.isFile = str(stream_address).endswith("mp4")
         self.stream = None
         # self.stream = cv2.VideoCapture(self.stream_address)
         self.queue = queue
         self.fps = fps
 
     def main_logic(self, *args, **kwargs):
+        start = time.time()
         grabbed, frame = self.stream.read()
         if grabbed:
-            # frame = resize(frame, 400)
+            frame = resize(frame, 640, 480)
             if not self.isFile:
                 frame = cv2.flip(frame, 1)
             try:
@@ -35,6 +36,9 @@ class Listen2Stream(RoutineMixin):
                 pass
             finally:
                 self.queue.put(frame)
+                if self.isFile:
+                    wait = time.time() - start
+                    time.sleep(max(1 / self.fps - wait, 0))
                 # self.queue.put(frame, block=False)
                 time.sleep(0)
                 return True
@@ -52,14 +56,17 @@ class Listen2Stream(RoutineMixin):
 
     def setup(self, *args, **kwargs):
         self.stream = cv2.VideoCapture(self.stream_address)
-        if not self.isFile:
-            self.stream.set(cv2.CAP_PROP_FPS, self.fps)
-            # TODO: some cameras don't respect the fps directive
-            # TODO: needs better video resolution
-            # self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
-            # self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
-        else:
+        if self.isFile:
             self.fps = self.stream.get(cv2.CAP_PROP_FPS)
+            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        #     self.stream.set(cv2.CAP_PROP_FPS, self.fps)
+        #     # TODO: some cameras don't respect the fps directive
+        #     # TODO: needs better video resolution
+        #     # self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
+        #     # self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
+        # else:
+        #     self.fps = self.stream.get(cv2.CAP_PROP_FPS)
 
     def cleanup(self, *args, **kwargs):
         self.stream.release()

@@ -22,17 +22,22 @@ class InstancesSort(Sort):
 
     def update_instances(self, instances: Instances):
         im_size = instances.image_size
-        boxes = instances.get("pred_boxes").tensor.cpu().numpy()
-        scores = instances.get("scores").cpu().unsqueeze(1).numpy()
-        pred_classes = instances.get("pred_classes").cpu().unsqueeze(1).numpy()
-        dets = np.concatenate((boxes, scores, pred_classes), axis=1)
+        tracks = None
+        if len(instances):
+            boxes = instances.get("pred_boxes").tensor.cpu().numpy()
+            scores = instances.get("scores").cpu().unsqueeze(1).numpy()
+            pred_classes = instances.get("pred_classes").cpu().unsqueeze(1).numpy()
+            dets = np.concatenate((boxes, scores, pred_classes), axis=1)
+            tracks = self.update(dets)
 
-        tracks = torch.tensor(self.update(dets))
         ret_tracks = Instances(im_size)
-        ret_tracks.set("pred_boxes", Boxes(tracks[:, :4]))
-        ret_tracks.set("scores", tracks[:, 4])
-        ret_tracks.set("pred_classes", tracks[:, 5].round().int())
-        ret_tracks.set("track_ids", tracks[:, -1].int())
+        if tracks is not None:
+            tracks = torch.tensor(tracks)
+            ret_tracks.set("pred_boxes", Boxes(tracks[:, :4]))
+            ret_tracks.set("scores", tracks[:, 4])
+            if tracks.shape[0] != 0:
+                ret_tracks.set("pred_classes", tracks[:, 5].round().int())
+                ret_tracks.set("track_ids", tracks[:, -1].int())
 
         return ret_tracks
 

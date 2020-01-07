@@ -282,4 +282,5 @@ class Sort:
                           f"; deleted tracks-{len(to_del)}; matched-{len(matched)}; returned-{len(ret)}")
         if len(ret) > 0:
             return np.concatenate(ret)
-        return np.empty((0, 5))
+        # return np.empty((0, 5))
+        return None
