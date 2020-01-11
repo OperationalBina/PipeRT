@@ -1,9 +1,9 @@
 import argparse
 # from sys import platform
-from contrib.detection_demo.models import *  # set ONNX_EXPORT in models.py
+from pipert.contrib.detection_demo.models import *  # set ONNX_EXPORT in models.py
 # from detection_demo.utils.datasets import *
-from contrib.detection_demo.parse_config import parse_data_cfg
-from contrib.detection_demo.utils import *
+from pipert.contrib.detection_demo.parse_config import parse_data_cfg
+from pipert.contrib.detection_demo.utils import *
 from pipert.core.routine import Routine
 from pipert.core.mini_logics import FramesFromRedis, add_logic_to_thread, Metadata2Redis
 from pipert.core.component import BaseComponent

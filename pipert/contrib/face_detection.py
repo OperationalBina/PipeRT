@@ -56,7 +56,7 @@ class FaceDetLogic(Routine):
             return False
 
     def setup(self, *args, **kwargs):
-        casc_path = "/home/itamar/PycharmProjects/PipeRT/contrib/face_detect/haarcascade_frontalface_default.xml"
+        casc_path = "/pipert/contrib/face_detect/haarcascade_frontalface_default.xml"
         self.face_cas = cv2.CascadeClassifier(casc_path)
         self.state.dropped = 0
 

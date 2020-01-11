@@ -3,7 +3,11 @@ import time
 from queue import Empty, Full
 import redis
 from imutils import resize
-from pipert.utils.image_enc_dec import *
+from pipert.utils.image_enc_dec import metadata_decode, metadata_encode
+import cv2
+import numpy as np
+import io
+from PIL import Image
 
 
 class Listen2Stream(Routine):
@@ -88,7 +92,7 @@ class Frames2Redis(Routine):
                 'count': self.state.count,
                 'image': data.tobytes()
             }
-            _id = self.conn.xadd(self.out_key, msg, maxlen=self.maxlen)
+            _ = self.conn.xadd(self.out_key, msg, maxlen=self.maxlen)
             time.sleep(0)
             return True
         except Empty:
@@ -132,9 +136,6 @@ class FramesFromRedis(Routine):
             if self.negative:
                 arr = 255 - arr
 
-            # last_id = cmsg[0][0].decode('utf-8')
-            # label = f'{self.in_key}:{last_id}'
-            # cv2.putText(arr, label, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 1, cv2.LINE_AA)
             try:
                 self.queue.put(arr, block=False)
                 return True
@@ -219,7 +220,7 @@ class Metadata2Redis(Routine):
                 "count": self.state.count,
                 f"{self.field}": data_msg
             }
-            _id = self.conn.xadd(self.out_key, msg, maxlen=self.maxlen)
+            _ = self.conn.xadd(self.out_key, msg, maxlen=self.maxlen)
             return True
         except Empty:
             time.sleep(0)  # yield the control of the thread

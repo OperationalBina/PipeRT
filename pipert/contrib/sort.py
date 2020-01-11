@@ -1,4 +1,4 @@
-from contrib.sort_tracker.sort import Sort
+from pipert.contrib.sort_tracker.sort import Sort
 import torch
 from detectron2.structures import Instances, Boxes
 import numpy as np

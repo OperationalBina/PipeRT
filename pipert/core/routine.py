@@ -6,14 +6,16 @@ import torch.multiprocessing as mp
 
 
 class Events(Enum):
-    """Events that are fired by the :class:`~core.RoutineInterface` during execution."""
+    """Events that are fired by the :class:`~core.RoutineInterface` during
+    execution."""
     BEFORE_LOGIC = "before_logic"
     AFTER_LOGIC = "after_logic"
     EXCEPTION_RAISED = "exception_raised"
 
 
 class State(object):
-    """An object that is used to pass internal and user-defined state between event handlers."""
+    """An object that is used to pass internal and user-defined state between
+    event handlers."""
 
     event_to_attr = {
         Events.BEFORE_LOGIC: "loop",
@@ -40,7 +42,8 @@ class Routine:
         self.name = name
         self.stop_event: mp.Event = None
         self._event_handlers = defaultdict(list)
-        self.logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
+        self.logger = logging.getLogger(__name__ + "." +
+                                        self.__class__.__name__)
         self.logger.addHandler(logging.NullHandler())
         self.state = None
         self._allowed_events = []
@@ -52,10 +55,11 @@ class Routine:
         """Add events that can be fired.
 
         Registering an event will let the user fire these events at any point.
-        This opens the door to make the :meth:`~ignite.engine.Engine.run` loop even more
-        configurable.
+        This opens the door to make the :meth:`~ignite.engine.Engine.run` loop
+        even more configurable.
 
-        By default, the events from :class:`~ignite.engine.Events` are registerd.
+        By default, the events from :class:`~ignite.engine.Events` are
+        registerd.
 
         Args:
             *event_names: An object (ideally a string or int) to define the
@@ -79,21 +83,25 @@ class Routine:
             self._allowed_events.append(name)
 
     def add_event_handler(self, event_name, handler, *args, **kwargs):
-        """Add an event handler to be executed when the specified event is fired.
+        """Add an event handler to be executed when the specified event is
+        fired.
 
         Args:
-            event_name: An event to attach the handler to. Valid events are from :class:`~ignite.engine.Events`
-                or any `event_name` added by :meth:`~ignite.engine.Engine.register_events`.
-            handler (callable): the callable event handler that should be invoked
+            event_name: An event to attach the handler to. Valid events are
+            from :class:`~ignite.engine.Events` or any `event_name` added by
+             :meth:`~ignite.engine.Engine.register_events`.
+            handler (callable): the callable event handler that
+            should be invoked
             *args: argsional args to be passed to `handler`.
             **kwargs: argsional keyword args to be passed to `handler`.
 
         Notes:
-              The handler function's first argument will be `self`, the :class:`~ignite.engine.Engine` object it
-              was bound to.
+              The handler function's first argument will be `self`, the
+              :class:`~ignite.engine.Engine` object it was bound to.
 
-              Note that other arguments can be passed to the handler in addition to the `*args` and  `**kwargs`
-              passed here, for example during :attr:`~ignite.engine.Events.EXCEPTION_RAISED`.
+              Note that other arguments can be passed to the handler in
+              addition to the `*args` and  `**kwargs` passed here, for example
+               during :attr:`~ignite.engine.Events.EXCEPTION_RAISED`.
 
         Example usage:
 
@@ -108,12 +116,10 @@ class Routine:
 
         """
         if event_name not in self._allowed_events:
-            self.logger.error("attempt to add event handler to an invalid event %s.", event_name)
-            raise ValueError("Event {} is not a valid event for this Engine.".format(event_name))
-
-        # event_args = (Exception(), ) if event_name == Events.EXCEPTION_RAISED else ()
-        # TODO - is _check_signature really needed?
-        # self._check_signature(handler, 'handler', *(event_args + args), **kwargs)
+            self.logger.error("attempt to add event handler to an invalid "
+                              "event %s.", event_name)
+            raise ValueError("Event {} is not a valid event for this "
+                             "Engine.".format(event_name))
 
         self._event_handlers[event_name].append((handler, args, kwargs))
         self.logger.debug("added handler for event %s.", event_name)
@@ -139,28 +145,32 @@ class Routine:
         return False
 
     def remove_event_handler(self, handler, event_name):
-        """Remove event handler `handler` from registered handlers of the engine
+        """Remove event handler `handler` from registered handlers of the
+        engine
 
         Args:
-            handler (callable): the callable event handler that should be removed
+            handler (callable): the callable event handler that should
+            be removed
             event_name: The event the handler attached to.
 
         """
         if event_name not in self._event_handlers:
-            raise ValueError("Input event name '{}' does not exist".format(event_name))
+            raise ValueError(f"Input event name '{event_name}' does not exist")
 
-        new_event_handlers = [(h, args, kwargs) for h, args, kwargs in self._event_handlers[event_name]
-                              if h != handler]
+        new_event_handlers = [(h, args, kwargs) for h, args, kwargs in
+                              self._event_handlers[event_name] if h != handler]
         if len(new_event_handlers) == len(self._event_handlers[event_name]):
-            raise ValueError("Input handler '{}' is not found among registered event handlers".format(handler))
+            raise ValueError("Input handler '{}' is not found among registered"
+                             " event handlers".format(handler))
         self._event_handlers[event_name] = new_event_handlers
 
     def on(self, event_name, *args, **kwargs):
         """Decorator shortcut for add_event_handler.
 
         Args:
-            event_name: An event to attach the handler to. Valid events are from :class:`~ignite.engine.Events` or
-                any `event_name` added by :meth:`~ignite.engine.Engine.register_events`.
+            event_name: An event to attach the handler to. Valid events are
+            from :class:`~ignite.engine.Events` or any `event_name` added by
+             :meth:`~ignite.engine.Engine.register_events`.
             *args: argsional args to be passed to `handler`.
             **kwargs: argsional keyword args to be passed to `handler`.
 
@@ -176,14 +186,17 @@ class Routine:
         This method executes all handlers associated with the event
         `event_name`. Optional positional and keyword arguments can be used to
         pass arguments to **all** handlers added with this event. These
-        aguments updates arguments passed using :meth:`~ignite.engine.Engine.add_event_handler`.
+        aguments updates arguments passed using
+        :meth:`~ignite.engine.Engine.add_event_handler`.
 
         Args:
             event_name: event for which the handlers should be executed. Valid
-                events are from :class:`~ignite.engine.Events` or any `event_name` added by
-                :meth:`~ignite.engine.Engine.register_events`.
+                events are from :class:`~ignite.engine.Events` or any
+                `event_name` added by
+                 :meth:`~ignite.engine.Engine.register_events`.
             *event_args: argsional args to be passed to all handlers.
-            **event_kwargs: argsional keyword args to be passed to all handlers.
+            **event_kwargs: argsional keyword args to be passed to
+            all handlers.
 
         """
         if event_name in self._allowed_events:

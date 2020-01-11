@@ -12,5 +12,6 @@ def tick(routine: Routine):
 
 def tock(routine: Routine):
     if routine.state.output:
-        logging.getLogger().debug(f"routine {routine.name} iteration {routine.state.count} took"
-                                  f" {np.round(time.time() - routine.state.tick, 4)} seconds")
+        msg = f"routine {routine.name} iteration {routine.state.count} took" \
+              f" {np.round(time.time() - routine.state.tick, 4)} seconds"
+        logging.getLogger().debug(msg)

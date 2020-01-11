@@ -8,7 +8,7 @@ redis-server /etc/redis/6379.conf
 redis-cli flushall
 sleep 1
 
-python -m contrib.flask_display -i camera:0 -m camera:3 -z 4246 &
+python -m pipert.contrib.flask_display -i camera:0 -m camera:3 -z 4246 &
 PID1=$!
 #python -m contrib.cv2_display -i camera:1 -z 4245 &
 #PID2=$!
@@ -22,7 +22,7 @@ PID1=$!
 #PID6=$!
 #sleep 10
 #python -m contrib.vid_capture -i contrib/test.mp4 &
-python -m contrib.vid_capture &
+python -m pipert.contrib.vid_capture &
 PID5=$!
 
 sleep 20

@@ -29,11 +29,6 @@ class BaseComponent:
         starts running them.
         """
         for routine in self._routines:
-            # if isinstance(routine, Routine):
-            #     routine.runner.daemon = True
-            # elif isinstance(routine, (Process, Thread)):
-            #     routine.daemon = True
-
             routine.start()
 
     def run(self):

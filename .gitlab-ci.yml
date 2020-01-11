@@ -1,0 +1,10 @@
+image: python:3.6
+
+stages:
+  - lint check
+
+tests:
+  stage: lint check
+  script:
+    - pip install flake8
+    - flake8 pipert/core/

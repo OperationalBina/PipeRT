@@ -1,9 +1,8 @@
 import torch.nn.functional as F
-from torch import nn
 
-from contrib.detection_demo.parse_config import *
-from contrib.detection_demo import torch_utils
-from contrib.detection_demo.utils import *
+from pipert.contrib.detection_demo.parse_config import *
+from pipert.contrib.detection_demo import torch_utils
+from pipert.contrib.detection_demo.utils import *
 
 # from utils.google_utils import *
 

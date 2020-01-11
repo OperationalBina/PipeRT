@@ -5,7 +5,7 @@ services:
     ports:
       - 6379:6379
   init:
-    build: ./contrib
+    build: pipert/contrib
     runtime: nvidia
     depends_on:
       - redisedge
