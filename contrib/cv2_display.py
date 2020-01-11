@@ -1,4 +1,4 @@
-from src.base import BaseComponent
+from pipert.core.component import BaseComponent
 from queue import Queue
 import argparse
 import redis
@@ -6,11 +6,9 @@ from urllib.parse import urlparse
 import zerorpc
 import gevent
 import signal
-from src.core.routine_engine import Events
-from src.core.mini_logics import FramesFromRedis, DisplayCV2, add_logic_to_thread
-from src.core.handlers import tick, tock
-import logging
-import sys
+from pipert.core.routine import Events
+from pipert.core.mini_logics import FramesFromRedis, DisplayCV2, add_logic_to_thread
+from pipert.core.handlers import tick, tock
 
 
 class CV2VideoDisplay(BaseComponent):

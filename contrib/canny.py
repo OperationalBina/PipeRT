@@ -4,16 +4,16 @@ import numpy as np
 from queue import Empty, Queue
 import time
 from scipy.signal.windows import gaussian
-from src.base import BaseComponent
-from src.core.routine_engine import RoutineMixin, Events
-from src.core.handlers import tick, tock
-from src.core.mini_logics import add_logic_to_thread, FramesFromRedis, Frames2Redis
+from pipert.core.component import BaseComponent
+from pipert.core.routine import Routine, Events
+from pipert.core.handlers import tick, tock
+from pipert.core.mini_logics import add_logic_to_thread, FramesFromRedis, Frames2Redis
 import zerorpc
 import argparse
 from urllib.parse import urlparse
 import gevent
 import signal
-import logging
+from pipert import BaseComponent, Routine
 
 
 class Net(nn.Module):
@@ -164,7 +164,7 @@ class Net(nn.Module):
         return thresholded
 
 
-class CannyLogic(RoutineMixin):
+class CannyLogic(Routine):
 
     def __init__(self, stop_event, in_queue, out_queue, use_cuda, *args, **kwargs):
         super().__init__(stop_event, *args, **kwargs)

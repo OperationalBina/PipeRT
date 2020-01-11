@@ -1,22 +1,21 @@
-# import sys
 import argparse
 import redis
 from urllib.parse import urlparse
 from flask import Flask, Response, request
-from src.base import BaseComponent
-from src.core.routine_engine import RoutineMixin
+from pipert.core.component import BaseComponent
+from pipert.core.routine import Routine
+import os
 import zerorpc
 import gevent
 import signal
-from src.core.mini_logics import add_logic_to_thread
 from queue import Empty, Full
 from multiprocessing import Process, Queue
 import cv2
-from src.utils.visualizer import VideoVisualizer
-# from detectron2.utils.video_visualizer import VideoVisualizer
+from pipert.utils.visualizer import VideoVisualizer
 from detectron2.data import MetadataCatalog
-from src.utils.image_enc_dec import image_decode, metadata_decode
+from pipert.utils.image_enc_dec import image_decode, metadata_decode
 import time
+import sys
 import requests
 
 
@@ -37,10 +36,10 @@ def gen(q):
             time.sleep(0)
 
 
-class MetaAndFrameFromRedis(RoutineMixin):
+class MetaAndFrameFromRedis(Routine):
 
-    def __init__(self, stop_event, in_key_meta, in_key_im, url, queue, field, *args, **kwargs):
-        super().__init__(stop_event, *args, **kwargs)
+    def __init__(self, in_key_meta, in_key_im, url, queue, field, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.in_key_meta = in_key_meta
         self.in_key_im = in_key_im
         self.url = url
@@ -88,13 +87,6 @@ class MetaAndFrameFromRedis(RoutineMixin):
             self.queue.put((arr, instances))
             return True
 
-                # try:
-                #     self.queue.get(block=False)
-                # except Empty:
-                #     pass
-                # finally:
-                #     return True
-
         else:
             time.sleep(0)
             return False
@@ -108,9 +100,9 @@ class MetaAndFrameFromRedis(RoutineMixin):
         self.conn.close()
 
 
-class VisLogic(RoutineMixin):
-    def __init__(self, stop_event, in_queue, out_queue, *args, **kwargs):
-        super().__init__(stop_event, *args, **kwargs)
+class VisLogic(Routine):
+    def __init__(self, in_queue, out_queue, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.in_queue = in_queue
         self.out_queue = out_queue
         self.vis = VideoVisualizer(MetadataCatalog.get("coco_2017_train"))
@@ -155,17 +147,17 @@ class VisLogic(RoutineMixin):
 
 class FlaskVideoDisplay(BaseComponent):
 
-    def __init__(self, output_key, in_key_meta, in_key_im, redis_url, field):
-        super().__init__(output_key, in_key_meta)
-
+    def __init__(self, in_key_meta, in_key_im, redis_url, field, endpoint):
+        super().__init__(endpoint)
         self.field = field  # .encode('utf-8')
         self.queue = Queue(maxsize=1)
-        t_get_class = add_logic_to_thread(MetaAndFrameFromRedis)
-        self.t_get = t_get_class(self.stop_event, in_key_meta, in_key_im, redis_url, self.queue, self.field, name="get_frames")
+        self.t_get = MetaAndFrameFromRedis(in_key_meta, in_key_im, redis_url, self.queue, self.field, name="get_frames")
+        self.t_get.as_thread()
+        self.register_routine(self.t_get)
 
         self.queue2 = Queue(maxsize=1)
-        t_vis_class = add_logic_to_thread(VisLogic)
-        self.t_vis = t_vis_class(self.stop_event, self.queue, self.queue2)
+        self.t_vis = VisLogic(self.queue, self.queue2).as_thread()
+        self.register_routine(self.t_vis)
 
         app = Flask(__name__)
 
@@ -180,36 +172,21 @@ class FlaskVideoDisplay(BaseComponent):
                 raise RuntimeError('Not running with the Werkzeug Server')
             func()
 
-        @app.route('/shutdown', methods=['POST'])
+        @app.route('/shutdown')
         def shutdown():
+            # app.do_teardown_appcontext()
             shutdown_server()
             return 'Server shutting down...'
 
         self.server = Process(target=app.run, kwargs={"host": '0.0.0.0'})
+        self.register_routine(self.server)
 
-        self.routine = [self.t_get, self.t_vis, self.server]
-
-        #
-        # for t in self.thread_list:
-        #     t.add_event_handler(Events.BEFORE_LOGIC, tick)
-        #     t.add_event_handler(Events.AFTER_LOGIC, tock)
-
-        self._start()
-
-    def _start(self):
-
-        for t in self.routine:
-            t.daemon = True
-            t.start()
-        return self
-
-    def _inner_stop(self):
-        # self.server.kill()
-        rsp = requests.post("http://127.0.0.1:5000/shutdown")
-        time.sleep(0.5)
+    def _teardown_callback(self, *args, **kwargs):
         # self.server.terminate()
-        for t in self.routine:
-            t.join()
+        _ = requests.get("http://127.0.0.1:5000/shutdown")
+        self.server.terminate()
+        # print("kill!!!")
+        # self.server.kill()
 
     def flip_im(self):
         self.t_get.flip = not self.t_get.flip
@@ -232,10 +209,7 @@ if __name__ == '__main__':
     conn = redis.Redis(host=url.hostname, port=url.port)
     if not conn.ping():
         raise Exception('Redis unavailable')
-
-    zpc = zerorpc.Server(FlaskVideoDisplay(None, args.input_meta, args.input_im, url, args.field))
-    zpc.bind(f"tcp://0.0.0.0:{args.zpc}")
+    zpc = FlaskVideoDisplay(args.input_meta, args.input_im, url, args.field, endpoint=f"tcp://0.0.0.0:{args.zpc}")
     print("run flask")
-    gevent.signal(signal.SIGTERM, zpc.stop)
     zpc.run()
     print("Killed")

@@ -2,7 +2,7 @@ from contrib.sort_tracker.sort import Sort
 import torch
 from detectron2.structures import Instances, Boxes
 import numpy as np
-from src.base import BaseComponent
+from pipert.core.component import BaseComponent
 from queue import Queue, Empty
 import argparse
 from urllib.parse import urlparse
@@ -10,8 +10,8 @@ import zerorpc
 import gevent
 import signal
 import time
-from src.core.routine_engine import RoutineMixin
-from src.core.mini_logics import add_logic_to_thread, Metadata2Redis, MetadataFromRedis
+from pipert.core.routine import Routine
+from pipert.core.mini_logics import add_logic_to_thread, Metadata2Redis, MetadataFromRedis
 
 
 class InstancesSort(Sort):
@@ -42,7 +42,7 @@ class InstancesSort(Sort):
         return ret_tracks
 
 
-class SORTLogic(RoutineMixin):
+class SORTLogic(Routine):
 
     def __init__(self, stop_event, in_queue, out_queue, *args, **kwargs):
         super().__init__(stop_event, *args, **kwargs)

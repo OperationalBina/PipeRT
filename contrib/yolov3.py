@@ -3,11 +3,10 @@ import argparse
 from contrib.detection_demo.models import *  # set ONNX_EXPORT in models.py
 # from detection_demo.utils.datasets import *
 from contrib.detection_demo.parse_config import parse_data_cfg
-from contrib.detection_demo.torch_utils import*
 from contrib.detection_demo.utils import *
-from src.core.routine_engine import RoutineMixin
-from src.core.mini_logics import FramesFromRedis, add_logic_to_thread, Metadata2Redis
-from src.base import BaseComponent
+from pipert.core.routine import Routine
+from pipert.core.mini_logics import FramesFromRedis, add_logic_to_thread, Metadata2Redis
+from pipert.core.component import BaseComponent
 import time
 from queue import Empty, Queue
 from urllib.parse import urlparse
@@ -54,7 +53,7 @@ def letterbox(img, new_shape=416, color=(128, 128, 128), mode='auto'):
     return img, ratiow, ratioh, dw, dh
 
 
-class YoloV3Logic(RoutineMixin):
+class YoloV3Logic(Routine):
 
     def __init__(self, stop_event, in_queue, out_queue, *args, **kwargs):
         super().__init__(stop_event, *args, **kwargs)
@@ -162,9 +161,9 @@ class YoloV3(BaseComponent):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cfg', type=str, default='/home/itamar/PycharmProjects/Inference/src/yolov3_demo/yolov3.cfg', help='cfg file path')
-    parser.add_argument('--data', type=str, default='/home/itamar/PycharmProjects/Inference/src/yolov3_demo/coco.data', help='coco.data file path')
-    parser.add_argument('--weights', type=str, default='/home/itamar/PycharmProjects/Inference/src/yolov3_demo/yolov3.weights', help='path to weights file')
+    parser.add_argument('--cfg', type=str, default='/home/itamar/PycharmProjects/Inference/pipert/yolov3_demo/yolov3.cfg', help='cfg file path')
+    parser.add_argument('--data', type=str, default='/home/itamar/PycharmProjects/Inference/pipert/yolov3_demo/coco.data', help='coco.data file path')
+    parser.add_argument('--weights', type=str, default='/home/itamar/PycharmProjects/Inference/pipert/yolov3_demo/yolov3.weights', help='path to weights file')
     parser.add_argument('--source', type=str, default='0', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('-i', '--input', help='Input stream key name', type=str, default='camera:0')
     parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:2')

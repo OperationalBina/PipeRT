@@ -1,7 +1,6 @@
 import torch
 from detectron2.structures import Instances, Boxes
-import numpy as np
-from src.base import BaseComponent
+from pipert.core.component import BaseComponent
 from queue import Queue, Empty
 import argparse
 from urllib.parse import urlparse
@@ -10,11 +9,11 @@ import gevent
 import signal
 import time
 import cv2
-from src.core.routine_engine import RoutineMixin
-from src.core.mini_logics import add_logic_to_thread, Metadata2Redis, FramesFromRedis
+from pipert.core.routine import Routine
+from pipert.core.mini_logics import add_logic_to_thread, Metadata2Redis, FramesFromRedis
 
 
-class FaceDetLogic(RoutineMixin):
+class FaceDetLogic(Routine):
 
     def __init__(self, stop_event, in_queue, out_queue, *args, **kwargs):
         super().__init__(stop_event, *args, **kwargs)

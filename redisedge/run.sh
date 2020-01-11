@@ -1,3 +1,3 @@
 #!/bin/bash
 
-../redis/src/redis-server --loadmodule ../redisai/build/redisai.so --loadmodule ../redistimeseries/src/redistimeseries.so --loadmodule ../redisgears/redisgears.so 
+../redis/pipert/redis-server --loadmodule ../redisai/build/redisai.so --loadmodule ../redistimeseries/pipert/redistimeseries.so --loadmodule ../redisgears/redisgears.so

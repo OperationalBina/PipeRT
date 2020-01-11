@@ -1,21 +1,15 @@
-from src.core.routine_engine import ExtendedProcess, ExtendedThread, RoutineMixin
+from pipert.core.routine import Routine
 import time
-import cv2
 from queue import Empty, Full
 import redis
-import io
-import numpy as np
-from PIL import Image
 from imutils import resize
-from src.utils.image_enc_dec import *
-from detectron2.utils.video_visualizer import VideoVisualizer
-from detectron2.data import MetadataCatalog
+from pipert.utils.image_enc_dec import *
 
 
-class Listen2Stream(RoutineMixin):
+class Listen2Stream(Routine):
 
-    def __init__(self, stop_event, stream_address, queue, fps=30., *args, **kwargs):
-        super().__init__(stop_event, *args, **kwargs)
+    def __init__(self, stream_address, queue, fps=30., *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.stream_address = stream_address
         self.isFile = str(stream_address).endswith("mp4")
         self.stream = None
@@ -74,15 +68,15 @@ class Listen2Stream(RoutineMixin):
 
 
 # TODO: add Error handling to connection
-class Frames2Redis(RoutineMixin):
+class Frames2Redis(Routine):
 
-    def __init__(self, stop_event, out_key, url, queue, maxlen, *args, **kwargs):
-        super().__init__(stop_event, *args, **kwargs)
+    def __init__(self, out_key, url, queue, maxlen, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.out_key = out_key
         self.url = url
         self.queue = queue
-        # self.maxlen = maxlen
-        self.maxlen = 1
+        self.maxlen = maxlen
+        # self.maxlen = 1
 
         self.conn = None
 
@@ -110,10 +104,10 @@ class Frames2Redis(RoutineMixin):
         self.conn.close()
 
 
-class FramesFromRedis(RoutineMixin):
+class FramesFromRedis(Routine):
 
-    def __init__(self, stop_event, in_key, url, queue, field, *args, **kwargs):
-        super().__init__(stop_event, *args, **kwargs)
+    def __init__(self, in_key, url, queue, field, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.in_key = in_key
         self.url = url
         self.queue = queue
@@ -163,10 +157,10 @@ class FramesFromRedis(RoutineMixin):
         self.conn.close()
 
 
-class MetadataFromRedis(RoutineMixin):
+class MetadataFromRedis(Routine):
 
-    def __init__(self, stop_event, in_key, url, queue, field, *args, **kwargs):
-        super().__init__(stop_event, *args, **kwargs)
+    def __init__(self, in_key, url, queue, field, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.in_key = in_key
         self.url = url
         self.queue = queue
@@ -205,14 +199,14 @@ class MetadataFromRedis(RoutineMixin):
         self.conn.close()
 
 
-class Metadata2Redis(RoutineMixin):
+class Metadata2Redis(Routine):
 
-    def __init__(self, stop_event, out_key, url, queue, field, maxlen, *args, **kwargs):
-        super().__init__(stop_event, *args, **kwargs)
+    def __init__(self, out_key, url, queue, field, maxlen, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.out_key = out_key
         self.url = url
         self.queue = queue
-        self.maxlen = 1
+        self.maxlen = maxlen
         self.field = field
 
         self.conn = None
@@ -240,48 +234,9 @@ class Metadata2Redis(RoutineMixin):
         self.conn.close()
 
 
-# class Visualizer(RoutineMixin):
-#
-#     def __init__(self, stop_event, in_queue, out_queue, *args, **kwargs):
-#         super().__init__(stop_event, *args, **kwargs)
-#         self.in_queue = in_queue
-#         self.out_queue = out_queue
-#         self.vis: VideoVisualizer = None
-#
-#     def main_logic(self, *args, **kwargs):
-#         try:
-#             frame, instances = self.in_queue.get(block=False)
-#
-#             outputs = self.vis.draw_instance_predictions(frame, instances)
-#
-#             # while True:
-#             # try:
-#             try:
-#                 self.out_queue.get(block=False)
-#                 self.state.dropped += 1
-#             except Empty:
-#                 pass
-#             self.out_queue.put(outputs[0])
-#             return True
-#             # except Full:
-#
-#                 # return False
-#
-#         except Empty:
-#             time.sleep(0)
-#             return False
-#
-#     def setup(self, *args, **kwargs):
-#         self.vis = VideoVisualizer(MetadataCatalog.get("coco_2017_train"))
-#         self.state.dropped = 0
-#
-#     def cleanup(self, *args, **kwargs):
-#         pass
-
-
-class DisplayCV2(RoutineMixin):
-    def __init__(self, stop_event, in_key, queue, *args, **kwargs):
-        super().__init__(stop_event, *args, **kwargs)
+class DisplayCV2(Routine):
+    def __init__(self, in_key, queue, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.in_key = in_key
         self.queue = queue
         self.negative = False
@@ -303,9 +258,9 @@ class DisplayCV2(RoutineMixin):
         cv2.destroyAllWindows()
 
 
-class DisplayFlask(RoutineMixin):
-    def __init__(self, stop_event, in_key, queue, *args, **kwargs):
-        super().__init__(stop_event, *args, **kwargs)
+class DisplayFlask(Routine):
+    def __init__(self, in_key, queue, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.in_key = in_key
         self.queue = queue
         self.negative = False
@@ -327,23 +282,3 @@ class DisplayFlask(RoutineMixin):
 
     def cleanup(self, *args, **kwargs):
         cv2.destroyAllWindows()
-
-
-def add_logic_to_thread(logic):
-
-    class ThreadWithLogic(logic, ExtendedThread):
-        def __init__(self, stop_event, *args, **kwargs):
-            logic.__init__(self, stop_event, *args, **kwargs)
-            ExtendedThread.__init__(self, stop_event, *args, **kwargs)
-
-    return ThreadWithLogic
-
-
-def add_logic_to_process(logic):
-
-    class ProcessWithLogic(logic, ExtendedProcess):
-        def __init__(self, stop_event, *args, **kwargs):
-            logic.__init__(self, stop_event, *args, **kwargs)
-            ExtendedProcess.__init__(self, stop_event, *args, **kwargs)
-
-    return ProcessWithLogic

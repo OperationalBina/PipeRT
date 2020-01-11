@@ -1,5 +1,5 @@
 # import the necessary packages
-from src.base import BaseComponent
+from pipert.core.component import BaseComponent
 from queue import Queue, Full, Empty
 import argparse
 from urllib.parse import urlparse
@@ -7,19 +7,14 @@ import zerorpc
 import gevent
 import numpy as np
 import signal
-from src.core.routine_engine import RoutineMixin
-from src.core.mini_logics import Frames2Redis, Listen2Stream, add_logic_to_thread
+from pipert.core.routine import Routine
+from pipert.core.mini_logics import Frames2Redis, add_logic_to_thread
 import cv2
-from src.core.routine_engine import Events
-from src.core.handlers import tick, tock
-import logging
-import sys
 
 import sys
 import traceback
 import tellopy
 import av
-import numpy
 import time
 
 
@@ -63,7 +58,7 @@ import time
 #     main()
 
 
-class DroneVidLogic(RoutineMixin):
+class DroneVidLogic(Routine):
 
     def __init__(self, stop_event, queue, fps=30., *args, **kwargs):
         super().__init__(stop_event, *args, **kwargs)

@@ -2,7 +2,6 @@ from collections import defaultdict
 from enum import Enum
 import logging
 import threading
-from typing import Any, Union
 import torch.multiprocessing as mp
 
 
@@ -34,23 +33,20 @@ class State(object):
         return getattr(self, State.event_to_attr[event_name])
 
 
-class RoutineMixin:
+class Routine:
 
-    # TODO - check if threading event is necessary
-    stop_event: Union[threading.Event, mp.Event]
-    _args: Any
-    _kwargs: Any
-    name: str
+    def __init__(self, name=""):
 
-    def __init__(self, *args, **kwargs):
-
+        self.name = name
+        self.stop_event: mp.Event = None
         self._event_handlers = defaultdict(list)
         self.logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
         self.logger.addHandler(logging.NullHandler())
         self.state = None
         self._allowed_events = []
-
         self.register_events(*Events)
+
+        self.runner = None
 
     def register_events(self, *event_names):
         """Add events that can be fired.
@@ -214,9 +210,9 @@ class RoutineMixin:
     # TODO - replace plain 'setup()' and 'cleanup()' with context manager
     def extended_run(self):
         """
-        The template extending the
-        :param self:
-        :return:
+
+        Returns:
+
         """
         self.state = State()
         # TODO - how to pass different args to setup/cleanup/main_logic?
@@ -224,7 +220,7 @@ class RoutineMixin:
         # TODO - maybe add _fire_event before and after the while loop?
         while not self.stop_event.is_set():
             self._fire_event(Events.BEFORE_LOGIC)
-            self.state.output = self.main_logic(*self._args, **self._kwargs)
+            self.state.output = self.main_logic()
             self.state.count += 1
             if self.state.output:
                 self.state.success += 1
@@ -232,42 +228,13 @@ class RoutineMixin:
 
         self.cleanup()
 
+    def as_thread(self):
+        self.runner = threading.Thread(target=self.extended_run)
+        return self
 
-class ExtendedThread(threading.Thread, RoutineMixin):
+    def as_process(self):
+        self.runner = mp.Process(target=self.extended_run)
+        return self
 
-    def __init__(self, stop_event, *args, **kwargs):
-        self.stop_event = stop_event
-        threading.Thread.__init__(self, **kwargs)
-        RoutineMixin.__init__(self, *args, **kwargs)
-
-    def run(self):
-        self.extended_run()
-
-    def main_logic(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def setup(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def cleanup(self, *args, **kwargs):
-        raise NotImplementedError
-
-
-class ExtendedProcess(mp.Process, RoutineMixin):
-
-    def __init__(self, stop_event, *args, **kwargs):
-        self.stop_event = stop_event
-        mp.Process.__init__(self, **kwargs)
-        RoutineMixin.__init__(self, *args, **kwargs)
-
-    def run(self):
-        self.extended_run()
-
-    def main_logic(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def setup(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def cleanup(self, *args, **kwargs):
-        raise NotImplementedError
+    def start(self):
+        self.runner.start()
