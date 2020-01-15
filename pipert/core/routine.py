@@ -250,4 +250,7 @@ class Routine:
         return self
 
     def start(self):
+        if self.runner is None:
+            # TODO - create better errors
+            raise ValueError("Runner not configured for routine")
         self.runner.start()

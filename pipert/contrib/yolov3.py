@@ -5,7 +5,7 @@ from pipert.contrib.detection_demo.models import *  # set ONNX_EXPORT in models.
 from pipert.contrib.detection_demo.parse_config import parse_data_cfg
 from pipert.contrib.detection_demo.utils import *
 from pipert.core.routine import Routine
-from pipert.core.mini_logics import FramesFromRedis, add_logic_to_thread, Metadata2Redis
+from pipert.core.mini_logics import FramesFromRedis, Metadata2Redis
 from pipert.core.component import BaseComponent
 import time
 from queue import Empty, Queue
@@ -55,8 +55,8 @@ def letterbox(img, new_shape=416, color=(128, 128, 128), mode='auto'):
 
 class YoloV3Logic(Routine):
 
-    def __init__(self, stop_event, in_queue, out_queue, *args, **kwargs):
-        super().__init__(stop_event, *args, **kwargs)
+    def __init__(self, in_queue, out_queue, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.in_queue = in_queue
         self.out_queue = out_queue
         self.img_size = (320, 192) if ONNX_EXPORT else opt.img_size  # (320, 192) or (416, 256) or (608, 352)
@@ -131,39 +131,25 @@ class YoloV3Logic(Routine):
 
 class YoloV3(BaseComponent):
 
-    def __init__(self, out_key, in_key, redis_url, field, maxlen):
-        #cTODO - is field really needed? needs testing
-        super().__init__(out_key, in_key)
+    def __init__(self, endpoint, out_key, in_key, redis_url, field, maxlen):
+        super().__init__(endpoint)
         self.field = field
         self.in_queue = Queue(maxsize=1)
         self.out_queue = Queue(maxsize=1)
-        t_get_class = add_logic_to_thread(FramesFromRedis)
-        t_det_class = add_logic_to_thread(YoloV3Logic)
-        t_send_class = add_logic_to_thread(Metadata2Redis)
 
-        t_get = t_get_class(self.stop_event, in_key, redis_url, self.in_queue, self.field)
-        t_det = t_det_class(self.stop_event, self.in_queue, self.out_queue)
-        t_send = t_send_class(self.stop_event, out_key, redis_url, self.out_queue, "instances", maxlen)
-
-        self.thread_list = [t_get, t_det, t_send]
-        self._start()
-
-    def _start(self):
-        for t in self.thread_list:
-            t.daemon = True
-            t.start()
-        return self
-
-    def _inner_stop(self):
-        for t in self.thread_list:
-            t.join()
+        t_get = FramesFromRedis(in_key, redis_url, self.in_queue, self.field).as_thread()
+        self.register_routine(t_get)
+        t_det = YoloV3Logic(self.in_queue, self.out_queue).as_thread()
+        self.register_routine(t_det)
+        t_send = Metadata2Redis(out_key, redis_url, self.out_queue, "instances", maxlen).as_thread()
+        self.register_routine(t_send)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cfg', type=str, default='/home/itamar/PycharmProjects/Inference/pipert/yolov3_demo/yolov3.cfg', help='cfg file path')
-    parser.add_argument('--data', type=str, default='/home/itamar/PycharmProjects/Inference/pipert/yolov3_demo/coco.data', help='coco.data file path')
-    parser.add_argument('--weights', type=str, default='/home/itamar/PycharmProjects/Inference/pipert/yolov3_demo/yolov3.weights', help='path to weights file')
+    parser.add_argument('--cfg', type=str, default='/home/itamar/PycharmProjects/Inference/src/yolov3_demo/yolov3.cfg', help='cfg file path')
+    parser.add_argument('--data', type=str, default='/home/itamar/PycharmProjects/Inference/src/yolov3_demo/coco.data', help='coco.data file path')
+    parser.add_argument('--weights', type=str, default='/home/itamar/PycharmProjects/Inference/src/yolov3_demo/yolov3.weights', help='path to weights file')
     parser.add_argument('--source', type=str, default='0', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('-i', '--input', help='Input stream key name', type=str, default='camera:0')
     parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:2')
@@ -180,9 +166,7 @@ if __name__ == '__main__':
 
     url = urlparse(opt.url)
 
-    zpc = zerorpc.Server(YoloV3(opt.output, opt.input, url, opt.field, opt.maxlen))
-    zpc.bind(f"tcp://0.0.0.0:{opt.zpc}")
+    zpc = YoloV3(f"tcp://0.0.0.0:{opt.zpc}", opt.output, opt.input, url, opt.field, opt.maxlen)
     print("run")
-    gevent.signal(signal.SIGTERM, zpc.stop)
     zpc.run()
     print("Killed")

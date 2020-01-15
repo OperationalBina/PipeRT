@@ -6,12 +6,9 @@ from pipert.core.component import BaseComponent
 from queue import Queue, Empty
 import argparse
 from urllib.parse import urlparse
-import zerorpc
-import gevent
-import signal
 import time
 from pipert.core.routine import Routine
-from pipert.core.mini_logics import add_logic_to_thread, Metadata2Redis, MetadataFromRedis
+from pipert.core.mini_logics import Metadata2Redis, MetadataFromRedis
 
 
 class InstancesSort(Sort):
@@ -44,8 +41,8 @@ class InstancesSort(Sort):
 
 class SORTLogic(Routine):
 
-    def __init__(self, stop_event, in_queue, out_queue, *args, **kwargs):
-        super().__init__(stop_event, *args, **kwargs)
+    def __init__(self, in_queue, out_queue, *args, **kwargs):
+        super().__init__()
         self.in_queue = in_queue
         self.out_queue = out_queue
         self.sort = InstancesSort(*args, **kwargs)
@@ -78,39 +75,22 @@ class SORTLogic(Routine):
 
 class SORTComponent(BaseComponent):
 
-    def __init__(self, in_key, out_key, redis_url, maxlen=100, *args, **kwargs):
-        super().__init__(out_key, in_key)
+    def __init__(self, endpoint, in_key, out_key, redis_url, maxlen=100, *args, **kwargs):
+        super().__init__(endpoint)
         # TODO: should queue maxsize be configurable?
         self.in_queue = Queue(maxsize=1)
         self.out_queue = Queue(maxsize=1)
-        t_get_meta_class = add_logic_to_thread(MetadataFromRedis)
-        t_sort_class = add_logic_to_thread(SORTLogic)
-        t_upload_meta_class = add_logic_to_thread(Metadata2Redis)
 
-        t_get_meta = t_get_meta_class(self.stop_event, in_key, redis_url, self.in_queue, "instances")
-        t_sort = t_sort_class(self.stop_event, self.in_queue, self.out_queue, *args, **kwargs)
-        t_upload_meta = t_upload_meta_class(self.stop_event, out_key, redis_url, self.out_queue, "instances", maxlen,
-                                            name="upload_redis")
-
-        self.thread_list = [t_get_meta, t_sort, t_upload_meta]
-        # for t in self.thread_list:
-        #     t.add_event_handler(Events.BEFORE_LOGIC, tick)
-        #     t.add_event_handler(Events.AFTER_LOGIC, tock)
-
-        self._start()
-
-    def _start(self):
-        # start the thread to read frames from the video stream and upload to
-        # redis
-
-        for t in self.thread_list:
-            t.daemon = True
-            t.start()
-        return self
-
-    def _inner_stop(self):
-        for t in self.thread_list:
-            t.join()
+        t_get_meta = MetadataFromRedis(in_key, redis_url, self.in_queue, "instances").as_thread()
+        self.register_routine(t_get_meta)
+        print(args)
+        print()
+        print(kwargs)
+        t_sort = SORTLogic(self.in_queue, self.out_queue, *args, **kwargs).as_thread()
+        self.register_routine(t_sort)
+        t_upload_meta = Metadata2Redis(out_key, redis_url, self.out_queue, "instances", maxlen,
+                                       name="upload_redis").as_thread()
+        self.register_routine(t_upload_meta)
 
 
 if __name__ == '__main__':
@@ -130,10 +110,8 @@ if __name__ == '__main__':
 
     url = urlparse(opt.url)
 
-    zpc = zerorpc.Server(SORTComponent(opt.input, opt.output, url, opt.maxlen, opt.max_age, opt.min_hits,
-                                       opt.window_size, opt.percent_seen))
-    zpc.bind(f"tcp://0.0.0.0:{opt.zpc}")
+    zpc = SORTComponent(f"tcp://0.0.0.0:{opt.zpc}", opt.input, opt.output, url, opt.maxlen, opt.max_age, opt.min_hits,
+                        opt.window_size, opt.percent_seen)
     print("run")
-    gevent.signal(signal.SIGTERM, zpc.stop)
     zpc.run()
     print("Killed")
