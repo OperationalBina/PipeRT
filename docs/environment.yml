@@ -1,0 +1,17 @@
+name: PipeRT
+
+channels:
+    - anaconda
+
+dependencies:
+    - python==3.6
+#    - pytorch
+    - pip:
+#        - python-opencv
+#        - redis
+#        - numpy
+#        - zerorpc
+#        - Pillow
+#        - imutils
+#        - Flask
+        - sphinx-autoapi
