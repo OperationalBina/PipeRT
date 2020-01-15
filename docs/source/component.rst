@@ -9,7 +9,7 @@ So any remote (or local) process can connect to the component's zerorpc server a
 in order to flip the video.
 See zerorpc.io_ for more intuitive examples.
 
-.. _zerorpc.io: http://www.python.org/
+.. _zerorpc.io: https://www.zerorpc.io/
 
 .. currentmodule:: pipert.core.component
 
