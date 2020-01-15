@@ -52,7 +52,7 @@ extensions = [
 
 
 autoapi_type = 'python'
-autoapi_dirs = ['path/to/source/files', 'src']
+autoapi_dirs = ['../pipert']
 
 # autodoc_mock_imports = [
 #     'torch',
