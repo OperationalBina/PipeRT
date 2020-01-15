@@ -1,7 +1,7 @@
 # PipeRT Documentation
 
 
-![alt text](images/pipeline_diagram.png "Pipeline Diagram")
+![alt text](docs/source/_static/images/sphx_glr_pipeline_diagram.png "Pipeline Diagram")
 High level diagram of the pipeline
 
 

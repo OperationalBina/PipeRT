@@ -221,7 +221,7 @@ class Routine:
         raise NotImplementedError
 
     # TODO - replace plain 'setup()' and 'cleanup()' with context manager
-    def extended_run(self):
+    def _extended_run(self):
         """
 
         Returns:
@@ -242,11 +242,11 @@ class Routine:
         self.cleanup()
 
     def as_thread(self):
-        self.runner = threading.Thread(target=self.extended_run)
+        self.runner = threading.Thread(target=self._extended_run)
         return self
 
     def as_process(self):
-        self.runner = mp.Process(target=self.extended_run)
+        self.runner = mp.Process(target=self._extended_run)
         return self
 
     def start(self):
