@@ -1,4 +1,6 @@
 # PipeRT
+[![Documentation Status](https://readthedocs.org/projects/pipert/badge/?version=latest)](https://pipert.readthedocs.io/en/latest/?badge=latest)
+
 Real-time pipeline for video analytics.
 
 Structure
