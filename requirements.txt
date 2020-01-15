@@ -1,0 +1,13 @@
+-e git+https://github.com/facebookresearch/detectron2@83670010fdf6a646b77bf0b5cefafa1b804a8c6c#egg=detectron2
+Flask
+future
+fvcore
+imageio
+imutils
+numpy
+opencv-python
+Pillow
+posix-ipc
+redis
+torch
+zerorpc

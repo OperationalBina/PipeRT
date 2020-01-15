@@ -7,7 +7,9 @@ to call them.
 For example, the video display component has a function called "flip_im" which flips the video.
 So any remote (or local) process can connect to the component's zerorpc server and make a call to the "flip_im" function
 in order to flip the video.
-See [zerorpc.io](https://www.zerorpc.io/) for more intuitive examples.
+See zerorpc.io_ for more intuitive examples.
+
+.. _zerorpc.io: http://www.python.org/
 
 .. currentmodule:: pipert.core.component
 

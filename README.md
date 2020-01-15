@@ -11,3 +11,6 @@ Structure
 
 The code in **pipert.contrib** is not as fully maintained as the core part of the library. It may change or be removed at any time without notice.
 
+Documentation
+=============
+API documentation and an overview of the library can be found [here](https://pipert.readthedocs.io/en/latest/).
