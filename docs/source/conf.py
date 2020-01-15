@@ -49,6 +49,17 @@ extensions = [
     "sphinx_rtd_theme"
 ]
 
+autodoc_mock_imports = [
+    'torch',
+    'gevent',
+    'zerorpc',
+    'redis',
+    'numpy',
+    'cv2',
+    'PIL',
+    'imutils'
+]
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
