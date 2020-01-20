@@ -20,8 +20,22 @@ class Listen2Stream(Routine):
         # self.stream = cv2.VideoCapture(self.stream_address)
         self.queue = queue
         self.fps = fps
+        self.updatedConfig = {}
+
+    def changeSourceStream(self):
+        if self.stream_address == self.updatedConfig['stream_address']:
+            return
+
+        self.stream_address = self.updatedConfig['stream_address']
+        self.fps = self.updatedConfig['FPS']
+        self.isFile = str(self.stream_address).endswith("mp4")
+        self.setup()
 
     def main_logic(self, *args, **kwargs):
+        if self.updatedConfig:
+            self.changeSourceStream()
+            self.updatedConfig = {}
+
         start = time.time()
         grabbed, frame = self.stream.read()
         if grabbed:
