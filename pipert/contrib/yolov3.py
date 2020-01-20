@@ -10,12 +10,9 @@ from pipert.core.component import BaseComponent
 import time
 from queue import Empty, Queue
 from urllib.parse import urlparse
-import zerorpc
-import gevent
-import signal
 import cv2
 import torch
-from detectron2.structures import Instances, Boxes
+from pipert.utils.structures import Instances, Boxes
 
 
 def letterbox(img, new_shape=416, color=(128, 128, 128), mode='auto'):

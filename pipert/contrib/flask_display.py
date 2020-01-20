@@ -4,10 +4,6 @@ from urllib.parse import urlparse
 from flask import Flask, Response, request
 from pipert.core.component import BaseComponent
 from pipert.core.routine import Routine
-import os
-import zerorpc
-import gevent
-import signal
 from queue import Empty, Full
 from multiprocessing import Process, Queue
 import cv2
@@ -15,7 +11,6 @@ from pipert.utils.visualizer import VideoVisualizer
 from detectron2.data import MetadataCatalog
 from pipert.utils.image_enc_dec import image_decode, metadata_decode
 import time
-import sys
 import requests
 
 

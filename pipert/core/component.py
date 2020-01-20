@@ -5,6 +5,7 @@ from typing import Union
 import signal
 import gevent
 import zerorpc
+from .errors import RegisteredException
 
 
 class BaseComponent:
@@ -19,6 +20,7 @@ class BaseComponent:
         """
         super().__init__()
         self.stop_event = Event()
+        self.endpoint = endpoint
         self._routines = []
         self.zrpc = zerorpc.Server(self)
         self.zrpc.bind(endpoint)
@@ -51,7 +53,7 @@ class BaseComponent:
             if routine.stop_event is None:
                 routine.stop_event = self.stop_event
             else:
-                raise Exception("routine is already registered")
+                raise RegisteredException("routine is already registered")
         self._routines.append(routine)
 
     def _teardown_callback(self, *args, **kwargs):
@@ -67,11 +69,15 @@ class BaseComponent:
         Signals all the component's routines to stop and then stops the zerorpc
         server.
         """
-        self.zrpc.stop()
-        self.stop_event.set()
-        self._teardown_callback()
-        for routine in self._routines:
-            if isinstance(routine, Routine):
-                routine.runner.join()
-            elif isinstance(routine, (Process, Thread)):
-                routine.join()
+        try:
+            self.zrpc.stop()
+            self.stop_event.set()
+            self._teardown_callback()
+            for routine in self._routines:
+                if isinstance(routine, Routine):
+                    routine.runner.join()
+                elif isinstance(routine, (Process, Thread)):
+                    routine.join()
+            return 0
+        except RuntimeError:
+            return 1

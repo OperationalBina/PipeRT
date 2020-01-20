@@ -20,7 +20,7 @@ python -m pipert.contrib.yolov3 -i camera:0 -o camera:2 -z 4243 &
 PID4=$!
 python -m pipert.contrib.sort -i camera:2 -o camera:3 -z 4247 --max-age 10 --window-size 10 --percent-seen 0.6 &
 PID6=$!
-#sleep 5
+sleep 5
 #python -m contrib.vid_capture -i contrib/test.mp4 &
 python -m pipert.contrib.vid_capture &
 PID5=$!
