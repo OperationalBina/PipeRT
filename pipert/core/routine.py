@@ -3,6 +3,7 @@ from enum import Enum
 import logging
 import threading
 import torch.multiprocessing as mp
+from .errors import NoRunnerException
 
 
 class Events(Enum):
@@ -17,22 +18,10 @@ class State(object):
     """An object that is used to pass internal and user-defined state between
     event handlers."""
 
-    event_to_attr = {
-        Events.BEFORE_LOGIC: "loop",
-        Events.AFTER_LOGIC: "loop"
-    }
-
-    def __init__(self, **kwargs):
+    def __init__(self):
         self.count = 0
         self.success = 0
         self.output = None
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-    def get_event_attrib_value(self, event_name):
-        if event_name not in State.event_to_attr:
-            raise RuntimeError("Unknown event name '{}'".format(event_name))
-        return getattr(self, State.event_to_attr[event_name])
 
 
 class Routine:
@@ -205,12 +194,6 @@ class Routine:
                 kwargs.update(event_kwargs)
                 func(self, *(event_args + args), **kwargs)
 
-    def _handle_exception(self, e):
-        if Events.EXCEPTION_RAISED in self._event_handlers:
-            self._fire_event(Events.EXCEPTION_RAISED, e)
-        else:
-            raise e
-
     def main_logic(self, *args, **kwargs):
         raise NotImplementedError
 
@@ -252,5 +235,5 @@ class Routine:
     def start(self):
         if self.runner is None:
             # TODO - create better errors
-            raise ValueError("Runner not configured for routine")
+            raise NoRunnerException("Runner not configured for routine")
         self.runner.start()

@@ -1,6 +1,6 @@
 from pipert.contrib.sort_tracker.sort import Sort
 import torch
-from detectron2.structures import Instances, Boxes
+from pipert.utils.structures import Instances, Boxes
 import numpy as np
 from pipert.core.component import BaseComponent
 from queue import Queue, Empty
@@ -60,7 +60,7 @@ class SORTLogic(Routine):
             return True
             # except Full:
 
-                # return False
+            # return False
 
         except Empty:
             time.sleep(0)
@@ -83,9 +83,6 @@ class SORTComponent(BaseComponent):
 
         t_get_meta = MetadataFromRedis(in_key, redis_url, self.in_queue, "instances").as_thread()
         self.register_routine(t_get_meta)
-        print(args)
-        print()
-        print(kwargs)
         t_sort = SORTLogic(self.in_queue, self.out_queue, *args, **kwargs).as_thread()
         self.register_routine(t_sort)
         t_upload_meta = Metadata2Redis(out_key, redis_url, self.out_queue, "instances", maxlen,

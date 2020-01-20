@@ -1,10 +1,23 @@
 image: python:3.6
 
 stages:
-  - lint check
+  - test
 
-tests:
-  stage: lint check
+lint_check:
+  stage: test
   script:
     - pip install flake8
     - flake8 pipert/core/
+
+tests:
+  stage: test
+  script:
+    - pip install -r requirements.txt
+    - pip install -r tests/requirements.txt
+    - pip install codecov
+    - echo "Running unit tests…"
+    - coverage run --source=. -m pytest -v -s
+    - coverage report
+    - codecov -t=$CODECOV_TOKEN
+ # This regex will pull out the line coverage from the coverage report output so it will be displayed in the job page on Gitlab.
+  coverage: '/^TOTAL.*\s+(\d+\%)$/'

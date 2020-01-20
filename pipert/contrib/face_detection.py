@@ -1,5 +1,5 @@
 import torch
-from detectron2.structures import Instances, Boxes
+from pipert.utils.structures import Instances, Boxes
 from pipert.core.component import BaseComponent
 from queue import Queue, Empty
 import argparse
@@ -10,7 +10,7 @@ import signal
 import time
 import cv2
 from pipert.core.routine import Routine
-from pipert.core.mini_logics import add_logic_to_thread, Metadata2Redis, FramesFromRedis
+from pipert.core.mini_logics import Metadata2Redis, FramesFromRedis
 
 
 class FaceDetLogic(Routine):
