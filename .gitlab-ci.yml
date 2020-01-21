@@ -17,6 +17,7 @@ tests:
     - pip install codecov
     - echo "Running unit tests…"
     - coverage run --source=. -m pytest -v -s
+    - coverage run -a --source=. --concurrency=gevent -m pytest
     - coverage report
     - codecov -t=$CODECOV_TOKEN
  # This regex will pull out the line coverage from the coverage report output so it will be displayed in the job page on Gitlab.
