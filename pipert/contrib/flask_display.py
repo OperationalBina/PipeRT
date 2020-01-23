@@ -9,7 +9,7 @@ from multiprocessing import Process, Queue
 import cv2
 from pipert.utils.visualizer import VideoVisualizer
 from detectron2.data import MetadataCatalog
-from pipert.utils.image_enc_dec import image_decode, metadata_decode
+from pipert.core.message import message_decode
 import time
 import requests
 
@@ -17,9 +17,11 @@ import requests
 def gen(q):
     while True:
         try:
-            frame = q.get(block=False)
-            ret, frame = cv2.imencode('.jpg', frame)
+            msg = q.get(block=False)
+            image = msg.payload.data
+            ret, frame = cv2.imencode('.jpg', image)
             frame = frame.tobytes()
+            msg.record_exit("FlaskVideoDisplay")
             yield (b'--frame\r\n'
                    b'Pragma-directive: no-cache\r\n'
                    b'Cache-directive: no-cache\r\n'
@@ -48,27 +50,22 @@ class MetaAndFrameFromRedis(Routine):
         # TODO - refactor to use xread instead of xrevrange
         meta_msg = self.conn.xrevrange(self.in_key_meta, count=1)
         im_msg = self.conn.xrevrange(self.in_key_im, count=1)  # Latest frame
-        # cmsg = self.conn.xread({self.in_key: "$"}, None, 1)
 
-        instances = None
+        pred_msg = None
         if meta_msg:
-            instances = metadata_decode(meta_msg[0][1]["instances".encode("utf-8")])
-            # last_id = cmsg[0][0].decode('utf-8')
-            # label = f'{self.in_key}:{last_id}'
-            # cv2.putText(arr, label, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 1, cv2.LINE_AA)
+            pred_msg = message_decode(meta_msg[0][1]["pred_msg".encode("utf-8")])
+            pred_msg.record_entry(self.component_name)
 
         if im_msg:
-            # data = io.BytesIO(cmsg[0][1][0][1][self.field])
-            arr = image_decode(im_msg)
-            # data = io.BytesIO(cmsg[0][1][self.field])
-            # img = Image.open(data)
-            # arr = np.array(img)
+
+            frame_msg = message_decode(im_msg[0][1]["frame_msg".encode("utf-8")])
+            frame_msg.record_entry(self.component_name)
+            arr = frame_msg.payload.data
             if len(arr.shape) == 3:
                 arr = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
 
             if self.flip:
                 arr = cv2.flip(arr, 1)
-                # if meta_msg
 
             if self.negative:
                 arr = 255 - arr
@@ -79,7 +76,8 @@ class MetaAndFrameFromRedis(Routine):
                 # return True
             except Empty:
                 pass
-            self.queue.put((arr, instances))
+            frame_msg.update_payload(arr)
+            self.queue.put((frame_msg, pred_msg))
             return True
 
         else:
@@ -105,13 +103,14 @@ class VisLogic(Routine):
     def main_logic(self, *args, **kwargs):
         # TODO implement input that takes both frame and metadata
         try:
-            image, instances = self.in_queue.get(block=False)
-            if instances is not None:
-                image = self.vis.draw_instance_predictions(image, instances).get_image()
-            # print(type(new_image))
-            # print(max(new_image))
+            frame_msg, pred_msg = self.in_queue.get(block=False)
+            if pred_msg is not None:
+                instances = pred_msg.payload.data
+                image = self.vis.draw_instance_predictions(frame_msg.payload.data, instances).get_image()
+                frame_msg.update_payload(image)
+
             try:
-                self.out_queue.put(image, block=False)
+                self.out_queue.put(frame_msg, block=False)
                 return True
             except Full:
                 try:
@@ -121,7 +120,7 @@ class VisLogic(Routine):
                     pass
                 finally:
                     try:
-                        self.out_queue.put(image, block=False)
+                        self.out_queue.put(frame_msg, block=False)
                     except Full:
                         pass
                     return True
@@ -142,16 +141,16 @@ class VisLogic(Routine):
 
 class FlaskVideoDisplay(BaseComponent):
 
-    def __init__(self, in_key_meta, in_key_im, redis_url, field, endpoint):
-        super().__init__(endpoint)
+    def __init__(self, in_key_meta, in_key_im, redis_url, field, endpoint, name="FlaskVideoDisplay"):
+        super().__init__(endpoint, name)
         self.field = field  # .encode('utf-8')
         self.queue = Queue(maxsize=1)
-        self.t_get = MetaAndFrameFromRedis(in_key_meta, in_key_im, redis_url, self.queue, self.field, name="get_frames")
+        self.t_get = MetaAndFrameFromRedis(in_key_meta, in_key_im, redis_url, self.queue, self.field, name="get_frames", component_name=self.name)
         self.t_get.as_thread()
         self.register_routine(self.t_get)
 
         self.queue2 = Queue(maxsize=1)
-        self.t_vis = VisLogic(self.queue, self.queue2).as_thread()
+        self.t_vis = VisLogic(self.queue, self.queue2, component_name=self.name).as_thread()
         self.register_routine(self.t_vis)
 
         app = Flask(__name__)

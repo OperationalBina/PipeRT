@@ -110,7 +110,7 @@ class VideoVisualizer:
         """
 
         frame_visualizer = Visualizer(frame, self.metadata)
-        if not predictions.has("pred_boxes"):
+        if not predictions.has("pred_boxes") or not predictions.pred_boxes:
             return frame_visualizer.output
         num_instances = len(predictions)
         # if num_instances == 0:

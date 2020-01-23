@@ -4,6 +4,7 @@ from pipert.contrib.detection_demo.models import *  # set ONNX_EXPORT in models.
 # from detection_demo.utils.datasets import *
 from pipert.contrib.detection_demo.parse_config import parse_data_cfg
 from pipert.contrib.detection_demo.utils import *
+from pipert.core.message import PredictionPayload
 from pipert.core.routine import Routine
 from pipert.core.mini_logics import FramesFromRedis, Metadata2Redis
 from pipert.core.component import BaseComponent
@@ -76,7 +77,8 @@ class YoloV3Logic(Routine):
 
     def main_logic(self, *args, **kwargs):
         try:
-            im0 = self.in_queue.get(block=False)
+            msg = self.in_queue.get(block=False)
+            im0 = msg.payload.data
             img, *_ = letterbox(im0, new_shape=self.img_size)
 
             # Normalize RGB
@@ -112,7 +114,8 @@ class YoloV3Logic(Routine):
                 self.state.dropped += 1
             except Empty:
                 pass
-            self.out_queue.put(res.to("cpu"), block=False)
+            msg.payload = PredictionPayload(res.to("cpu"))
+            self.out_queue.put(msg, block=False)
             return True
 
         except Empty:
@@ -128,17 +131,17 @@ class YoloV3Logic(Routine):
 
 class YoloV3(BaseComponent):
 
-    def __init__(self, endpoint, out_key, in_key, redis_url, field, maxlen):
-        super().__init__(endpoint)
+    def __init__(self, endpoint, out_key, in_key, redis_url, field, maxlen, name="YoloV3"):
+        super().__init__(endpoint, name)
         self.field = field
         self.in_queue = Queue(maxsize=1)
         self.out_queue = Queue(maxsize=1)
 
-        t_get = FramesFromRedis(in_key, redis_url, self.in_queue, self.field).as_thread()
+        t_get = FramesFromRedis(in_key, redis_url, self.in_queue, self.field, component_name=self.name).as_thread()
         self.register_routine(t_get)
-        t_det = YoloV3Logic(self.in_queue, self.out_queue).as_thread()
+        t_det = YoloV3Logic(self.in_queue, self.out_queue, component_name=self.name).as_thread()
         self.register_routine(t_det)
-        t_send = Metadata2Redis(out_key, redis_url, self.out_queue, "instances", maxlen).as_thread()
+        t_send = Metadata2Redis(out_key, redis_url, self.out_queue, "instances", maxlen, component_name=self.name).as_thread()
         self.register_routine(t_send)
 
 

@@ -26,9 +26,10 @@ class State(object):
 
 class Routine:
 
-    def __init__(self, name=""):
+    def __init__(self, name="", component_name=""):
 
         self.name = name
+        self.component_name = component_name    # name of the component that instantiated the routine
         self.stop_event: mp.Event = None
         self._event_handlers = defaultdict(list)
         self.logger = logging.getLogger(__name__ + "." +
