@@ -41,22 +41,24 @@ class InstancesSort(Sort):
 
 class SORTLogic(Routine):
 
-    def __init__(self, in_queue, out_queue, *args, **kwargs):
-        super().__init__()
+    def __init__(self, in_queue, out_queue, component_name, *args, **kwargs):
+        super().__init__(component_name=component_name)
         self.in_queue = in_queue
         self.out_queue = out_queue
         self.sort = InstancesSort(*args, **kwargs)
 
     def main_logic(self, *args, **kwargs):
         try:
-            instances = self.in_queue.get(block=False)
+            pred_msg = self.in_queue.get(block=False)
+            instances = pred_msg.payload.data
             new_instances = self.sort.update_instances(instances)
             try:
                 self.out_queue.get(block=False)
                 self.state.dropped += 1
             except Empty:
                 pass
-            self.out_queue.put(new_instances)
+            pred_msg.update_payload(new_instances)
+            self.out_queue.put(pred_msg)
             return True
             # except Full:
 
@@ -75,15 +77,15 @@ class SORTLogic(Routine):
 
 class SORTComponent(BaseComponent):
 
-    def __init__(self, endpoint, in_key, out_key, redis_url, maxlen=100, *args, **kwargs):
-        super().__init__(endpoint)
+    def __init__(self, endpoint, in_key, out_key, redis_url, maxlen=100, name="SORTComponent", *args, **kwargs):
+        super().__init__(endpoint, name)
         # TODO: should queue maxsize be configurable?
         self.in_queue = Queue(maxsize=1)
         self.out_queue = Queue(maxsize=1)
 
-        t_get_meta = MetadataFromRedis(in_key, redis_url, self.in_queue, "instances").as_thread()
+        t_get_meta = MetadataFromRedis(in_key, redis_url, self.in_queue, "instances", component_name=self.name).as_thread()
         self.register_routine(t_get_meta)
-        t_sort = SORTLogic(self.in_queue, self.out_queue, *args, **kwargs).as_thread()
+        t_sort = SORTLogic(self.in_queue, self.out_queue, component_name=self.name, *args, **kwargs).as_thread()
         self.register_routine(t_sort)
         t_upload_meta = Metadata2Redis(out_key, redis_url, self.out_queue, "instances", maxlen,
                                        name="upload_redis").as_thread()
@@ -101,7 +103,7 @@ if __name__ == '__main__':
     # max_age: int = 1, min_hits: int = None, window_size: int = None, percent_seen
     parser.add_argument('--max-age', type=int, default=1, help='object confidence threshold')
     parser.add_argument('--min-hits', type=int, help='iou threshold for non-maximum suppression')
-    parser.add_argument('--window-size', type=int, default='mp4v', help='output video codec (verify ffmpeg support)')
+    parser.add_argument('--window-size', type=int, default='1', help='output video codec (verify ffmpeg support)')
     parser.add_argument('--percent-seen', type=float, help='output video codec (verify ffmpeg support)')
     opt = parser.parse_args()
 
