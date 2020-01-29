@@ -25,6 +25,6 @@ jobs:
       python: "3.6"
       before_install: # Nothing to do
       install: pip install flake8
-      script: flake8
+      script: flake8 pipert/core/
       after_success:
 
