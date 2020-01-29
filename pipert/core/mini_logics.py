@@ -20,8 +20,36 @@ class Listen2Stream(Routine):
         # self.stream = cv2.VideoCapture(self.stream_address)
         self.queue = queue
         self.fps = fps
+        self.updated_config = {}
+
+    def begin_capture(self):
+        self.stream = cv2.VideoCapture(self.stream_address)
+        if self.isFile:
+            self.fps = self.stream.get(cv2.CAP_PROP_FPS)
+            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        #     self.stream.set(cv2.CAP_PROP_FPS, self.fps)
+        #     # TODO: some cameras don't respect the fps directive
+        #     # TODO: needs better video resolution
+        #     # self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
+        #     # self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
+        # else:
+        #     self.fps = self.stream.get(cv2.CAP_PROP_FPS)
+
+    def change_stream(self):
+        if self.stream_address == self.updated_config['stream_address']:
+            return
+
+        self.stream_address = self.updated_config['stream_address']
+        self.fps = self.updated_config['FPS']
+        self.isFile = str(self.stream_address).endswith("mp4")
+        self.begin_capture()
 
     def main_logic(self, *args, **kwargs):
+        if self.updated_config:
+            self.change_stream()
+            self.updated_config = {}
+
         start = time.time()
         grabbed, frame = self.stream.read()
         if grabbed:
@@ -53,18 +81,7 @@ class Listen2Stream(Routine):
                 # return False
 
     def setup(self, *args, **kwargs):
-        self.stream = cv2.VideoCapture(self.stream_address)
-        if self.isFile:
-            self.fps = self.stream.get(cv2.CAP_PROP_FPS)
-            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-        #     self.stream.set(cv2.CAP_PROP_FPS, self.fps)
-        #     # TODO: some cameras don't respect the fps directive
-        #     # TODO: needs better video resolution
-        #     # self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
-        #     # self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
-        # else:
-        #     self.fps = self.stream.get(cv2.CAP_PROP_FPS)
+        self.begin_capture()
 
     def cleanup(self, *args, **kwargs):
         self.stream.release()
