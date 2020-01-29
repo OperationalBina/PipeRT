@@ -1,0 +1,32 @@
+language: python
+
+python:
+  - "3.6"
+
+stages:
+  - Lint check
+  - Test
+
+
+
+jobs:
+  include:
+    - stage: Lint check
+      python: "3.6"
+      install: pip install flake8
+      script: flake8 pipert/core/
+
+    - stage: Test
+      python: "3.6"
+      install:
+        - pip install -r requirements.txt
+        - pip install -r tests/requirements.txt
+        - pip install codecov
+        - echo "Running unit tests…"
+      script:
+        - coverage run --source=. -m pytest -v -s
+        - coverage run -a --source=. --concurrency=gevent -m pytest
+      after_success:
+        - coverage report
+        - codecov -t=$CODECOV_TOKEN
+
