@@ -1,5 +1,6 @@
 # PipeRT
 [![Documentation Status](https://readthedocs.org/projects/pipert/badge/?version=latest)](https://pipert.readthedocs.io/en/latest/?badge=latest)
+[![Build Status](https://travis-ci.com/ItamarWilf/PipeRT.svg?branch=master)](https://travis-ci.com/ItamarWilf/PipeRT)
 [![codecov](https://codecov.io/gh/ItamarWilf/PipeRT/branch/master/graph/badge.svg)](https://codecov.io/gh/ItamarWilf/PipeRT)
 
 Real-time pipeline for video analytics.
