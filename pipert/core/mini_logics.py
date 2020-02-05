@@ -1,13 +1,13 @@
-from pipert.core.routine import Routine
 import time
 from queue import Empty, Full
+
+import cv2
 import redis
 from imutils import resize
-from pipert.utils.image_enc_dec import metadata_decode, metadata_encode
-import cv2
-import numpy as np
-import io
-from PIL import Image
+
+from pipert.core.message import Message
+from pipert.core.message import message_decode, message_encode
+from pipert.core.routine import Routine
 
 
 class Listen2Stream(Routine):
@@ -45,14 +45,21 @@ class Listen2Stream(Routine):
         self.isFile = str(self.stream_address).endswith("mp4")
         self.begin_capture()
 
+    def grab_frame(self):
+        grabbed, frame = self.stream.read()
+        msg = Message(frame, self.stream_address)
+        msg.record_entry(self.component_name)
+        return grabbed, msg
+
     def main_logic(self, *args, **kwargs):
         if self.updated_config:
             self.change_stream()
             self.updated_config = {}
 
         start = time.time()
-        grabbed, frame = self.stream.read()
+        grabbed, msg = self.grab_frame()
         if grabbed:
+            frame = msg.get_payload()
             frame = resize(frame, 640, 480)
             if not self.isFile:
                 frame = cv2.flip(frame, 1)
@@ -61,24 +68,14 @@ class Listen2Stream(Routine):
             except Empty:
                 pass
             finally:
-                self.queue.put(frame)
+                msg.update_payload(frame)
+                self.queue.put(msg)
                 if self.isFile:
                     wait = time.time() - start
                     time.sleep(max(1 / self.fps - wait, 0))
                 # self.queue.put(frame, block=False)
                 time.sleep(0)
                 return True
-            # except Full:
-            #     try:
-            #         self.queue.get(block=False)
-            #     except Empty:
-            #         pass
-            #     finally:
-            #         self.queue.put(frame, block=False)
-            #         time.sleep(0)
-            #         return True
-                # time.sleep(0)
-                # return False
 
     def setup(self, *args, **kwargs):
         self.begin_capture()
@@ -103,13 +100,14 @@ class Frames2Redis(Routine):
 
     def main_logic(self, *args, **kwargs):
         try:
-            frame = self.queue.get(block=False)
-            _, data = cv2.imencode(".jpg", frame)
-            msg = {
+            msg = self.queue.get(block=False)
+            msg.record_exit(self.component_name)
+            encoded_msg = message_encode(msg)
+            fields = {
                 'count': self.state.count,
-                'image': data.tobytes()
+                'frame_msg': encoded_msg
             }
-            _ = self.conn.xadd(self.out_key, msg, maxlen=self.maxlen)
+            _ = self.conn.xadd(self.out_key, fields, maxlen=self.maxlen)
             time.sleep(0)
             return True
         except Empty:
@@ -142,19 +140,20 @@ class FramesFromRedis(Routine):
         cmsg = self.conn.xrevrange(self.in_key, count=1)  # Latest frame
         # cmsg = self.conn.xread({self.in_key: "$"}, None, 1)
         if cmsg:
-            # data = io.BytesIO(cmsg[0][1][0][1][self.field])
-            data = io.BytesIO(cmsg[0][1][self.field])
-            img = Image.open(data)
-            arr = np.array(img)
+            fields = cmsg[0][1]
+            msg = message_decode(fields['frame_msg'.encode("utf-8")])
+            msg.record_entry(self.component_name)
+            arr = msg.payload.data
             if len(arr.shape) == 3:
                 arr = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
             if self.flip:
                 arr = cv2.flip(arr, 1)
             if self.negative:
                 arr = 255 - arr
+            msg.update_payload(arr)
 
             try:
-                self.queue.put(arr, block=False)
+                self.queue.put(msg, block=False)
                 return True
             except Full:
                 try:
@@ -189,12 +188,14 @@ class MetadataFromRedis(Routine):
 
     def main_logic(self, *args, **kwargs):
         # TODO - refactor to use xread instead of xrevrange
-        msg = self.conn.xrevrange(self.in_key, count=1)  # Latest frame
+        cmsg = self.conn.xrevrange(self.in_key, count=1)  # Latest frame
         # cmsg = self.conn.xread({self.in_key: "$"}, None, 1)
-        if msg:
-            data = metadata_decode(msg[0][1][self.field])
+        if cmsg:
+            fields = cmsg[0][1]
+            msg = message_decode(fields['pred_msg'.encode("utf-8")])
+            msg.record_entry(self.component_name)
             try:
-                self.queue.put(data, block=False)
+                self.queue.put(msg, block=False)
                 return True
             except Full:
                 try:
@@ -202,7 +203,7 @@ class MetadataFromRedis(Routine):
                 except Empty:
                     pass
                 finally:
-                    self.queue.put(data, block=False)
+                    self.queue.put(msg, block=False)
                     return True
         else:
             time.sleep(0)
@@ -231,13 +232,14 @@ class Metadata2Redis(Routine):
 
     def main_logic(self, *args, **kwargs):
         try:
-            data = self.queue.get(block=False)
-            data_msg = metadata_encode(data)
-            msg = {
+            msg = self.queue.get(block=False)
+            msg.record_exit(self.component_name)
+            encoded_msg = message_encode(msg)
+            fields = {
                 "count": self.state.count,
-                f"{self.field}": data_msg
+                "pred_msg": encoded_msg
             }
-            _ = self.conn.xadd(self.out_key, msg, maxlen=self.maxlen)
+            _ = self.conn.xadd(self.out_key, fields, maxlen=self.maxlen)
             return True
         except Empty:
             time.sleep(0)  # yield the control of the thread
