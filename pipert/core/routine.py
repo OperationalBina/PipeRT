@@ -2,6 +2,8 @@ from collections import defaultdict
 from enum import Enum
 import logging
 import threading
+from logging.handlers import TimedRotatingFileHandler
+
 import torch.multiprocessing as mp
 from .errors import NoRunnerException
 
@@ -35,14 +37,20 @@ class Routine:
 
         self.stop_event: mp.Event = None
         self._event_handlers = defaultdict(list)
-        self.logger = logging.getLogger(__name__ + "." +
-                                        self.__class__.__name__)
-        self.logger.addHandler(logging.NullHandler())
         self.state = None
         self._allowed_events = []
         self.register_events(*Events)
-
         self.runner = None
+        # setting up the routine's logger
+        self.logger = logging.getLogger(self.component_name + "." +
+                                        self.name)
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.propagate = False
+        log_file = "pipeline.log"
+        file_handler = TimedRotatingFileHandler(log_file, when='midnight')
+        file_handler.setFormatter(logging.Formatter(
+            "%(asctime)s — %(name)s — %(levelname)s — %(message)s"))
+        self.logger.addHandler(file_handler)
 
     def register_events(self, *event_names):
         """Add events that can be fired.

@@ -82,9 +82,14 @@ class Message:
                 self.history[component_name][1]):
             return None
         return self.history[component_name][1] - \
-               self.history[component_name][0]
+            self.history[component_name][0]
 
     def __str__(self):
+        return f"{{msg id: {self.id}, " \
+               f"payload type: {type(self.payload)}, " \
+               f"stream address: {self.stream_address} }}\n"
+
+    def full_description(self):
         return f"msg id: {self.id}, " \
                f"payload type: {type(self.payload)}, " \
                f"stream address: {self.stream_address}, " \

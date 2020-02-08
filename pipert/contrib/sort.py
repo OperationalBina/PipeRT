@@ -50,19 +50,21 @@ class SORTLogic(Routine):
     def main_logic(self, *args, **kwargs):
         try:
             pred_msg = self.in_queue.get(block=False)
-            instances = pred_msg.payload.data
+            self.logger.info("Received the following message: %s",
+                             str(pred_msg))
+            instances = pred_msg.get_payload()
             new_instances = self.sort.update_instances(instances)
             try:
-                self.out_queue.get(block=False)
+                dropped_msg = self.out_queue.get(block=False)
                 self.state.dropped += 1
+                self.logger.info("Dropped the following prediction because"
+                                 "it was not grabbed in time: %s",
+                                 str(dropped_msg))
             except Empty:
                 pass
             pred_msg.update_payload(new_instances)
             self.out_queue.put(pred_msg)
             return True
-            # except Full:
-
-            # return False
 
         except Empty:
             time.sleep(0)

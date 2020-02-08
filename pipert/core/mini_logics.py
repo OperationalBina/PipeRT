@@ -28,27 +28,24 @@ class Listen2Stream(Routine):
             self.fps = self.stream.get(cv2.CAP_PROP_FPS)
             self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-        #     self.stream.set(cv2.CAP_PROP_FPS, self.fps)
-        #     # TODO: some cameras don't respect the fps directive
-        #     # TODO: needs better video resolution
-        #     # self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
-        #     # self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
-        # else:
-        #     self.fps = self.stream.get(cv2.CAP_PROP_FPS)
+        self.logger.info("Starting video capture on %s", self.stream_address)
 
     def change_stream(self):
         if self.stream_address == self.updated_config['stream_address']:
             return
-
         self.stream_address = self.updated_config['stream_address']
         self.fps = self.updated_config['FPS']
         self.isFile = str(self.stream_address).endswith("mp4")
+        self.logger.info("Changing source stream address to %s",
+                         self.updated_config['stream_address'])
         self.begin_capture()
 
     def grab_frame(self):
         grabbed, frame = self.stream.read()
         msg = Message(frame, self.stream_address)
         msg.record_entry(self.component_name)
+        self.logger.info("Received the following message: %s",
+                         str(msg))
         return grabbed, msg
 
     def main_logic(self, *args, **kwargs):
@@ -101,6 +98,8 @@ class Frames2Redis(Routine):
     def main_logic(self, *args, **kwargs):
         try:
             msg = self.queue.get(block=False)
+            self.logger.info("Sending the following message to redis: %s",
+                             str(msg))
             msg.record_exit(self.component_name)
             encoded_msg = message_encode(msg)
             fields = {
@@ -143,7 +142,9 @@ class FramesFromRedis(Routine):
             fields = cmsg[0][1]
             msg = message_decode(fields['frame_msg'.encode("utf-8")])
             msg.record_entry(self.component_name)
-            arr = msg.payload.data
+            self.logger.info("Received the following message from redis: %s",
+                             str(msg))
+            arr = msg.get_payload()
             if len(arr.shape) == 3:
                 arr = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
             if self.flip:
@@ -189,11 +190,12 @@ class MetadataFromRedis(Routine):
     def main_logic(self, *args, **kwargs):
         # TODO - refactor to use xread instead of xrevrange
         cmsg = self.conn.xrevrange(self.in_key, count=1)  # Latest frame
-        # cmsg = self.conn.xread({self.in_key: "$"}, None, 1)
         if cmsg:
             fields = cmsg[0][1]
             msg = message_decode(fields['pred_msg'.encode("utf-8")])
             msg.record_entry(self.component_name)
+            self.logger.info("Received the following message from redis: %s",
+                             str(msg))
             try:
                 self.queue.put(msg, block=False)
                 return True
@@ -233,6 +235,8 @@ class Metadata2Redis(Routine):
     def main_logic(self, *args, **kwargs):
         try:
             msg = self.queue.get(block=False)
+            self.logger.info("Sending the following message to redis: %s",
+                             str(msg))
             msg.record_exit(self.component_name)
             encoded_msg = message_encode(msg)
             fields = {

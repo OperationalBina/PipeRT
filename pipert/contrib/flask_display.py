@@ -45,21 +45,21 @@ class MetaAndFrameFromRedis(Routine):
         self.flip = False
         self.negative = False
 
-    def main_logic(self, *args, **kwargs):
+    def receive_msg(self, in_key, msg_key):
         # TODO - refactor to use xread instead of xrevrange
-        meta_msg = self.conn.xrevrange(self.in_key_meta, count=1)
-        im_msg = self.conn.xrevrange(self.in_key_im, count=1)  # Latest frame
+        encoded_msg = self.conn.xrevrange(in_key, count=1)
+        if not encoded_msg:
+            return None
+        msg = message_decode(encoded_msg[0][1][msg_key.encode("utf-8")])
+        msg.record_entry(self.component_name)
+        self.logger.info("Received the following message: %s", str(msg))
+        return msg
 
-        pred_msg = None
-        if meta_msg:
-            pred_msg = message_decode(meta_msg[0][1]["pred_msg".encode("utf-8")])
-            pred_msg.record_entry(self.component_name)
-
-        if im_msg:
-
-            frame_msg = message_decode(im_msg[0][1]["frame_msg".encode("utf-8")])
-            frame_msg.record_entry(self.component_name)
-            arr = frame_msg.payload.data
+    def main_logic(self, *args, **kwargs):
+        pred_msg = self.receive_msg(self.in_key_meta, "pred_msg")
+        frame_msg = self.receive_msg(self.in_key_im, "frame_msg")
+        if frame_msg:
+            arr = frame_msg.get_payload()
             if len(arr.shape) == 3:
                 arr = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
 
@@ -71,8 +71,6 @@ class MetaAndFrameFromRedis(Routine):
 
             try:
                 self.queue.get(block=False)
-                # self.queue.put((arr, instances), block=False)
-                # return True
             except Empty:
                 pass
             frame_msg.update_payload(arr)

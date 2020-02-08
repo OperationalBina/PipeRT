@@ -79,6 +79,8 @@ class YoloV3Logic(Routine):
     def main_logic(self, *args, **kwargs):
         try:
             msg = self.in_queue.get(block=False)
+            self.logger.info("Received the following message: %s",
+                             str(msg))
             im0 = msg.get_payload()
             img, *_ = letterbox(im0, new_shape=self.img_size)
 
@@ -111,8 +113,11 @@ class YoloV3Logic(Routine):
                 res.set("pred_boxes", [])
 
             try:
-                self.out_queue.get(block=False)
+                dropped_msg = self.out_queue.get(block=False)
                 self.state.dropped += 1
+                self.logger.info("Dropped the following prediction because"
+                                 "it was not grabbed in time: %s",
+                                 str(dropped_msg))
             except Empty:
                 pass
             msg.payload = PredictionPayload(res.to("cpu"))
