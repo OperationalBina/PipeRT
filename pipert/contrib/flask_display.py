@@ -106,10 +106,11 @@ class VisLogic(Routine):
                 pred = pred_msg.get_payload()
                 image = self.vis.draw_instance_predictions(frame, pred)\
                     .get_image()
-                pred_msg.update_payload(image)
-                pred_msg.record_exit(self.component_name)
+                frame_msg.update_payload(image)
+                frame_msg.history = pred_msg.history
+                frame_msg.record_exit(self.component_name)
             try:
-                self.out_queue.put(pred_msg, block=False)
+                self.out_queue.put(frame_msg, block=False)
                 return True
             except Full:
                 try:
@@ -119,13 +120,10 @@ class VisLogic(Routine):
                     pass
                 finally:
                     try:
-                        self.out_queue.put(pred_msg, block=False)
+                        self.out_queue.put(frame_msg, block=False)
                     except Full:
                         pass
                     return True
-            # except Full:
-
-                # return False
 
         except Empty:
             time.sleep(0)

@@ -79,7 +79,7 @@ class SORTLogic(Routine):
 
 class SORTComponent(BaseComponent):
 
-    def __init__(self, endpoint, in_key, out_key, redis_url, maxlen=100, name="SORTComponent", *args, **kwargs):
+    def __init__(self, endpoint, in_key, out_key, redis_url, name, maxlen=100, *args, **kwargs):
         super().__init__(endpoint, name)
         # TODO: should queue maxsize be configurable?
         self.in_queue = Queue(maxsize=1)
@@ -87,7 +87,7 @@ class SORTComponent(BaseComponent):
 
         t_get_meta = MetadataFromRedis(in_key, redis_url, self.in_queue, "instances", component_name=self.name).as_thread()
         self.register_routine(t_get_meta)
-        t_sort = SORTLogic(self.in_queue, self.out_queue, component_name=self.name, *args, **kwargs).as_thread()
+        t_sort = SORTLogic(self.in_queue, self.out_queue, self.name, *args, **kwargs).as_thread()
         self.register_routine(t_sort)
         t_upload_meta = Metadata2Redis(out_key, redis_url, self.out_queue, "instances", maxlen,
                                        name="upload_redis").as_thread()
@@ -111,7 +111,7 @@ if __name__ == '__main__':
 
     url = urlparse(opt.url)
 
-    zpc = SORTComponent(f"tcp://0.0.0.0:{opt.zpc}", opt.input, opt.output, url, opt.maxlen, opt.max_age, opt.min_hits,
+    zpc = SORTComponent(f"tcp://0.0.0.0:{opt.zpc}", opt.input, opt.output, url, "SORTComponent", opt.maxlen, opt.max_age, opt.min_hits,
                         opt.window_size, opt.percent_seen)
     print("run")
     zpc.run()
