@@ -4,6 +4,7 @@ import logging
 import threading
 import torch.multiprocessing as mp
 from .errors import NoRunnerException
+import time
 
 
 class Events(Enum):
@@ -152,6 +153,24 @@ class Routine:
             raise ValueError("Input handler '{}' is not found among registered"
                              " event handlers".format(handler))
         self._event_handlers[event_name] = new_event_handlers
+
+    def pace(self, fps):
+        """Pace the routine to work at a wanted fps
+
+        Args:
+            fps: The wanted fps for the routine
+        """
+        def start_time(routine: Routine):
+            routine.state.start_time = time.time()
+
+        def start_pacing(routine: Routine, requested_fps):
+            if routine.state.output:
+                excess_time = (1 / requested_fps) - (time.time() - routine.state.start_time)
+                if excess_time > 0:
+                    time.sleep(excess_time)
+
+        self._event_handlers[Events.BEFORE_LOGIC].insert(0, (start_time, (), {}))
+        self._event_handlers[Events.AFTER_LOGIC].insert(0, (start_pacing, (fps,), {}))
 
     def on(self, event_name, *args, **kwargs):
         """Decorator shortcut for add_event_handler.
