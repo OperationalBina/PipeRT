@@ -256,3 +256,4 @@ class Routine:
             # TODO - create better errors
             raise NoRunnerException("Runner not configured for routine")
         self.runner.start()
+        
