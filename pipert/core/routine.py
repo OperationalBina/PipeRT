@@ -8,7 +8,8 @@ import time
 
 
 class Events(Enum):
-    """Events that are fired by the :class:`~core.RoutineInterface` during
+    """
+    Events that are fired by the :class:`~core.RoutineInterface` during
     execution."""
     BEFORE_LOGIC = "before_logic"
     AFTER_LOGIC = "after_logic"
@@ -16,7 +17,8 @@ class Events(Enum):
 
 
 class State(object):
-    """An object that is used to pass internal and user-defined state between
+    """
+    An object that is used to pass internal and user-defined state between
     event handlers."""
 
     def __init__(self):
@@ -42,7 +44,8 @@ class Routine:
         self.runner = None
 
     def register_events(self, *event_names):
-        """Add events that can be fired.
+        """
+        Add events that can be fired.
 
         Registering an event will let the user fire these events at any point.
         This opens the door to make the :meth:`~ignite.engine.Engine.run` loop
@@ -73,7 +76,8 @@ class Routine:
             self._allowed_events.append(name)
 
     def add_event_handler(self, event_name, handler, *args, **kwargs):
-        """Add an event handler to be executed when the specified event is
+        """
+        Add an event handler to be executed when the specified event is
         fired.
 
         Args:
@@ -115,7 +119,8 @@ class Routine:
         self.logger.debug("added handler for event %s.", event_name)
 
     def has_event_handler(self, handler, event_name=None):
-        """Check if the specified event has the specified handler.
+        """
+        Check if the specified event has the specified handler.
 
         Args:
             handler (callable): the callable event handler.
@@ -135,7 +140,8 @@ class Routine:
         return False
 
     def remove_event_handler(self, handler, event_name):
-        """Remove event handler `handler` from registered handlers of the
+        """
+        Remove event handler `handler` from registered handlers of the
         engine
 
         Args:
@@ -155,7 +161,8 @@ class Routine:
         self._event_handlers[event_name] = new_event_handlers
 
     def pace(self, fps):
-        """Pace the routine to work at a wanted fps
+        """
+        Pace the routine to work at a wanted fps
 
         Args:
             fps: The wanted fps for the routine
@@ -173,7 +180,8 @@ class Routine:
         self._event_handlers[Events.AFTER_LOGIC].insert(0, (start_pacing, (fps,), {}))
 
     def on(self, event_name, *args, **kwargs):
-        """Decorator shortcut for add_event_handler.
+        """
+        Decorator shortcut for add_event_handler.
 
         Args:
             event_name: An event to attach the handler to. Valid events are
@@ -189,7 +197,8 @@ class Routine:
         return decorator
 
     def _fire_event(self, event_name, *event_args, **event_kwargs):
-        """Execute all the handlers associated with given event.
+        """
+        Execute all the handlers associated with given event.
 
         This method executes all handlers associated with the event
         `event_name`. Optional positional and keyword arguments can be used to
