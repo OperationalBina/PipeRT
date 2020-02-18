@@ -167,6 +167,9 @@ class Routine:
         Args:
             fps: The wanted fps for the routine
         """
+        def prepend_event_handler(event_name, handler, *args, **kwargs):
+            self._event_handlers[event_name].insert(0, (handler, args, kwargs))
+
         def start_time(routine: Routine):
             routine.state.start_time = time.time()
 
@@ -176,8 +179,8 @@ class Routine:
                 if excess_time > 0:
                     time.sleep(excess_time)
 
-        self._event_handlers[Events.BEFORE_LOGIC].insert(0, (start_time, (), {}))
-        self._event_handlers[Events.AFTER_LOGIC].insert(0, (start_pacing, (fps,), {}))
+        prepend_event_handler(Events.BEFORE_LOGIC, start_time)
+        self.add_event_handler(Events.AFTER_LOGIC, start_pacing, fps)
 
     def on(self, event_name, *args, **kwargs):
         """
