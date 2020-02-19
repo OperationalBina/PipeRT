@@ -78,7 +78,8 @@ class Routine:
         for name in event_names:
             self._allowed_events.append(name)
 
-    def add_event_handler(self, event_name, handler, first=False, last=False, *args, **kwargs):
+    def add_event_handler(self, event_name, handler, first=False,
+                          last=False, *args, **kwargs):
         """
         Add an event handler to be executed when the specified event is
         fired.
@@ -182,12 +183,16 @@ class Routine:
 
         def start_pacing(routine: Routine, requested_fps):
             if routine.state.output:
-                excess_time = (1 / requested_fps) - (time.time() - routine.state.start_time)
+                elapsed_time = (time.time() - routine.state.start_time)
+                excess_time = (1 / requested_fps) - elapsed_time
                 if excess_time > 0:
                     time.sleep(excess_time)
 
         self.add_event_handler(Events.BEFORE_LOGIC, start_time, first=True)
-        self.add_event_handler(Events.AFTER_LOGIC, start_pacing, fps, last=True)
+        self.add_event_handler(Events.AFTER_LOGIC,
+                               start_pacing,
+                               fps,
+                               last=True)
 
     def on(self, event_name, *args, **kwargs):
         """
@@ -274,8 +279,8 @@ class Routine:
         if self.runner is None:
             # TODO - create better errors
             raise NoRunnerException("Runner not configured for routine")
-        for event_name in self._allowed_events:
-            self._event_handlers[event_name].extend(self._first_events[event_name])
-            self._event_handlers[event_name].extend(self._middle_events[event_name])
-            self._event_handlers[event_name].extend(self._last_events[event_name])
+        for event in self._allowed_events:
+            self._event_handlers[event].extend(self._first_events[event])
+            self._event_handlers[event].extend(self._middle_events[event])
+            self._event_handlers[event].extend(self._last_events[event])
         self.runner.start()
