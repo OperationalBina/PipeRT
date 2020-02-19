@@ -2,10 +2,10 @@ import time
 from queue import Empty, Full
 
 import cv2
-import redis
 from imutils import resize
 
 from pipert.core.message import Message
+from pipert.core.message_handlers import RedisHandler
 from pipert.core.message import message_decode, message_encode
 from pipert.core.routine import Routine
 
@@ -43,9 +43,7 @@ class Listen2Stream(Routine):
     def grab_frame(self):
         grabbed, frame = self.stream.read()
         msg = Message(frame, self.stream_address)
-        msg.record_entry(self.component_name)
-        self.logger.info("Received the following message: %s",
-                         str(msg))
+        msg.record_entry(self.component_name, self.logger)
         return grabbed, msg
 
     def main_logic(self, *args, **kwargs):
@@ -58,7 +56,8 @@ class Listen2Stream(Routine):
         if grabbed:
             frame = msg.get_payload()
             frame = resize(frame, 640, 480)
-            if not self.isFile:
+            # if the stream is from a webcam, flip the frame
+            if self.stream_address == 0:
                 frame = cv2.flip(frame, 1)
             try:
                 self.queue.get(block=False)
@@ -83,7 +82,7 @@ class Listen2Stream(Routine):
 
 
 # TODO: add Error handling to connection
-class Frames2Redis(Routine):
+class Message2Redis(Routine):
 
     def __init__(self, out_key, url, queue, maxlen, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -91,22 +90,14 @@ class Frames2Redis(Routine):
         self.url = url
         self.queue = queue
         self.maxlen = maxlen
-        # self.maxlen = 1
-
-        self.conn = None
+        self.msg_handler = None
 
     def main_logic(self, *args, **kwargs):
         try:
             msg = self.queue.get(block=False)
-            self.logger.info("Sending the following message to redis: %s",
-                             str(msg))
-            msg.record_exit(self.component_name)
+            msg.record_exit(self.component_name, self.logger)
             encoded_msg = message_encode(msg)
-            fields = {
-                'count': self.state.count,
-                'frame_msg': encoded_msg
-            }
-            _ = self.conn.xadd(self.out_key, fields, maxlen=self.maxlen)
+            self.msg_handler.send(encoded_msg, self.out_key)
             time.sleep(0)
             return True
         except Empty:
@@ -114,88 +105,29 @@ class Frames2Redis(Routine):
             return False
 
     def setup(self, *args, **kwargs):
-        self.conn = redis.Redis(host=self.url.hostname, port=self.url.port)
-        if not self.conn.ping():
-            raise Exception('Redis unavailable')
+        self.msg_handler = RedisHandler(self.url, self.maxlen)
+        self.msg_handler.connect()
 
     def cleanup(self, *args, **kwargs):
-        self.conn.close()
+        self.msg_handler.close()
 
 
-class FramesFromRedis(Routine):
+class MessageFromRedis(Routine):
 
-    def __init__(self, in_key, url, queue, field, *args, **kwargs):
+    def __init__(self, in_key, url, queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.in_key = in_key
         self.url = url
         self.queue = queue
-        self.field = field.encode('utf-8')
-        self.conn = None
+        self.msg_handler = None
         self.flip = False
         self.negative = False
 
     def main_logic(self, *args, **kwargs):
-        # TODO - refactor to use xread instead of xrevrange
-        cmsg = self.conn.xrevrange(self.in_key, count=1)  # Latest frame
-        # cmsg = self.conn.xread({self.in_key: "$"}, None, 1)
-        if cmsg:
-            fields = cmsg[0][1]
-            msg = message_decode(fields['frame_msg'.encode("utf-8")])
-            msg.record_entry(self.component_name)
-            self.logger.info("Received the following message from redis: %s",
-                             str(msg))
-            arr = msg.get_payload()
-            if len(arr.shape) == 3:
-                arr = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
-            if self.flip:
-                arr = cv2.flip(arr, 1)
-            if self.negative:
-                arr = 255 - arr
-            msg.update_payload(arr)
-
-            try:
-                self.queue.put(msg, block=False)
-                return True
-            except Full:
-                try:
-                    self.queue.get(block=False)
-                except Empty:
-                    pass
-                return False
-
-        else:
-            time.sleep(0)
-
-    def setup(self, *args, **kwargs):
-        self.conn = redis.Redis(host=self.url.hostname, port=self.url.port)
-        if not self.conn.ping():
-            raise Exception('Redis unavailable')
-
-    def cleanup(self, *args, **kwargs):
-        self.conn.close()
-
-
-class MetadataFromRedis(Routine):
-
-    def __init__(self, in_key, url, queue, field, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.in_key = in_key
-        self.url = url
-        self.queue = queue
-        self.field = field.encode('utf-8')
-        self.conn = None
-        self.flip = False
-        self.negative = False
-
-    def main_logic(self, *args, **kwargs):
-        # TODO - refactor to use xread instead of xrevrange
-        cmsg = self.conn.xrevrange(self.in_key, count=1)  # Latest frame
-        if cmsg:
-            fields = cmsg[0][1]
-            msg = message_decode(fields['pred_msg'.encode("utf-8")])
-            msg.record_entry(self.component_name)
-            self.logger.info("Received the following message from redis: %s",
-                             str(msg))
+        encoded_msg = self.msg_handler.receive(self.in_key)
+        if encoded_msg:
+            msg = message_decode(encoded_msg)
+            msg.record_entry(self.component_name, self.logger)
             try:
                 self.queue.put(msg, block=False)
                 return True
@@ -212,50 +144,11 @@ class MetadataFromRedis(Routine):
             return False
 
     def setup(self, *args, **kwargs):
-        self.conn = redis.Redis(host=self.url.hostname, port=self.url.port)
-        if not self.conn.ping():
-            raise Exception('Redis unavailable')
+        self.msg_handler = RedisHandler(self.url)
+        self.msg_handler.connect()
 
     def cleanup(self, *args, **kwargs):
-        self.conn.close()
-
-
-class Metadata2Redis(Routine):
-
-    def __init__(self, out_key, url, queue, field, maxlen, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.out_key = out_key
-        self.url = url
-        self.queue = queue
-        self.maxlen = maxlen
-        self.field = field
-
-        self.conn = None
-
-    def main_logic(self, *args, **kwargs):
-        try:
-            msg = self.queue.get(block=False)
-            self.logger.info("Sending the following message to redis: %s",
-                             str(msg))
-            msg.record_exit(self.component_name)
-            encoded_msg = message_encode(msg)
-            fields = {
-                "count": self.state.count,
-                "pred_msg": encoded_msg
-            }
-            _ = self.conn.xadd(self.out_key, fields, maxlen=self.maxlen)
-            return True
-        except Empty:
-            time.sleep(0)  # yield the control of the thread
-            return False
-
-    def setup(self, *args, **kwargs):
-        self.conn = redis.Redis(host=self.url.hostname, port=self.url.port)
-        if not self.conn.ping():
-            raise Exception('Redis unavailable')
-
-    def cleanup(self, *args, **kwargs):
-        self.conn.close()
+        self.msg_handler.close()
 
 
 class DisplayCV2(Routine):

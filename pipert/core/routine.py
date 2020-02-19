@@ -41,6 +41,9 @@ class Routine:
         self._allowed_events = []
         self.register_events(*Events)
         self.runner = None
+        self.__setup_logger()
+
+    def __setup_logger(self):
         # setting up the routine's logger
         self.logger = logging.getLogger(self.component_name + "." +
                                         self.name)

@@ -10,6 +10,7 @@ import cv2
 from pipert.utils.visualizer import VideoVisualizer
 from detectron2.data import MetadataCatalog
 from pipert.core.message import message_decode
+from pipert.core.message_handlers import RedisHandler
 import time
 import requests
 
@@ -34,34 +35,29 @@ def gen(q):
 
 class MetaAndFrameFromRedis(Routine):
 
-    def __init__(self, in_key_meta, in_key_im, url, queue, field, *args, **kwargs):
+    def __init__(self, in_key_meta, in_key_im, url, queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.in_key_meta = in_key_meta
         self.in_key_im = in_key_im
         self.url = url
         self.queue = queue
-        self.field = field.encode('utf-8')
-        self.conn = None
+        self.msg_handler = None
         self.flip = False
         self.negative = False
 
-    def receive_msg(self, in_key, msg_key):
-        # TODO - refactor to use xread instead of xrevrange
-        encoded_msg = self.conn.xrevrange(in_key, count=1)
+    def receive_msg(self, in_key):
+        encoded_msg = self.msg_handler.receive(in_key)
         if not encoded_msg:
             return None
-        msg = message_decode(encoded_msg[0][1][msg_key.encode("utf-8")])
-        msg.record_entry(self.component_name)
-        self.logger.info("Received the following message: %s", str(msg))
+        msg = message_decode(encoded_msg)
+        msg.record_entry(self.component_name, self.logger)
         return msg
 
     def main_logic(self, *args, **kwargs):
-        pred_msg = self.receive_msg(self.in_key_meta, "pred_msg")
-        frame_msg = self.receive_msg(self.in_key_im, "frame_msg")
+        pred_msg = self.receive_msg(self.in_key_meta)
+        frame_msg = self.receive_msg(self.in_key_im)
         if frame_msg:
             arr = frame_msg.get_payload()
-            if len(arr.shape) == 3:
-                arr = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
 
             if self.flip:
                 arr = cv2.flip(arr, 1)
@@ -82,12 +78,10 @@ class MetaAndFrameFromRedis(Routine):
             return False
 
     def setup(self, *args, **kwargs):
-        self.conn = redis.Redis(host=self.url.hostname, port=self.url.port)
-        if not self.conn.ping():
-            raise Exception('Redis unavailable')
+        self.msg_handler = RedisHandler(self.url)
 
     def cleanup(self, *args, **kwargs):
-        self.conn.close()
+        self.msg_handler.close()
 
 
 class VisLogic(Routine):
@@ -101,14 +95,14 @@ class VisLogic(Routine):
         # TODO implement input that takes both frame and metadata
         try:
             frame_msg, pred_msg = self.in_queue.get(block=False)
-            if pred_msg is not None:
+            if (pred_msg is not None) and (not pred_msg.is_empty()):
                 frame = frame_msg.get_payload()
                 pred = pred_msg.get_payload()
-                image = self.vis.draw_instance_predictions(frame, pred)\
+                image = self.vis.draw_instance_predictions(frame, pred) \
                     .get_image()
                 frame_msg.update_payload(image)
                 frame_msg.history = pred_msg.history
-                frame_msg.record_exit(self.component_name)
+            frame_msg.record_exit(self.component_name, self.logger)
             try:
                 self.out_queue.put(frame_msg, block=False)
                 return True
@@ -138,14 +132,13 @@ class VisLogic(Routine):
 
 class FlaskVideoDisplay(BaseComponent):
 
-    def __init__(self, in_key_meta, in_key_im, redis_url, field, endpoint,
+    def __init__(self, in_key_meta, in_key_im, redis_url, endpoint,
                  name="FlaskVideoDisplay"):
         super().__init__(endpoint, name)
-        self.field = field  # .encode('utf-8')
         self.queue = Queue(maxsize=1)
         self.t_get = MetaAndFrameFromRedis(in_key_meta, in_key_im, redis_url,
-                                           self.queue, self.field,
-                                           name="get_frames",
+                                           self.queue,
+                                           name="get_frames_and_preds",
                                            component_name=self.name)
         self.t_get.as_thread()
         self.register_routine(self.t_get)
@@ -198,15 +191,12 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--input_meta', help='Input stream key name', type=str, default='camera:2')
     parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
     parser.add_argument('-z', '--zpc', help='zpc port', type=str, default='4246')
-    parser.add_argument('--field', help='Image field name', type=str, default='image')
     args = parser.parse_args()
 
     # Set up Redis connection
     url = urlparse(args.url)
-    conn = redis.Redis(host=url.hostname, port=url.port)
-    if not conn.ping():
-        raise Exception('Redis unavailable')
-    zpc = FlaskVideoDisplay(args.input_meta, args.input_im, url, args.field, endpoint=f"tcp://0.0.0.0:{args.zpc}")
+
+    zpc = FlaskVideoDisplay(args.input_meta, args.input_im, url, endpoint=f"tcp://0.0.0.0:{args.zpc}")
     print("run flask")
     zpc.run()
     print("Killed")

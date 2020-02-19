@@ -12,7 +12,7 @@ from pipert.contrib.detection_demo.models import *  # set ONNX_EXPORT in models.
 from pipert.contrib.detection_demo.utils import *
 from pipert.core.component import BaseComponent
 from pipert.core.message import PredictionPayload
-from pipert.core.mini_logics import FramesFromRedis, Metadata2Redis
+from pipert.core.mini_logics import MessageFromRedis, Message2Redis
 from pipert.core.routine import Routine
 from pipert.utils.structures import Instances, Boxes
 
@@ -137,17 +137,16 @@ class YoloV3Logic(Routine):
 
 class YoloV3(BaseComponent):
 
-    def __init__(self, endpoint, out_key, in_key, redis_url, field, maxlen, name="YoloV3"):
+    def __init__(self, endpoint, out_key, in_key, redis_url, maxlen, name="YoloV3"):
         super().__init__(endpoint, name)
-        self.field = field
         self.in_queue = Queue(maxsize=1)
         self.out_queue = Queue(maxsize=1)
 
-        t_get = FramesFromRedis(in_key, redis_url, self.in_queue, self.field, component_name=self.name).as_thread()
+        t_get = MessageFromRedis(in_key, redis_url, self.in_queue, name="get_frames", component_name=self.name).as_thread()
         self.register_routine(t_get)
         t_det = YoloV3Logic(self.in_queue, self.out_queue, component_name=self.name).as_thread()
         self.register_routine(t_det)
-        t_send = Metadata2Redis(out_key, redis_url, self.out_queue, "instances", maxlen, component_name=self.name).as_thread()
+        t_send = Message2Redis(out_key, redis_url, self.out_queue, maxlen, name="upload_redis", component_name=self.name).as_thread()
         self.register_routine(t_send)
 
 
@@ -161,7 +160,6 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:2')
     parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
     parser.add_argument('-z', '--zpc', help='zpc port', type=str, default='4243')
-    parser.add_argument('--field', help='Image field name', type=str, default='image')
     parser.add_argument('--maxlen', help='Maximum length of output stream', type=int, default=100)
     parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
@@ -172,7 +170,7 @@ if __name__ == '__main__':
 
     url = urlparse(opt.url)
 
-    zpc = YoloV3(f"tcp://0.0.0.0:{opt.zpc}", opt.output, opt.input, url, opt.field, opt.maxlen)
+    zpc = YoloV3(f"tcp://0.0.0.0:{opt.zpc}", opt.output, opt.input, url, opt.maxlen)
     print("run")
     zpc.run()
     print("Killed")
