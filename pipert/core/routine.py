@@ -34,6 +34,9 @@ class Routine:
         self.name = name
         self.stop_event: mp.Event = None
         self._event_handlers = defaultdict(list)
+        self._first_events = defaultdict(list)
+        self._middle_events = defaultdict(list)
+        self._last_events = defaultdict(list)
         self.logger = logging.getLogger(__name__ + "." +
                                         self.__class__.__name__)
         self.logger.addHandler(logging.NullHandler())
@@ -75,7 +78,7 @@ class Routine:
         for name in event_names:
             self._allowed_events.append(name)
 
-    def add_event_handler(self, event_name, handler, *args, **kwargs):
+    def add_event_handler(self, event_name, handler, first=False, last=False, *args, **kwargs):
         """
         Add an event handler to be executed when the specified event is
         fired.
@@ -86,6 +89,8 @@ class Routine:
              :meth:`~ignite.engine.Engine.register_events`.
             handler (callable): the callable event handler that
             should be invoked
+            first: specify 'true' if the event handler should be called first
+            last: specify 'true' if the event handler should be called last
             *args: argsional args to be passed to `handler`.
             **kwargs: argsional keyword args to be passed to `handler`.
 
@@ -115,7 +120,12 @@ class Routine:
             raise ValueError("Event {} is not a valid event for this "
                              "Engine.".format(event_name))
 
-        self._event_handlers[event_name].append((handler, args, kwargs))
+        if first:
+            self._first_events[event_name].append((handler, args, kwargs))
+        elif last:
+            self._last_events[event_name].append((handler, args, kwargs))
+        else:
+            self._middle_events[event_name].append((handler, args, kwargs))
         self.logger.debug("added handler for event %s.", event_name)
 
     def has_event_handler(self, handler, event_name=None):
@@ -167,9 +177,6 @@ class Routine:
         Args:
             fps: The wanted fps for the routine
         """
-        def prepend_event_handler(event_name, handler, *args, **kwargs):
-            self._event_handlers[event_name].insert(0, (handler, args, kwargs))
-
         def start_time(routine: Routine):
             routine.state.start_time = time.time()
 
@@ -179,8 +186,8 @@ class Routine:
                 if excess_time > 0:
                     time.sleep(excess_time)
 
-        prepend_event_handler(Events.BEFORE_LOGIC, start_time)
-        self.add_event_handler(Events.AFTER_LOGIC, start_pacing, fps)
+        self.add_event_handler(Events.BEFORE_LOGIC, start_time, first=True)
+        self.add_event_handler(Events.AFTER_LOGIC, start_pacing, fps, last=True)
 
     def on(self, event_name, *args, **kwargs):
         """
@@ -267,4 +274,8 @@ class Routine:
         if self.runner is None:
             # TODO - create better errors
             raise NoRunnerException("Runner not configured for routine")
+        for event_name in self._allowed_events:
+            self._event_handlers[event_name].extend(self._first_events[event_name])
+            self._event_handlers[event_name].extend(self._middle_events[event_name])
+            self._event_handlers[event_name].extend(self._last_events[event_name])
         self.runner.start()
