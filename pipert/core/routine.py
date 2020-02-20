@@ -34,9 +34,6 @@ class Routine:
         self.name = name
         self.stop_event: mp.Event = None
         self._event_handlers = defaultdict(list)
-        self._first_events = defaultdict(list)
-        self._middle_events = defaultdict(list)
-        self._last_events = defaultdict(list)
         self.logger = logging.getLogger(__name__ + "." +
                                         self.__class__.__name__)
         self.logger.addHandler(logging.NullHandler())
@@ -122,11 +119,16 @@ class Routine:
                              "Engine.".format(event_name))
 
         if first:
-            self._first_events[event_name].append((handler, args, kwargs))
+            self._event_handlers[event_name].append((0,
+                                                     (handler, args, kwargs)))
         elif last:
-            self._last_events[event_name].append((handler, args, kwargs))
+            self._event_handlers[event_name].append((2,
+                                                     (handler, args, kwargs)))
         else:
-            self._middle_events[event_name].append((handler, args, kwargs))
+            self._event_handlers[event_name].append((1,
+                                                     (handler, args, kwargs)))
+        self._event_handlers[event_name] = \
+            sorted(self._event_handlers[event_name], key=lambda x: x[0])
         self.logger.debug("added handler for event %s.", event_name)
 
     def has_event_handler(self, handler, event_name=None):
@@ -145,7 +147,7 @@ class Routine:
         else:
             events = self._event_handlers
         for e in events:
-            for h, _, _ in self._event_handlers[e]:
+            for priority, (h, _, _) in self._event_handlers[e]:
                 if h == handler:
                     return True
         return False
@@ -164,9 +166,10 @@ class Routine:
         if event_name not in self._event_handlers:
             raise ValueError(f"Input event name '{event_name}' does not exist")
 
-        new_event_handlers = [(h, args, kwargs) for h, args, kwargs in
-                              self._event_handlers[event_name] if h != handler]
-        if len(new_event_handlers) == len(self._event_handlers[event_name]):
+        current_event_handlers = self._event_handlers[event_name]
+        new_event_handlers = [(priority, h) for priority, h in
+                              current_event_handlers if h[0] != handler]
+        if len(new_event_handlers) == len(current_event_handlers):
             raise ValueError("Input handler '{}' is not found among registered"
                              " event handlers".format(handler))
         self._event_handlers[event_name] = new_event_handlers
@@ -181,18 +184,18 @@ class Routine:
         def start_time(routine: Routine):
             routine.state.start_time = time.time()
 
-        def start_pacing(routine: Routine, requested_fps):
+        def start_pacing(routine: Routine, required_fps=0):
             if routine.state.output:
                 elapsed_time = (time.time() - routine.state.start_time)
-                excess_time = (1 / requested_fps) - elapsed_time
+                excess_time = (1 / required_fps) - elapsed_time
                 if excess_time > 0:
                     time.sleep(excess_time)
 
         self.add_event_handler(Events.BEFORE_LOGIC, start_time, first=True)
         self.add_event_handler(Events.AFTER_LOGIC,
                                start_pacing,
-                               fps,
-                               last=True)
+                               last=True,
+                               required_fps=fps)
 
     def on(self, event_name, *args, **kwargs):
         """
@@ -233,7 +236,7 @@ class Routine:
         """
         if event_name in self._allowed_events:
             # self.logger.debug("firing handlers for event %s ", event_name)
-            for func, args, kwargs in self._event_handlers[event_name]:
+            for p, (func, args, kwargs) in self._event_handlers[event_name]:
                 kwargs.update(event_kwargs)
                 func(self, *(event_args + args), **kwargs)
 
@@ -279,8 +282,4 @@ class Routine:
         if self.runner is None:
             # TODO - create better errors
             raise NoRunnerException("Runner not configured for routine")
-        for event in self._allowed_events:
-            self._event_handlers[event].extend(self._first_events[event])
-            self._event_handlers[event].extend(self._middle_events[event])
-            self._event_handlers[event].extend(self._last_events[event])
         self.runner.start()
