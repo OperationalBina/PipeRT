@@ -44,10 +44,7 @@ class FramePayload(Payload):
         self.encoded = True
 
     def is_empty(self):
-        if not self.data:
-            return True
-        else:
-            return False
+        return not self.data
 
 
 class PredictionPayload(Payload):
@@ -95,7 +92,8 @@ class Message:
 
     # component name should represent a unique instance of the component
     def record_entry(self, component_name, logger):
-        """Records the timestamp of the message's entry into a component.
+        """
+        Records the timestamp of the message's entry into a component.
 
         Args:
             component_name: the name of the component that the message entered.
@@ -105,7 +103,8 @@ class Message:
         logger.info("Received the following message: %s", str(self))
 
     def record_custom(self, component_name, section):
-        """Records the timestamp of the message's entry into some section
+        """
+        Records the timestamp of the message's entry into some section
         of a component.
 
         Args:
@@ -116,7 +115,8 @@ class Message:
         self.history[component_name][section] = time.time()
 
     def record_exit(self, component_name, logger):
-        """Records the timestamp of the message's exit out of a component.
+        """
+        Records the timestamp of the message's exit out of a component.
 
         Args:
             component_name: the name of the component that the message exited.
@@ -126,7 +126,8 @@ class Message:
         logger.info("Sending the following message: %s", str(self))
 
     def get_latency(self, component_name):
-        """Returns the time it took for a message to pass through a whole
+        """
+        Returns the time it took for a message to pass through a whole
         component.
 
         Using the message's history, this method calculates and returns the
@@ -156,7 +157,8 @@ class Message:
 
 
 def message_encode(msg):
-    """Encodes the message object.
+    """
+    Encodes the message object.
 
     This method compresses the message payload and then serializes the whole
     message object into bytes, using pickle.
@@ -168,9 +170,9 @@ def message_encode(msg):
     return pickle.dumps(msg)
 
 
-# if lazy=True, then the payload data will only be decoded once it's accessed
 def message_decode(encoded_msg, lazy=False):
-    """Decodes the message object.
+    """
+    Decodes the message object.
 
     This method deserializes the pickled message, and decodes the message
     payload if 'lazy' is False.

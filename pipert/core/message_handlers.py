@@ -6,18 +6,39 @@ class MessageHandler(ABC):
 
     @abstractmethod
     def receive(self, in_key):
+        """
+        Receives the latest message from the message broker.
+
+        Args:
+            in_key: the name of the queue/stream at which the relevant message
+            is located.
+        """
         pass
 
     @abstractmethod
     def send(self, out_key, msg):
+        """
+        Sends a message to the message broker.
+
+        Args:
+            out_key: the name of the queue/stream at which the relevant message
+            will be placed.
+            msg: the message object that is being sent.
+        """
         pass
 
     @abstractmethod
     def connect(self):
+        """
+        Establishes a connection to the message broker.
+        """
         pass
 
     @abstractmethod
     def close(self):
+        """
+        Closes the connection to the message broker.
+        """
         pass
 
 

@@ -95,7 +95,7 @@ class VisLogic(Routine):
         # TODO implement input that takes both frame and metadata
         try:
             frame_msg, pred_msg = self.in_queue.get(block=False)
-            if (pred_msg is not None) and (not pred_msg.is_empty()):
+            if pred_msg is not None and not pred_msg.is_empty():
                 frame = frame_msg.get_payload()
                 pred = pred_msg.get_payload()
                 image = self.vis.draw_instance_predictions(frame, pred) \
