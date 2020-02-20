@@ -9,7 +9,8 @@ from multiprocessing import Process, Queue
 import cv2
 from pipert.utils.visualizer import VideoVisualizer
 from detectron2.data import MetadataCatalog
-from pipert.utils.image_enc_dec import image_decode, metadata_decode
+from pipert.core.message import message_decode
+from pipert.core.message_handlers import RedisHandler
 import time
 import requests
 
@@ -17,8 +18,9 @@ import requests
 def gen(q):
     while True:
         try:
-            frame = q.get(block=False)
-            ret, frame = cv2.imencode('.jpg', frame)
+            msg = q.get(block=False)
+            image = msg.get_payload()
+            ret, frame = cv2.imencode('.jpg', image)
             frame = frame.tobytes()
             yield (b'--frame\r\n'
                    b'Pragma-directive: no-cache\r\n'
@@ -33,53 +35,42 @@ def gen(q):
 
 class MetaAndFrameFromRedis(Routine):
 
-    def __init__(self, in_key_meta, in_key_im, url, queue, field, *args, **kwargs):
+    def __init__(self, in_key_meta, in_key_im, url, queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.in_key_meta = in_key_meta
         self.in_key_im = in_key_im
         self.url = url
         self.queue = queue
-        self.field = field.encode('utf-8')
-        self.conn = None
+        self.msg_handler = None
         self.flip = False
         self.negative = False
 
+    def receive_msg(self, in_key):
+        encoded_msg = self.msg_handler.receive(in_key)
+        if not encoded_msg:
+            return None
+        msg = message_decode(encoded_msg)
+        msg.record_entry(self.component_name, self.logger)
+        return msg
+
     def main_logic(self, *args, **kwargs):
-        # TODO - refactor to use xread instead of xrevrange
-        meta_msg = self.conn.xrevrange(self.in_key_meta, count=1)
-        im_msg = self.conn.xrevrange(self.in_key_im, count=1)  # Latest frame
-        # cmsg = self.conn.xread({self.in_key: "$"}, None, 1)
-
-        instances = None
-        if meta_msg:
-            instances = metadata_decode(meta_msg[0][1]["instances".encode("utf-8")])
-            # last_id = cmsg[0][0].decode('utf-8')
-            # label = f'{self.in_key}:{last_id}'
-            # cv2.putText(arr, label, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 1, cv2.LINE_AA)
-
-        if im_msg:
-            # data = io.BytesIO(cmsg[0][1][0][1][self.field])
-            arr = image_decode(im_msg)
-            # data = io.BytesIO(cmsg[0][1][self.field])
-            # img = Image.open(data)
-            # arr = np.array(img)
-            if len(arr.shape) == 3:
-                arr = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
+        pred_msg = self.receive_msg(self.in_key_meta)
+        frame_msg = self.receive_msg(self.in_key_im)
+        if frame_msg:
+            arr = frame_msg.get_payload()
 
             if self.flip:
                 arr = cv2.flip(arr, 1)
-                # if meta_msg
 
             if self.negative:
                 arr = 255 - arr
 
             try:
                 self.queue.get(block=False)
-                # self.queue.put((arr, instances), block=False)
-                # return True
             except Empty:
                 pass
-            self.queue.put((arr, instances))
+            frame_msg.update_payload(arr)
+            self.queue.put((frame_msg, pred_msg))
             return True
 
         else:
@@ -87,12 +78,10 @@ class MetaAndFrameFromRedis(Routine):
             return False
 
     def setup(self, *args, **kwargs):
-        self.conn = redis.Redis(host=self.url.hostname, port=self.url.port)
-        if not self.conn.ping():
-            raise Exception('Redis unavailable')
+        self.msg_handler = RedisHandler(self.url)
 
     def cleanup(self, *args, **kwargs):
-        self.conn.close()
+        self.msg_handler.close()
 
 
 class VisLogic(Routine):
@@ -105,13 +94,17 @@ class VisLogic(Routine):
     def main_logic(self, *args, **kwargs):
         # TODO implement input that takes both frame and metadata
         try:
-            image, instances = self.in_queue.get(block=False)
-            if instances is not None:
-                image = self.vis.draw_instance_predictions(image, instances).get_image()
-            # print(type(new_image))
-            # print(max(new_image))
+            frame_msg, pred_msg = self.in_queue.get(block=False)
+            if pred_msg is not None and not pred_msg.is_empty():
+                frame = frame_msg.get_payload()
+                pred = pred_msg.get_payload()
+                image = self.vis.draw_instance_predictions(frame, pred) \
+                    .get_image()
+                frame_msg.update_payload(image)
+                frame_msg.history = pred_msg.history
+            frame_msg.record_exit(self.component_name, self.logger)
             try:
-                self.out_queue.put(image, block=False)
+                self.out_queue.put(frame_msg, block=False)
                 return True
             except Full:
                 try:
@@ -121,13 +114,10 @@ class VisLogic(Routine):
                     pass
                 finally:
                     try:
-                        self.out_queue.put(image, block=False)
+                        self.out_queue.put(frame_msg, block=False)
                     except Full:
                         pass
                     return True
-            # except Full:
-
-                # return False
 
         except Empty:
             time.sleep(0)
@@ -142,16 +132,20 @@ class VisLogic(Routine):
 
 class FlaskVideoDisplay(BaseComponent):
 
-    def __init__(self, in_key_meta, in_key_im, redis_url, field, endpoint):
-        super().__init__(endpoint)
-        self.field = field  # .encode('utf-8')
+    def __init__(self, in_key_meta, in_key_im, redis_url, endpoint,
+                 name="FlaskVideoDisplay"):
+        super().__init__(endpoint, name)
         self.queue = Queue(maxsize=1)
-        self.t_get = MetaAndFrameFromRedis(in_key_meta, in_key_im, redis_url, self.queue, self.field, name="get_frames")
+        self.t_get = MetaAndFrameFromRedis(in_key_meta, in_key_im, redis_url,
+                                           self.queue,
+                                           name="get_frames_and_preds",
+                                           component_name=self.name)
         self.t_get.as_thread()
         self.register_routine(self.t_get)
 
         self.queue2 = Queue(maxsize=1)
-        self.t_vis = VisLogic(self.queue, self.queue2).as_thread()
+        self.t_vis = VisLogic(self.queue, self.queue2,
+                              component_name=self.name).as_thread()
         self.register_routine(self.t_vis)
 
         app = Flask(__name__)
@@ -159,7 +153,8 @@ class FlaskVideoDisplay(BaseComponent):
         @app.route('/video')
         def video_feed():
             return Response(gen(self.queue2),
-                            mimetype='multipart/x-mixed-replace; boundary=frame')
+                            mimetype='multipart/x-mixed-replace; '
+                                     'boundary=frame')
 
         def shutdown_server():
             func = request.environ.get('werkzeug.server.shutdown')
@@ -196,15 +191,12 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--input_meta', help='Input stream key name', type=str, default='camera:2')
     parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
     parser.add_argument('-z', '--zpc', help='zpc port', type=str, default='4246')
-    parser.add_argument('--field', help='Image field name', type=str, default='image')
     args = parser.parse_args()
 
     # Set up Redis connection
     url = urlparse(args.url)
-    conn = redis.Redis(host=url.hostname, port=url.port)
-    if not conn.ping():
-        raise Exception('Redis unavailable')
-    zpc = FlaskVideoDisplay(args.input_meta, args.input_im, url, args.field, endpoint=f"tcp://0.0.0.0:{args.zpc}")
+
+    zpc = FlaskVideoDisplay(args.input_meta, args.input_im, url, endpoint=f"tcp://0.0.0.0:{args.zpc}")
     print("run flask")
     zpc.run()
     print("Killed")

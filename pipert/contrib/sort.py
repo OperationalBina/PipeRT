@@ -8,7 +8,7 @@ import argparse
 from urllib.parse import urlparse
 import time
 from pipert.core.routine import Routine
-from pipert.core.mini_logics import Metadata2Redis, MetadataFromRedis
+from pipert.core.mini_logics import Message2Redis, MessageFromRedis
 
 
 class InstancesSort(Sort):
@@ -41,26 +41,28 @@ class InstancesSort(Sort):
 
 class SORTLogic(Routine):
 
-    def __init__(self, in_queue, out_queue, *args, **kwargs):
-        super().__init__()
+    def __init__(self, in_queue, out_queue, component_name, *args, **kwargs):
+        super().__init__(component_name=component_name)
         self.in_queue = in_queue
         self.out_queue = out_queue
         self.sort = InstancesSort(*args, **kwargs)
 
     def main_logic(self, *args, **kwargs):
         try:
-            instances = self.in_queue.get(block=False)
+            pred_msg = self.in_queue.get(block=False)
+            instances = pred_msg.get_payload()
             new_instances = self.sort.update_instances(instances)
             try:
-                self.out_queue.get(block=False)
+                dropped_msg = self.out_queue.get(block=False)
                 self.state.dropped += 1
+                self.logger.info("Dropped the following prediction because"
+                                 "it was not grabbed in time: %s",
+                                 str(dropped_msg))
             except Empty:
                 pass
-            self.out_queue.put(new_instances)
+            pred_msg.update_payload(new_instances)
+            self.out_queue.put(pred_msg)
             return True
-            # except Full:
-
-            # return False
 
         except Empty:
             time.sleep(0)
@@ -75,18 +77,18 @@ class SORTLogic(Routine):
 
 class SORTComponent(BaseComponent):
 
-    def __init__(self, endpoint, in_key, out_key, redis_url, maxlen=100, *args, **kwargs):
-        super().__init__(endpoint)
+    def __init__(self, endpoint, in_key, out_key, redis_url, name, maxlen=100, *args, **kwargs):
+        super().__init__(endpoint, name)
         # TODO: should queue maxsize be configurable?
         self.in_queue = Queue(maxsize=1)
         self.out_queue = Queue(maxsize=1)
 
-        t_get_meta = MetadataFromRedis(in_key, redis_url, self.in_queue, "instances").as_thread()
+        t_get_meta = MessageFromRedis(in_key, redis_url, self.in_queue, name="get_frames", component_name=self.name).as_thread()
         self.register_routine(t_get_meta)
-        t_sort = SORTLogic(self.in_queue, self.out_queue, *args, **kwargs).as_thread()
+        t_sort = SORTLogic(self.in_queue, self.out_queue, self.name, *args, **kwargs).as_thread()
         self.register_routine(t_sort)
-        t_upload_meta = Metadata2Redis(out_key, redis_url, self.out_queue, "instances", maxlen,
-                                       name="upload_redis").as_thread()
+        t_upload_meta = Message2Redis(out_key, redis_url, self.out_queue, maxlen,
+                                       name="upload_redis", component_name=self.name).as_thread()
         self.register_routine(t_upload_meta)
 
 
@@ -96,7 +98,6 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:3')
     parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
     parser.add_argument('-z', '--zpc', help='zpc port', type=str, default='4247')
-    parser.add_argument('--field', help='Image field name', type=str, default='instances')
     parser.add_argument('--maxlen', help='Maximum length of output stream', type=int, default=100)
     # max_age: int = 1, min_hits: int = None, window_size: int = None, percent_seen
     parser.add_argument('--max-age', type=int, default=1, help='object confidence threshold')
@@ -107,7 +108,7 @@ if __name__ == '__main__':
 
     url = urlparse(opt.url)
 
-    zpc = SORTComponent(f"tcp://0.0.0.0:{opt.zpc}", opt.input, opt.output, url, opt.maxlen, opt.max_age, opt.min_hits,
+    zpc = SORTComponent(f"tcp://0.0.0.0:{opt.zpc}", opt.input, opt.output, url, "SORTComponent", opt.maxlen, opt.max_age, opt.min_hits,
                         opt.window_size, opt.percent_seen)
     print("run")
     zpc.run()
