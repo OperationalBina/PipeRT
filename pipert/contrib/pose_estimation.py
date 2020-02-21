@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 
 import time
 from pipert.core.routine import Routine
-from pipert.core.mini_logics import Metadata2Redis, FramesFromRedis
+from pipert.core.mini_logics import Message2Redis, MessageFromRedis
 
 # import some common libraries
 from detectron2.config import get_cfg
@@ -106,17 +106,17 @@ class PoseEstLogic(Routine):
 
 class PoseEstComponent(BaseComponent):
 
-    def __init__(self, in_key, out_key, redis_url, field, maxlen=100, endpoint=""):
+    def __init__(self, in_key, out_key, redis_url, maxlen=100, endpoint=""):
         super().__init__(endpoint)
         # TODO: should queue maxsize be configurable?
         self.in_queue = Queue(maxsize=1)
         self.out_queue = Queue(maxsize=1)
 
-        t_get = FramesFromRedis(in_key, redis_url, self.in_queue, field).as_thread()
+        t_get = MessageFromRedis(in_key, redis_url, self.in_queue).as_thread()
         self.register_routine(t_get)
         t_pose = PoseEstLogic(self.in_queue, self.out_queue).as_thread()
         self.register_routine(t_pose)
-        t_upload_meta = Metadata2Redis(out_key, redis_url, self.out_queue, "instances", maxlen, name="upload_redis")\
+        t_upload_meta = Message2Redis(out_key, redis_url, self.out_queue, maxlen, name="upload_redis")\
             .as_thread()
         self.register_routine(t_upload_meta)
 
@@ -127,14 +127,13 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:3')
     parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
     parser.add_argument('-z', '--zpc', help='zpc port', type=str, default='4249')
-    parser.add_argument('--field', help='Image field name', type=str, default='image')
     parser.add_argument('--maxlen', help='Maximum length of output stream', type=int, default=100)
     # max_age: int = 1, min_hits: int = None, window_size: int = None, percent_seen
     opt = parser.parse_args()
 
     url = urlparse(opt.url)
 
-    zpc = PoseEstComponent(opt.input, opt.output, url, opt.field, opt.maxlen, endpoint=f"tcp://0.0.0.0:{opt.zpc}")
+    zpc = PoseEstComponent(opt.input, opt.output, url, opt.maxlen, endpoint=f"tcp://0.0.0.0:{opt.zpc}")
     print("run")
     zpc.run()
     print("Killed")
