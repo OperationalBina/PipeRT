@@ -1,17 +1,19 @@
 import argparse
-# from sys import platform
-from pipert.contrib.detection_demo.models import *  # set ONNX_EXPORT in models.py
-# from detection_demo.utils.datasets import *
-from pipert.contrib.detection_demo.parse_config import parse_data_cfg
-from pipert.contrib.detection_demo.utils import *
-from pipert.core.routine import Routine
-from pipert.core.mini_logics import FramesFromRedis, Metadata2Redis
-from pipert.core.component import BaseComponent
 import time
 from queue import Empty, Queue
 from urllib.parse import urlparse
+
 import cv2
 import torch
+
+# from sys import platform
+from pipert.contrib.detection_demo.models import *  # set ONNX_EXPORT in models.py
+# from detection_demo.utils.datasets import *
+from pipert.contrib.detection_demo.utils import *
+from pipert.core.component import BaseComponent
+from pipert.core.message import PredictionPayload
+from pipert.core.mini_logics import MessageFromRedis, Message2Redis
+from pipert.core.routine import Routine
 from pipert.utils.structures import Instances, Boxes
 
 
@@ -70,13 +72,16 @@ class YoloV3Logic(Routine):
         self.half = half and device.type != 'cpu'  # half precision only supported on CUDA
         if half:
             self.model.half()
-        self.classes = load_classes(parse_data_cfg(opt.data)['names'])
+        self.classes = load_classes(opt.names)
         self.colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(self.classes))]
         self.device = device
 
     def main_logic(self, *args, **kwargs):
         try:
-            im0 = self.in_queue.get(block=False)
+            msg = self.in_queue.get(block=False)
+            self.logger.info("Received the following message: %s",
+                             str(msg))
+            im0 = msg.get_payload()
             img, *_ = letterbox(im0, new_shape=self.img_size)
 
             # Normalize RGB
@@ -108,11 +113,15 @@ class YoloV3Logic(Routine):
                 res.set("pred_boxes", [])
 
             try:
-                self.out_queue.get(block=False)
+                dropped_msg = self.out_queue.get(block=False)
                 self.state.dropped += 1
+                self.logger.info("Dropped the following prediction because"
+                                 "it was not grabbed in time: %s",
+                                 str(dropped_msg))
             except Empty:
                 pass
-            self.out_queue.put(res.to("cpu"), block=False)
+            msg.payload = PredictionPayload(res.to("cpu"))
+            self.out_queue.put(msg, block=False)
             return True
 
         except Empty:
@@ -128,31 +137,29 @@ class YoloV3Logic(Routine):
 
 class YoloV3(BaseComponent):
 
-    def __init__(self, endpoint, out_key, in_key, redis_url, field, maxlen):
-        super().__init__(endpoint)
-        self.field = field
+    def __init__(self, endpoint, out_key, in_key, redis_url, maxlen, name="YoloV3"):
+        super().__init__(endpoint, name)
         self.in_queue = Queue(maxsize=1)
         self.out_queue = Queue(maxsize=1)
 
-        t_get = FramesFromRedis(in_key, redis_url, self.in_queue, self.field).as_thread()
+        t_get = MessageFromRedis(in_key, redis_url, self.in_queue, name="get_frames", component_name=self.name).as_thread()
         self.register_routine(t_get)
-        t_det = YoloV3Logic(self.in_queue, self.out_queue).as_thread()
+        t_det = YoloV3Logic(self.in_queue, self.out_queue, component_name=self.name).as_thread()
         self.register_routine(t_det)
-        t_send = Metadata2Redis(out_key, redis_url, self.out_queue, "instances", maxlen).as_thread()
+        t_send = Message2Redis(out_key, redis_url, self.out_queue, maxlen, name="upload_redis", component_name=self.name).as_thread()
         self.register_routine(t_send)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cfg', type=str, default='/home/itamar/PycharmProjects/Inference/src/yolov3_demo/yolov3.cfg', help='cfg file path')
-    parser.add_argument('--data', type=str, default='/home/itamar/PycharmProjects/Inference/src/yolov3_demo/coco.data', help='coco.data file path')
-    parser.add_argument('--weights', type=str, default='/home/itamar/PycharmProjects/Inference/src/yolov3_demo/yolov3.weights', help='path to weights file')
+    parser.add_argument('--cfg', type=str, default='pipert/contrib/YoloResources/yolov3.cfg', help='cfg file path')
+    parser.add_argument('--names', type=str, default='pipert/contrib/YoloResources/coco.names', help='coco.names file path')
+    parser.add_argument('--weights', type=str, default='pipert/contrib/YoloResources/yolov3.weights', help='path to weights file')
     parser.add_argument('--source', type=str, default='0', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('-i', '--input', help='Input stream key name', type=str, default='camera:0')
     parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:2')
     parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
     parser.add_argument('-z', '--zpc', help='zpc port', type=str, default='4243')
-    parser.add_argument('--field', help='Image field name', type=str, default='image')
     parser.add_argument('--maxlen', help='Maximum length of output stream', type=int, default=100)
     parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
@@ -163,7 +170,7 @@ if __name__ == '__main__':
 
     url = urlparse(opt.url)
 
-    zpc = YoloV3(f"tcp://0.0.0.0:{opt.zpc}", opt.output, opt.input, url, opt.field, opt.maxlen)
+    zpc = YoloV3(f"tcp://0.0.0.0:{opt.zpc}", opt.output, opt.input, url, opt.maxlen)
     print("run")
     zpc.run()
     print("Killed")

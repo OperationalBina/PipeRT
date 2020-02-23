@@ -3,20 +3,20 @@ from queue import Queue
 # from torch.multiprocessing import Queue
 import argparse
 from urllib.parse import urlparse
-from pipert.core.mini_logics import Frames2Redis, Listen2Stream
+from pipert.core.mini_logics import Message2Redis, Listen2Stream
 
 
 class VideoCapture(BaseComponent):
 
-    def __init__(self, endpoint, stream_address, out_key, redis_url, fps=30.0, maxlen=10):
-        super().__init__(endpoint)
+    def __init__(self, endpoint, stream_address, out_key, redis_url, fps=30.0, maxlen=10, name="VideoCapture"):
+        super().__init__(endpoint, name)
         # TODO: should queue maxsize be configurable?
         # self.queue = Queue(maxsize=1)
         self.queue = Queue(maxsize=1)
 
-        t_stream = Listen2Stream(stream_address, self.queue, fps, name="capture_frame").as_thread()
+        t_stream = Listen2Stream(stream_address, self.queue, fps, name="capture_frame", component_name=self.name).as_thread()
         self.register_routine(t_stream)
-        t_upload = Frames2Redis(out_key, redis_url, self.queue, maxlen, name="upload_redis").as_thread()
+        t_upload = Message2Redis(out_key, redis_url, self.queue, maxlen, name="upload_redis", component_name=self.name).as_thread()
         self.register_routine(t_upload)
 
     def change_stream(self, stream_address, fps=30.0):
