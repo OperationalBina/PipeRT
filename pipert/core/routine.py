@@ -18,15 +18,6 @@ class Events(Enum):
     EXCEPTION_RAISED = "exception_raised"
 
 
-class Priority(Enum):
-    """
-    Indicate the priority of an element in an ascending order
-    """
-    FIRST = 0
-    MIDDLE = 1
-    LAST = 2
-
-
 class State(object):
     """
     An object that is used to pass internal and user-defined state between
@@ -143,16 +134,17 @@ class Routine:
                              "Engine.".format(event_name))
 
         if first:
-            self._event_handlers[event_name].append((Priority.FIRST,
+            self._event_handlers[event_name].append((0,
                                                      (handler, args, kwargs)))
         elif last:
-            self._event_handlers[event_name].append((Priority.LAST,
+            self._event_handlers[event_name].append((2,
                                                      (handler, args, kwargs)))
         else:
-            self._event_handlers[event_name].append((Priority.MIDDLE,
+            self._event_handlers[event_name].append((1,
                                                      (handler, args, kwargs)))
 
-        # Sort the event handler list in an ascending order by the priority.
+        # Sort the event handler list in an ascending order by the priority
+        # in order to guarantee an execution order of the handlers.
         self._event_handlers[event_name] = \
             sorted(self._event_handlers[event_name], key=lambda x: x[0])
         self.logger.debug("added handler for event %s.", event_name)
