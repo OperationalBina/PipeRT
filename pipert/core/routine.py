@@ -6,10 +6,12 @@ from logging.handlers import TimedRotatingFileHandler
 
 import torch.multiprocessing as mp
 from .errors import NoRunnerException
+import time
 
 
 class Events(Enum):
-    """Events that are fired by the :class:`~core.RoutineInterface` during
+    """
+    Events that are fired by the :class:`~core.RoutineInterface` during
     execution."""
     BEFORE_LOGIC = "before_logic"
     AFTER_LOGIC = "after_logic"
@@ -17,7 +19,8 @@ class Events(Enum):
 
 
 class State(object):
-    """An object that is used to pass internal and user-defined state between
+    """
+    An object that is used to pass internal and user-defined state between
     event handlers."""
 
     def __init__(self):
@@ -56,7 +59,8 @@ class Routine:
         self.logger.addHandler(file_handler)
 
     def register_events(self, *event_names):
-        """Add events that can be fired.
+        """
+        Add events that can be fired.
 
         Registering an event will let the user fire these events at any point.
         This opens the door to make the :meth:`~ignite.engine.Engine.run` loop
@@ -86,8 +90,10 @@ class Routine:
         for name in event_names:
             self._allowed_events.append(name)
 
-    def add_event_handler(self, event_name, handler, *args, **kwargs):
-        """Add an event handler to be executed when the specified event is
+    def add_event_handler(self, event_name, handler, first=False,
+                          last=False, *args, **kwargs):
+        """
+        Add an event handler to be executed when the specified event is
         fired.
 
         Args:
@@ -96,6 +102,8 @@ class Routine:
              :meth:`~ignite.engine.Engine.register_events`.
             handler (callable): the callable event handler that
             should be invoked
+            first: specify 'true' if the event handler should be called first
+            last: specify 'true' if the event handler should be called last
             *args: argsional args to be passed to `handler`.
             **kwargs: argsional keyword args to be passed to `handler`.
 
@@ -125,11 +133,25 @@ class Routine:
             raise ValueError("Event {} is not a valid event for this "
                              "Engine.".format(event_name))
 
-        self._event_handlers[event_name].append((handler, args, kwargs))
+        if first:
+            self._event_handlers[event_name].append((0,
+                                                     (handler, args, kwargs)))
+        elif last:
+            self._event_handlers[event_name].append((2,
+                                                     (handler, args, kwargs)))
+        else:
+            self._event_handlers[event_name].append((1,
+                                                     (handler, args, kwargs)))
+
+        # Sort the event handler list in an ascending order by the priority
+        # in order to guarantee an execution order of the handlers.
+        self._event_handlers[event_name] = \
+            sorted(self._event_handlers[event_name], key=lambda x: x[0])
         self.logger.debug("added handler for event %s.", event_name)
 
     def has_event_handler(self, handler, event_name=None):
-        """Check if the specified event has the specified handler.
+        """
+        Check if the specified event has the specified handler.
 
         Args:
             handler (callable): the callable event handler.
@@ -143,13 +165,14 @@ class Routine:
         else:
             events = self._event_handlers
         for e in events:
-            for h, _, _ in self._event_handlers[e]:
+            for priority, (h, _, _) in self._event_handlers[e]:
                 if h == handler:
                     return True
         return False
 
     def remove_event_handler(self, handler, event_name):
-        """Remove event handler `handler` from registered handlers of the
+        """
+        Remove event handler `handler` from registered handlers of the
         engine
 
         Args:
@@ -161,15 +184,40 @@ class Routine:
         if event_name not in self._event_handlers:
             raise ValueError(f"Input event name '{event_name}' does not exist")
 
-        new_event_handlers = [(h, args, kwargs) for h, args, kwargs in
-                              self._event_handlers[event_name] if h != handler]
-        if len(new_event_handlers) == len(self._event_handlers[event_name]):
+        current_event_handlers = self._event_handlers[event_name]
+        new_event_handlers = [(priority, h) for priority, h in
+                              current_event_handlers if h[0] != handler]
+        if len(new_event_handlers) == len(current_event_handlers):
             raise ValueError("Input handler '{}' is not found among registered"
                              " event handlers".format(handler))
         self._event_handlers[event_name] = new_event_handlers
 
+    def pace(self, fps):
+        """
+        Pace the routine to work at a wanted fps
+
+        Args:
+            fps: The wanted fps for the routine
+        """
+        def start_time(routine: Routine):
+            routine.state.start_time = time.time()
+
+        def start_pacing(routine: Routine, required_fps=0):
+            if routine.state.output:
+                elapsed_time = (time.time() - routine.state.start_time)
+                excess_time = (1 / required_fps) - elapsed_time
+                if excess_time > 0:
+                    time.sleep(excess_time)
+
+        self.add_event_handler(Events.BEFORE_LOGIC, start_time, first=True)
+        self.add_event_handler(Events.AFTER_LOGIC,
+                               start_pacing,
+                               last=True,
+                               required_fps=fps)
+
     def on(self, event_name, *args, **kwargs):
-        """Decorator shortcut for add_event_handler.
+        """
+        Decorator shortcut for add_event_handler.
 
         Args:
             event_name: An event to attach the handler to. Valid events are
@@ -185,7 +233,8 @@ class Routine:
         return decorator
 
     def _fire_event(self, event_name, *event_args, **event_kwargs):
-        """Execute all the handlers associated with given event.
+        """
+        Execute all the handlers associated with given event.
 
         This method executes all handlers associated with the event
         `event_name`. Optional positional and keyword arguments can be used to
@@ -205,7 +254,7 @@ class Routine:
         """
         if event_name in self._allowed_events:
             # self.logger.debug("firing handlers for event %s ", event_name)
-            for func, args, kwargs in self._event_handlers[event_name]:
+            for p, (func, args, kwargs) in self._event_handlers[event_name]:
                 kwargs.update(event_kwargs)
                 func(self, *(event_args + args), **kwargs)
 
