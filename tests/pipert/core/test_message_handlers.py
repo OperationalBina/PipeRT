@@ -8,7 +8,6 @@ key = "test"
 @pytest.fixture(scope="function")
 def redis_handler():
     redis_handler = RedisHandler(urlparse("redis://127.0.0.1:6379"))
-    redis_handler.connect()
     yield redis_handler
     redis_handler.conn.delete(key)
     redis_handler.close()
