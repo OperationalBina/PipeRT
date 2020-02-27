@@ -85,7 +85,7 @@ class RedisHandler(MessageHandler):
         redis_msg = self.conn.xrange(in_key, count=1, min=last_msg_id_to_read)
         if not redis_msg:
             return None
-        self.last_msg_id = redis_msg[0][0]
+        self.last_msg_id = redis_msg[0][0].decode()
         msg = redis_msg[0][1]["msg".encode("utf-8")]
         return msg
 
@@ -99,7 +99,7 @@ class RedisHandler(MessageHandler):
         redis_msg = self.conn.xrevrange(in_key, count=1, min=last_msg_id_to_read)
         if not redis_msg:
             return None
-        self.last_msg_id = redis_msg[0][0]
+        self.last_msg_id = redis_msg[0][0].decode()
         msg = redis_msg[0][1]["msg".encode("utf-8")]
         return msg
 
@@ -108,7 +108,7 @@ class RedisHandler(MessageHandler):
         redis_msg = self.conn.xrevrange(in_key, count=1)
         if not redis_msg:
             return None
-        self.last_msg_id = redis_msg[0][0]
+        self.last_msg_id = redis_msg[0][0].decode()
         msg = redis_msg[0][1]["msg".encode("utf-8")]
         return msg
 
