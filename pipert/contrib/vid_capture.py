@@ -9,7 +9,7 @@ from pipert.core.mini_logics import Message2Redis, Listen2Stream
 class VideoCapture(BaseComponent):
 
     def __init__(self, endpoint, stream_address, out_key, redis_url, fps=30.0, maxlen=10, name="VideoCapture"):
-        super().__init__(endpoint, name)
+        super().__init__(endpoint, name, 8080)
         # TODO: should queue maxsize be configurable?
         # self.queue = Queue(maxsize=1)
         self.queue = Queue(maxsize=1)

@@ -1,3 +1,4 @@
+prometheus_client
 Flask
 future
 fvcore
