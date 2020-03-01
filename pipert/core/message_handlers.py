@@ -92,8 +92,7 @@ class RedisHandler(MessageHandler):
             reading_method=self.conn.xrevrange,
             name=in_key,
             count=1,
-            min=
-            self._add_offset_to_stream_id(self.last_msg_id, 1)
+            min=self._add_offset_to_stream_id(self.last_msg_id, 1)
         )
 
     def receive(self, in_key):
