@@ -5,7 +5,6 @@ from urllib.parse import urlparse
 key = "test"
 
 
-# TODO - replace the redis url to os.environ.get('REDIS_URL') ????
 @pytest.fixture(scope="function")
 def redis_handler():
     redis_handler = RedisHandler(urlparse("redis://127.0.0.1:6379"))
