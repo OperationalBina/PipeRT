@@ -78,36 +78,37 @@ class RedisHandler(MessageHandler):
         self.connect()
 
     def read_next_msg(self, in_key):
-        return self._read_from_redis_using_method(in_key=in_key,
-                                                  reading_method=self.conn.xrange,
-                                                  name=in_key,
-                                                  count=1,
-                                                  min=
-                                                  self._add_offset_to_stream_id(
-                                                      self.last_msg_id,
-                                                      1)
-                                                  )
+        return self._read_from_redis_using_method(
+            in_key=in_key,
+            reading_method=self.conn.xrange,
+            name=in_key,
+            count=1,
+            min=self._add_offset_to_stream_id(self.last_msg_id, 1)
+        )
 
     def read_most_recent_msg(self, in_key):
-        return self._read_from_redis_using_method(in_key=in_key,
-                                                  reading_method=self.conn.xrevrange,
-                                                  name=in_key,
-                                                  count=1,
-                                                  min=
-                                                  self._add_offset_to_stream_id(
-                                                      self.last_msg_id,
-                                                      1)
-                                                  )
+        return self._read_from_redis_using_method(
+            in_key=in_key,
+            reading_method=self.conn.xrevrange,
+            name=in_key,
+            count=1,
+            min=
+            self._add_offset_to_stream_id(self.last_msg_id, 1)
+        )
 
     def receive(self, in_key):
         self.last_msg_id = "Will be changed"
-        return self._read_from_redis_using_method(in_key,
-                                                  self.conn.xrevrange,
-                                                  name=in_key,
-                                                  count=1
-                                                  )
+        return self._read_from_redis_using_method(
+            in_key,
+            self.conn.xrevrange,
+            name=in_key,
+            count=1
+        )
 
-    def _read_from_redis_using_method(self, in_key, reading_method, **method_args):
+    def _read_from_redis_using_method(self,
+                                      in_key,
+                                      reading_method,
+                                      **method_args):
         if self.last_msg_id is None:
             return self.receive(in_key)
         redis_msg = reading_method(**method_args)
@@ -137,5 +138,6 @@ class RedisHandler(MessageHandler):
         if stream_id is None:
             return None
         fixed_id = stream_id.split("-")
-        last_msg_id_to_read = '-'.join([fixed_id[0], str(int(fixed_id[1]) + offset)])
+        last_msg_id_to_read = '-'.join([fixed_id[0],
+                                        str(int(fixed_id[1]) + offset)])
         return last_msg_id_to_read
