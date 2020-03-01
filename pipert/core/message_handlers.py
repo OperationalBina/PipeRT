@@ -19,7 +19,8 @@ class MessageHandler(ABC):
     def read_next_msg(self, in_key):
         """
         Reads the following message from the one that was last read,
-        if no message read before, reads the last message in the message broker.
+        if no message read before, reads the last message in the
+        message broker.
         cannot read the same message twice.
 
         Args:
@@ -31,7 +32,8 @@ class MessageHandler(ABC):
     @abstractmethod
     def read_most_recent_msg(self, in_key):
         """
-        Reads the latest message in the message broker, cannot read the same message twice.
+        Reads the latest message in the message broker,
+        cannot read the same message twice.
 
         Args:
             in_key: the name of the queue/stream at which the relevant message
@@ -77,12 +79,14 @@ class RedisHandler(MessageHandler):
 
     def read_next_msg(self, in_key):
         if self.last_msg_id:
-            last_msg_id_to_read = self.last_msg_id.split("-")
-            last_msg_id_to_read = last_msg_id_to_read[0] + "-" + str(int(last_msg_id_to_read[1]) + 1)
+            last_msg_id_to_read = \
+                self._add_offset_to_stream_id(self.last_msg_id, 1)
         else:
             return self.receive(in_key)
 
-        redis_msg = self.conn.xrange(in_key, count=1, min=last_msg_id_to_read)
+        redis_msg = self.conn.xrange(in_key,
+                                     count=1,
+                                     min=last_msg_id_to_read)
         if not redis_msg:
             return None
         self.last_msg_id = redis_msg[0][0].decode()
@@ -91,12 +95,14 @@ class RedisHandler(MessageHandler):
 
     def read_most_recent_msg(self, in_key):
         if self.last_msg_id:
-            last_msg_id_to_read = self.last_msg_id.split("-")
-            last_msg_id_to_read = last_msg_id_to_read[0] + "-" + str(int(last_msg_id_to_read[1]) + 1)
+            last_msg_id_to_read = \
+                self._add_offset_to_stream_id(self.last_msg_id, 1)
         else:
             return self.receive(in_key)
 
-        redis_msg = self.conn.xrevrange(in_key, count=1, min=last_msg_id_to_read)
+        redis_msg = self.conn.xrevrange(in_key,
+                                        count=1,
+                                        min=last_msg_id_to_read)
         if not redis_msg:
             return None
         self.last_msg_id = redis_msg[0][0].decode()
@@ -125,3 +131,9 @@ class RedisHandler(MessageHandler):
 
     def close(self):
         self.conn.close()
+
+    def _add_offset_to_stream_id(self, stream_id, offset):
+        fixed_id = stream_id.split("-")
+        last_msg_id_to_read = (fixed_id[0] + "-" +
+                               str(int(fixed_id[1]) + offset))
+        return last_msg_id_to_read
