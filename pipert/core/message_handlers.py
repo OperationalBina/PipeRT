@@ -96,7 +96,9 @@ class RedisHandler(MessageHandler):
         )
 
     def receive(self, in_key):
-        self.last_msg_id = "Will be changed"
+        # Need to set value in last_msg_id so
+        # _read_from_redis_using_method will not cause an infinite loop
+        self.last_msg_id = ""
         return self._read_from_redis_using_method(
             in_key,
             self.conn.xrevrange,
