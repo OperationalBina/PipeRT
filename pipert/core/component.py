@@ -11,7 +11,7 @@ from .errors import RegisteredException
 
 class BaseComponent:
 
-    def __init__(self, endpoint="tcp://0.0.0.0:4242", name="", prometheus_port=8080,
+    def __init__(self, endpoint="tcp://0.0.0.0:4242", name="", prometheus_port=None,
                  *args, **kwargs):
         """
         Args:
@@ -43,7 +43,8 @@ class BaseComponent:
         """
         self._start()
         gevent.signal(signal.SIGTERM, self.stop_run)
-        start_http_server(self.prometheus_port)
+        if self.prometheus_port:
+            start_http_server(self.prometheus_port)
         self.zrpc.run()
         self.zrpc.close()
 
