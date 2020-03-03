@@ -11,8 +11,8 @@ from .errors import RegisteredException
 
 class BaseComponent:
 
-    def __init__(self, endpoint="tcp://0.0.0.0:4242", name="", prometheus_port=None,
-                 *args, **kwargs):
+    def __init__(self, endpoint="tcp://0.0.0.0:4242", name="",
+                 prometheus_port=None, *args, **kwargs):
         """
         Args:
             endpoint: the endpoint the component's zerorpc server will listen

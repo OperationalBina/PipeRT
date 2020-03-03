@@ -12,10 +12,14 @@ from prometheus_client.utils import INF
 from .errors import NoRunnerException
 import time
 
-buckets = (0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, INF)
+buckets = (0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05,
+           0.1, 0.2, 0.5, 1, 2, 5, INF)
 
-REQUEST_TIME = Histogram('routine_processing_seconds', 'Time spent processing routine', ['routine', 'component']
-                         , buckets=buckets)
+REQUEST_TIME = Histogram('routine_processing_seconds',
+                         'Time spent processing routine',
+                         ['routine', 'component'],
+                         buckets=buckets)
+
 
 class Events(Enum):
     """
@@ -295,7 +299,9 @@ class Routine(ABC):
             tock = time.time()
 
             if self.state.output:
-                REQUEST_TIME.labels(routine=self.name, component=self.component_name).observe(tock - tick)
+                REQUEST_TIME.labels(routine=self.name,
+                                    component=self.component_name)\
+                    .observe(tock - tick)
                 self.state.success += 1
             self._fire_event(Events.AFTER_LOGIC)
 
