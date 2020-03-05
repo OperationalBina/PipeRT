@@ -2,7 +2,7 @@ import pytest
 from pipert.core.message_handlers import RedisHandler
 from urllib.parse import urlparse
 
-key = "test"
+key = "Test"
 
 
 @pytest.fixture(scope="function")
