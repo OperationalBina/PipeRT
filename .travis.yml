@@ -18,6 +18,8 @@ jobs:
 
     - stage: Test
       python: "3.6"
+      services:
+        - redis-server
       install:
         - pip install -r pipe-base/requirements1.txt
         - pip install -r pipe-base/requirements2.txt
