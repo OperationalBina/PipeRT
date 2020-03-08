@@ -13,6 +13,12 @@ def redis_handler():
     redis_handler.close()
 
 
+def test_redis_send(redis_handler):
+    redis_handler.send(key, "A")
+    msg = redis_handler.receive(key)
+    assert msg.decode() == "A"
+
+
 # tests if the method read the last message if it didn't read before
 def test_redis_read_next_msg_reads_last_message(redis_handler):
     redis_handler.send(key, "AAA")
