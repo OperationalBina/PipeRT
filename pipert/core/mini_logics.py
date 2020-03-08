@@ -97,7 +97,7 @@ class Message2Redis(Routine):
             msg = self.queue.get(block=False)
             msg.record_exit(self.component_name, self.logger)
             encoded_msg = message_encode(msg)
-            self.msg_handler.send(encoded_msg, self.out_key)
+            self.msg_handler.send(self.out_key, encoded_msg)
             time.sleep(0)
             return True
         except Empty:
