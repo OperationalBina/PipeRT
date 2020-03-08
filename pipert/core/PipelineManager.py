@@ -1,10 +1,12 @@
 import zerorpc
 from pipert.core.component import BaseComponent
+from os import listdir
+from os.path import isfile, join
 
 
 class PipelineManager:
 
-    def __init__(self, endpoint="tcp://0.0.0.0:0001"):
+    def __init__(self, endpoint="tcp://0.0.0.0:4001"):
         """
         Args:
             endpoint: the endpoint the PipelineManager's zerorpc server will listen
@@ -15,16 +17,19 @@ class PipelineManager:
         self.endpoint_port_counter = 2
         self.zrpc = zerorpc.Server(self)
         self.zrpc.bind(endpoint)
+        self.ROUTINES_FOLDER_PATH = "../contrib/routines"
 
     def create_component(self, component_name):
         if component_name in self.components:
             print("Component name '" + component_name + "' already exist")
+            return False
         else:
             self.components[component_name] = \
                 BaseComponent(name=component_name,
                               endpoint="{0:0=4d}"
                               .format(self.endpoint_port_counter))
             print("Component " + component_name + " has been created")
+            return True
 
     def remove_component(self, component_name):
         pass
@@ -54,7 +59,13 @@ class PipelineManager:
         pass
 
     def get_all_routines(self):
-        pass
+        routine_file_names = [f for f in
+                              listdir(self.ROUTINES_FOLDER_PATH)
+                              if isfile(join(self.ROUTINES_FOLDER_PATH, f))]
+
+        routine_file_names = [file_name[:-3] for file_name in routine_file_names]
+        print(routine_file_names)
+        return routine_file_names
 
     def get_routine_information(self):
         pass
