@@ -17,7 +17,14 @@ class PipelineManager:
         self.zrpc.bind(endpoint)
 
     def create_component(self, component_name):
-        pass
+        if component_name in self.components:
+            print("Component name '" + component_name + "' already exist")
+        else:
+            self.components[component_name] = \
+                BaseComponent(name=component_name,
+                              endpoint="{0:0=4d}"
+                              .format(self.endpoint_port_counter))
+            print("Component " + component_name + " has been created")
 
     def remove_component(self, component_name):
         pass
