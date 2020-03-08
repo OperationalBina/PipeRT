@@ -21,7 +21,8 @@ jobs:
       services:
         - redis-server
       install:
-        - pip install -r requirements.txt
+        - pip install -r pipe-base/requirements1.txt
+        - pip install -r pipe-base/requirements2.txt
         - pip install -r tests/requirements.txt
         - pip install codecov
         - echo "Running unit tests…"
