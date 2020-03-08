@@ -125,7 +125,7 @@ class RedisHandler(MessageHandler):
 
         return msg
 
-    def send(self, msg, out_key):
+    def send(self, out_key, msg):
         fields = {
             "msg": msg
         }
@@ -142,7 +142,6 @@ class RedisHandler(MessageHandler):
     def _add_offset_to_stream_id(self, stream_id, offset):
         if stream_id is None:
             return None
-        print(stream_id)
         fixed_id = stream_id.split("-")
         last_msg_id_to_read = '-'.join([fixed_id[0],
                                         str(int(fixed_id[1]) + offset)])

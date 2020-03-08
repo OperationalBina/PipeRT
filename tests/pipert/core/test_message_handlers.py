@@ -15,35 +15,35 @@ def redis_handler():
 
 # tests if the method read the last message if it didn't read before
 def test_redis_read_next_msg_reads_last_message(redis_handler):
-    redis_handler.send("AAA", key)
-    redis_handler.send("BBB", key)
+    redis_handler.send(key, "AAA")
+    redis_handler.send(key, "BBB")
     msg = redis_handler.read_next_msg(key)
 
     assert msg.decode() == "BBB"
 
 
 def test_redis_read_next_msg(redis_handler):
-    redis_handler.send("AAA", key)
+    redis_handler.send(key, "AAA")
     assert redis_handler.read_next_msg(key).decode() == "AAA"
-    redis_handler.send("BBB", key)
-    redis_handler.send("CCC", key)
+    redis_handler.send(key, "BBB")
+    redis_handler.send(key, "CCC")
     assert redis_handler.read_next_msg(key).decode() == "BBB"
 
 
 def test_redis_read_next_msg_cannot_read_the_same_message(redis_handler):
-    redis_handler.send("AAA", key)
+    redis_handler.send(key, "AAA")
     assert redis_handler.read_next_msg(key).decode() == "AAA"
 
     assert redis_handler.read_next_msg(key) is None
 
 
 def test_redis_read_most_recent_message(redis_handler):
-    redis_handler.send("AAA", key)
-    redis_handler.send("BBB", key)
+    redis_handler.send(key, "AAA")
+    redis_handler.send(key, "BBB")
     assert redis_handler.read_most_recent_msg(key).decode() == "BBB"
 
 
 def test_redis_read_most_recent_message_cannot_read_the_same_message(redis_handler):
-    redis_handler.send("AAA", key)
+    redis_handler.send(key, "AAA")
     assert redis_handler.read_most_recent_msg(key).decode() == "AAA"
     assert redis_handler.read_most_recent_msg(key) is None
