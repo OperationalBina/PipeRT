@@ -3,7 +3,6 @@ from pipert.core.component import BaseComponent
 from os import listdir
 from os.path import isfile, join
 
-
 class PipelineManager:
 
     def __init__(self, endpoint="tcp://0.0.0.0:4001"):
@@ -71,4 +70,20 @@ class PipelineManager:
         pass
 
     def _get_routine_object_by_name(self, routine_name):
-        pass
+        path = self.ROUTINES_FOLDER_PATH.replace('/', '.') + "." + routine_name
+        absolute_path = "pipert." + path[3:] + "." + routine_name
+        print(absolute_path)
+        path = absolute_path.split('.')
+        module = ".".join(path[:-1])
+        m = __import__(module)
+        for comp in path[1:]:
+            m = getattr(m, comp)
+        return m
+
+
+pipeKing = PipelineManager()
+
+cls = pipeKing._get_routine_object_by_name("TestRoutine")
+
+test = cls(name="Guy", a="asd")
+test.check()
