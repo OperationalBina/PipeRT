@@ -3,16 +3,15 @@ import torch
 from pipert.utils.structures import Instances, Boxes
 import numpy as np
 from pipert.core.component import BaseComponent
-from queue import Queue, Empty
+from queue import Queue
 import argparse
 from urllib.parse import urlparse
-import time
 from pipert.core.routine import Routine
 from pipert.core.mini_logics import Message2Redis, MessageFromRedis
+from pipert.core import QueueHandler
 
 
 class InstancesSort(Sort):
-
     def __init__(self, max_age: int = 1, min_hits: int = None, window_size: int = None, percent_seen: float = None,
                  verbose: bool = False):
         super().__init__(max_age, min_hits, window_size, percent_seen, verbose)
@@ -43,29 +42,19 @@ class SORTLogic(Routine):
 
     def __init__(self, in_queue, out_queue, component_name, *args, **kwargs):
         super().__init__(component_name=component_name)
-        self.in_queue = in_queue
-        self.out_queue = out_queue
+        self.in_queue = QueueHandler(in_queue)
+        self.out_queue = QueueHandler(out_queue)
         self.sort = InstancesSort(*args, **kwargs)
 
     def main_logic(self, *args, **kwargs):
-        try:
-            pred_msg = self.in_queue.get(block=False)
+        pred_msg = self.in_queue.non_blocking_get()
+        if pred_msg:
             instances = pred_msg.get_payload()
             new_instances = self.sort.update_instances(instances)
-            try:
-                dropped_msg = self.out_queue.get(block=False)
-                self.state.dropped += 1
-                self.logger.info("Dropped the following prediction because"
-                                 "it was not grabbed in time: %s",
-                                 str(dropped_msg))
-            except Empty:
-                pass
             pred_msg.update_payload(new_instances)
-            self.out_queue.put(pred_msg)
-            return True
-
-        except Empty:
-            time.sleep(0)
+            success = self.out_queue.deque_non_blocking_put(pred_msg)
+            return success
+        else:
             return False
 
     def setup(self, *args, **kwargs):

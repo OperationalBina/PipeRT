@@ -1,9 +1,78 @@
-from pipert import BaseComponent
+import time
+
+import cv2
+from imutils import resize
+
+from pipert import BaseComponent, Routine
 from queue import Queue
-# from torch.multiprocessing import Queue
 import argparse
 from urllib.parse import urlparse
-from pipert.core.mini_logics import Message2Redis, Listen2Stream
+
+from pipert.core.message import Message
+from pipert.core.mini_logics import Message2Redis
+from pipert.core import QueueHandler
+
+
+class Listen2Stream(Routine):
+
+    def __init__(self, stream_address, queue, fps=30., *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.stream_address = stream_address
+        self.isFile = str(stream_address).endswith("mp4")
+        self.stream = None
+        # self.stream = cv2.VideoCapture(self.stream_address)
+        self.q_handler = QueueHandler(queue)
+        self.fps = fps
+        self.updated_config = {}
+
+    def begin_capture(self):
+        self.stream = cv2.VideoCapture(self.stream_address)
+        if self.isFile:
+            self.fps = self.stream.get(cv2.CAP_PROP_FPS)
+            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        self.logger.info("Starting video capture on %s", self.stream_address)
+
+    def change_stream(self):
+        if self.stream_address == self.updated_config['stream_address']:
+            return
+        self.stream_address = self.updated_config['stream_address']
+        self.fps = self.updated_config['FPS']
+        self.isFile = str(self.stream_address).endswith("mp4")
+        self.logger.info("Changing source stream address to %s",
+                         self.updated_config['stream_address'])
+        self.begin_capture()
+
+    def grab_frame(self):
+        grabbed, frame = self.stream.read()
+        msg = Message(frame, self.stream_address)
+        msg.record_entry(self.component_name, self.logger)
+        return grabbed, msg
+
+    def main_logic(self, *args, **kwargs):
+        if self.updated_config:
+            self.change_stream()
+            self.updated_config = {}
+
+        grabbed, msg = self.grab_frame()
+        if grabbed:
+            frame = msg.get_payload()
+            frame = resize(frame, 640, 480)
+            # if the stream is from a webcam, flip the frame
+            if self.stream_address == 0:
+                frame = cv2.flip(frame, 1)
+            msg.update_payload(frame)
+
+            success = self.q_handler.deque_non_blocking_put(msg)
+            time.sleep(0)
+            return success
+
+    def setup(self, *args, **kwargs):
+        self.begin_capture()
+
+    def cleanup(self, *args, **kwargs):
+        self.stream.release()
+        del self.stream
 
 
 class VideoCapture(BaseComponent):
@@ -11,13 +80,15 @@ class VideoCapture(BaseComponent):
     def __init__(self, endpoint, stream_address, out_key, redis_url, fps=30.0, maxlen=10, name="VideoCapture"):
         super().__init__(endpoint, name)
         # TODO: should queue maxsize be configurable?
-        # self.queue = Queue(maxsize=1)
         self.queue = Queue(maxsize=1)
 
-        t_stream = Listen2Stream(stream_address, self.queue, fps, name="capture_frame", component_name=self.name).as_thread()
+        t_stream = Listen2Stream(stream_address, self.queue, fps, name="capture_frame", component_name=self.name)\
+            .as_thread()
         t_stream.pace(fps)
         self.register_routine(t_stream)
-        t_upload = Message2Redis(out_key, redis_url, self.queue, maxlen, name="upload_redis", component_name=self.name).as_thread()
+
+        t_upload = Message2Redis(out_key, redis_url, self.queue, maxlen, name="upload_redis", component_name=self.name)\
+            .as_thread()
         self.register_routine(t_upload)
 
     def change_stream(self, stream_address, fps=30.0):
@@ -36,18 +107,18 @@ if __name__ == '__main__':
     parser.add_argument('--fmt', help='Frame storage format', type=str, default='.jpg')
     parser.add_argument('--fps', help='Frames per second (webcam)', type=float, default=15.0)
     parser.add_argument('--maxlen', help='Maximum length of output stream', type=int, default=100)
-    args = parser.parse_args()
+    opts = parser.parse_args()
 
     # Set up Redis connection
-    url = urlparse(args.url)
+    url = urlparse(opts.url)
 
     # Choose video source
-    if args.infile is None:
-        zpc = VideoCapture(endpoint="tcp://0.0.0.0:4242", stream_address=args.webcam, out_key=args.output,
-                           redis_url=url, fps=args.fps, maxlen=args.maxlen)
+    if opts.infile is None:
+        zpc = VideoCapture(endpoint="tcp://0.0.0.0:4242", stream_address=opts.webcam, out_key=opts.output,
+                           redis_url=url, fps=opts.fps, maxlen=opts.maxlen)
     else:
-        zpc = VideoCapture(endpoint="tcp://0.0.0.0:4242", stream_address=args.infile, out_key=args.output,
-                           redis_url=url, fps=args.fps, maxlen=args.maxlen)
+        zpc = VideoCapture(endpoint="tcp://0.0.0.0:4242", stream_address=opts.infile, out_key=opts.output,
+                           redis_url=url, fps=opts.fps, maxlen=opts.maxlen)
     print("run")
     zpc.run()
     print("Killed")

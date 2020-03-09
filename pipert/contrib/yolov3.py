@@ -3,9 +3,6 @@ import time
 from queue import Empty, Queue
 from urllib.parse import urlparse
 
-import cv2
-import torch
-
 # from sys import platform
 from pipert.contrib.detection_demo.models import *  # set ONNX_EXPORT in models.py
 # from detection_demo.utils.datasets import *
@@ -15,6 +12,7 @@ from pipert.core.message import PredictionPayload
 from pipert.core.mini_logics import MessageFromRedis, Message2Redis
 from pipert.core.routine import Routine
 from pipert.utils.structures import Instances, Boxes
+from pipert.core import Routine, BaseComponent, QueueHandler, RedisHandler
 
 
 def letterbox(img, new_shape=416, color=(128, 128, 128), mode='auto'):
@@ -43,6 +41,8 @@ def letterbox(img, new_shape=416, color=(128, 128, 128), mode='auto'):
         dw, dh = 0.0, 0.0
         new_unpad = (new_shape, new_shape)
         ratiow, ratioh = new_shape / shape[1], new_shape / shape[0]
+    else:
+        raise ValueError(f"Unrecognized padding mode {mode}")
 
     if shape[::-1] != new_unpad:  # resize
         img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_AREA)  # INTER_AREA is better, INTER_LINEAR is faster
@@ -56,8 +56,8 @@ class YoloV3Logic(Routine):
 
     def __init__(self, in_queue, out_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.in_queue = in_queue
-        self.out_queue = out_queue
+        self.in_queue = QueueHandler(in_queue)
+        self.out_queue = QueueHandler(out_queue)
         self.img_size = (320, 192) if ONNX_EXPORT else opt.img_size  # (320, 192) or (416, 256) or (608, 352)
         out, source, weights, half = opt.output, opt.source, opt.weights, opt.half
         device = torch_utils.select_device(force_cpu=ONNX_EXPORT)
@@ -77,8 +77,9 @@ class YoloV3Logic(Routine):
         self.device = device
 
     def main_logic(self, *args, **kwargs):
-        try:
-            msg = self.in_queue.get(block=False)
+
+        msg = self.in_queue.non_blocking_get()
+        if msg:
             self.logger.info("Received the following message: %s",
                              str(msg))
             im0 = msg.get_payload()
@@ -112,21 +113,12 @@ class YoloV3Logic(Routine):
                 res = Instances(im0.shape)
                 res.set("pred_boxes", [])
 
-            try:
-                dropped_msg = self.out_queue.get(block=False)
-                self.state.dropped += 1
-                self.logger.info("Dropped the following prediction because"
-                                 "it was not grabbed in time: %s",
-                                 str(dropped_msg))
-            except Empty:
-                pass
             msg.payload = PredictionPayload(res.to("cpu"))
-            self.out_queue.put(msg, block=False)
-            return True
+            success = self.out_queue.deque_non_blocking_put(msg)
+            return success
 
-        except Empty:
-            time.sleep(0)
-            return False
+        else:
+            return None
 
     def setup(self, *args, **kwargs):
         self.state.dropped = 0

@@ -1,24 +1,24 @@
 import argparse
-import redis
 from urllib.parse import urlparse
 from flask import Flask, Response, request
 from pipert.core.component import BaseComponent
 from pipert.core.routine import Routine
-from queue import Empty, Full
-from multiprocessing import Process, Queue
+import queue
+from threading import Thread
 import cv2
 from pipert.utils.visualizer import VideoVisualizer
 from detectron2.data import MetadataCatalog
 from pipert.core.message import message_decode
 from pipert.core.message_handlers import RedisHandler
+from pipert.core import QueueHandler
 import time
 import requests
 
 
-def gen(q):
+def gen(q: QueueHandler):
     while True:
-        try:
-            msg = q.get(block=False)
+        msg = q.non_blocking_get()
+        if msg:
             image = msg.get_payload()
             ret, frame = cv2.imencode('.jpg', image)
             frame = frame.tobytes()
@@ -29,8 +29,6 @@ def gen(q):
                    b'Pragma: no-cache\r\n'
                    b'Expires: 0\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-        except Empty:
-            time.sleep(0)
 
 
 class MetaAndFrameFromRedis(Routine):
@@ -40,7 +38,7 @@ class MetaAndFrameFromRedis(Routine):
         self.in_key_meta = in_key_meta
         self.in_key_im = in_key_im
         self.url = url
-        self.queue = queue
+        self.q_handler = QueueHandler(queue)
         self.msg_handler = None
         self.flip = False
         self.negative = False
@@ -65,14 +63,9 @@ class MetaAndFrameFromRedis(Routine):
             if self.negative:
                 arr = 255 - arr
 
-            try:
-                self.queue.get(block=False)
-            except Empty:
-                pass
             frame_msg.update_payload(arr)
-            self.queue.put((frame_msg, pred_msg))
-            return True
-
+            success = self.q_handler.deque_non_blocking_put((frame_msg, pred_msg))
+            return success
         else:
             time.sleep(0)
             return False
@@ -87,14 +80,15 @@ class MetaAndFrameFromRedis(Routine):
 class VisLogic(Routine):
     def __init__(self, in_queue, out_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.in_queue = in_queue
-        self.out_queue = out_queue
+        self.in_queue = QueueHandler(in_queue)
+        self.out_queue = QueueHandler(out_queue)
         self.vis = VideoVisualizer(MetadataCatalog.get("coco_2017_train"))
 
     def main_logic(self, *args, **kwargs):
         # TODO implement input that takes both frame and metadata
-        try:
-            frame_msg, pred_msg = self.in_queue.get(block=False)
+        messages = self.in_queue.non_blocking_get()
+        if messages:
+            frame_msg, pred_msg = messages
             if pred_msg is not None and not pred_msg.is_empty():
                 frame = frame_msg.get_payload()
                 pred = pred_msg.get_payload()
@@ -103,25 +97,10 @@ class VisLogic(Routine):
                 frame_msg.update_payload(image)
                 frame_msg.history = pred_msg.history
             frame_msg.record_exit(self.component_name, self.logger)
-            try:
-                self.out_queue.put(frame_msg, block=False)
-                return True
-            except Full:
-                try:
-                    self.out_queue.get(block=False)
-                    self.state.dropped += 1
-                except Empty:
-                    pass
-                finally:
-                    try:
-                        self.out_queue.put(frame_msg, block=False)
-                    except Full:
-                        pass
-                    return True
-
-        except Empty:
-            time.sleep(0)
-            return False
+            success = self.out_queue.deque_non_blocking_put(frame_msg)
+            return success
+        else:
+            return None
 
     def setup(self, *args, **kwargs):
         self.state.dropped = 0
@@ -135,7 +114,7 @@ class FlaskVideoDisplay(BaseComponent):
     def __init__(self, in_key_meta, in_key_im, redis_url, endpoint,
                  name="FlaskVideoDisplay"):
         super().__init__(endpoint, name)
-        self.queue = Queue(maxsize=1)
+        self.queue = queue.Queue(maxsize=1)
         self.t_get = MetaAndFrameFromRedis(in_key_meta, in_key_im, redis_url,
                                            self.queue,
                                            name="get_frames_and_preds",
@@ -143,16 +122,17 @@ class FlaskVideoDisplay(BaseComponent):
         self.t_get.as_thread()
         self.register_routine(self.t_get)
 
-        self.queue2 = Queue(maxsize=1)
+        self.queue2 = queue.Queue(maxsize=1)
         self.t_vis = VisLogic(self.queue, self.queue2,
                               component_name=self.name).as_thread()
         self.register_routine(self.t_vis)
 
         app = Flask(__name__)
+        app.debug = False
 
         @app.route('/video')
         def video_feed():
-            return Response(gen(self.queue2),
+            return Response(gen(QueueHandler(self.queue2)),
                             mimetype='multipart/x-mixed-replace; '
                                      'boundary=frame')
 
@@ -168,13 +148,12 @@ class FlaskVideoDisplay(BaseComponent):
             shutdown_server()
             return 'Server shutting down...'
 
-        self.server = Process(target=app.run, kwargs={"host": '0.0.0.0'})
+        self.server = Thread(target=app.run, kwargs={"host": '0.0.0.0'})
         self.register_routine(self.server)
 
     def _teardown_callback(self, *args, **kwargs):
         # self.server.terminate()
         _ = requests.get("http://127.0.0.1:5000/shutdown")
-        self.server.terminate()
         # print("kill!!!")
         # self.server.kill()
 
