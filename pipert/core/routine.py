@@ -44,6 +44,8 @@ class Routine:
         self._allowed_events = []
         self.register_events(*Events)
         self.runner = None
+        self.runner_creator = None
+        self.runner_creator_kwargs = {}
         self._setup_logger()
 
     def _setup_logger(self):
@@ -289,15 +291,21 @@ class Routine:
         self.cleanup()
 
     def as_thread(self):
-        self.runner = threading.Thread(target=self._extended_run)
+        # self.runner = threading.Thread(target=self._extended_run)
+        self.runner_creator = threading.Thread
+        self.runner_creator_kwargs = {"target": self._extended_run}
         return self
 
     def as_process(self):
-        self.runner = mp.Process(target=self._extended_run)
+        # self.runner = mp.Process(target=self._extended_run)
+        self.runner_creator = mp.Process
+        self.runner_creator_kwargs = {"target": self._extended_run}
         return self
 
     def start(self):
-        if self.runner is None:
+        if self.runner_creator is None:
             # TODO - create better errors
             raise NoRunnerException("Runner not configured for routine")
+        print("Creating runner")
+        self.runner = self.runner_creator(**self.runner_creator_kwargs)
         self.runner.start()
