@@ -51,7 +51,6 @@ class Listen2Stream(Routine):
             self.change_stream()
             self.updated_config = {}
 
-        start = time.time()
         grabbed, msg = self.grab_frame()
         if grabbed:
             frame = msg.get_payload()
@@ -66,10 +65,7 @@ class Listen2Stream(Routine):
             finally:
                 msg.update_payload(frame)
                 self.queue.put(msg)
-                if self.isFile:
-                    wait = time.time() - start
-                    time.sleep(max(1 / self.fps - wait, 0))
-                # self.queue.put(frame, block=False)
+
                 time.sleep(0)
                 return True
 

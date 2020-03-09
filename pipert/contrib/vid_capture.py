@@ -15,12 +15,14 @@ class VideoCapture(BaseComponent):
         self.queue = Queue(maxsize=1)
 
         t_stream = Listen2Stream(stream_address, self.queue, fps, name="capture_frame", component_name=self.name).as_thread()
+        t_stream.pace(fps)
         self.register_routine(t_stream)
         t_upload = Message2Redis(out_key, redis_url, self.queue, maxlen, name="upload_redis", component_name=self.name).as_thread()
         self.register_routine(t_upload)
 
     def change_stream(self, stream_address, fps=30.0):
         self._routines[0].updated_config = {"stream_address": stream_address, "FPS": fps}
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

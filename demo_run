@@ -10,18 +10,18 @@ sleep 1
 
 python -m pipert.contrib.flask_display -i camera:0 -m camera:3 -z 4246 &
 PID1=$!
-python -m contrib.cv2_display -i camera:1 -z 4245 &
-PID2=$!
-python -m contrib.canny -i camera:0 -o camera:1 -z 4244 &
-PID3=$!
+#python -m contrib.cv2_display -i camera:1 -z 4245 &
+#PID2=$!
+#python -m contrib.canny -i camera:0 -o camera:1 -z 4244 &
+#PID3=$!
 #python -m contrib.face_detection -i camera:0 -o camera:3 -z 4243 &
 #PID7=$!
-python -m pipert.contrib.pose_estimation -i camera:0 -o camera:3 -z 4249 &
-PID8=$!
-#python -m pipert.contrib.yolov3 -i camera:0 -o camera:2 -z 4243 &
-#PID4=$!
-#python -m pipert.contrib.sort -i camera:2 -o camera:3 -z 4247 --max-age 10 --window-size 10 --percent-seen 0.6 &
-#PID6=$!
+#python -m pipert.contrib.pose_estimation -i camera:0 -o camera:3 -z 4249 &
+#PID8=$!
+python -m pipert.contrib.yolov3 -i camera:0 -o camera:2 -z 4243 &
+PID4=$!
+python -m pipert.contrib.sort -i camera:2 -o camera:3 -z 4247 --max-age 10 --window-size 10 --percent-seen 0.6 &
+PID6=$!
 sleep 5
 #python -m contrib.vid_capture -i contrib/test.mp4 &
 python -m pipert.contrib.vid_capture &
@@ -29,22 +29,22 @@ PID5=$!
 
 sleep 40
 kill -SIGTERM $PID1
-kill $PID2
-kill $PID3
-#kill $PID4
+#kill $PID2
+#kill $PID3
+kill $PID4
 kill -SIGTERM $PID5
-#kill $PID6
+kill $PID6
 #kill $PID7
-kill -SIGTERM $PID8
+#kill -SIGTERM $PID8
 
 sleep 5
 kill -9 $PID1
-kill $PID2
-kill $PID3
-#kill -9 $PID4
+#kill $PID2
+#kill $PID3
+kill -9 $PID4
 kill -9 $PID5
-#kill -9 $PID6
-kill -9 $PID8
+kill -9 $PID6
+#kill -9 $PID8
 
 #kill $PID
 
