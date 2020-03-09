@@ -5,7 +5,8 @@ from typing import Union
 import signal
 import gevent
 import zerorpc
-from .errors import RegisteredException
+from .errors import RegisteredException, QueueDoesNotExist
+from queue import Queue
 
 
 class BaseComponent:
@@ -22,7 +23,9 @@ class BaseComponent:
         super().__init__()
         self.name = name
         self.stop_event = Event()
+        self.stop_event.set()
         self.endpoint = endpoint
+        self.queues = {}
         self._routines = []
         self.zrpc = zerorpc.Server(self)
         self.zrpc.bind(endpoint)
@@ -39,10 +42,11 @@ class BaseComponent:
         """
         Starts running all the component's routines and the zerorpc server.
         """
+        self.stop_event.clear()
         self._start()
         gevent.signal(signal.SIGTERM, self.stop_run)
-        self.zrpc.run()
-        self.zrpc.close()
+        # self.zrpc.run()
+        # self.zrpc.close()
 
     def register_routine(self, routine: Union[Routine, Process, Thread]):
         """
@@ -72,7 +76,7 @@ class BaseComponent:
         server.
         """
         try:
-            self.zrpc.stop()
+            # self.zrpc.stop()
             self.stop_event.set()
             self._teardown_callback()
             for routine in self._routines:
@@ -83,3 +87,25 @@ class BaseComponent:
             return 0
         except RuntimeError:
             return 1
+
+    def create_queue(self, queue_name, queue_size=1):
+        if queue_name in self.queues:
+            print("Queue name " + queue_name + " already exist")
+            return False
+        self.queues[queue_name] = Queue(maxsize=queue_size)
+
+    def get_queue(self, queue_name):
+        try:
+            return self.queues[queue_name]
+        except KeyError:
+            raise QueueDoesNotExist(queue_name)
+
+    def does_queue_exist(self, queue_name):
+        return queue_name in self.queues
+
+    def delete_queue(self, queue_name):
+        try:
+            del self.queues[queue_name]
+            return True
+        except KeyError:
+            raise QueueDoesNotExist(queue_name)

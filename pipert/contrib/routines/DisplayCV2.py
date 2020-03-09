@@ -10,16 +10,14 @@ class DisplayCV2(Routine):
         self.queue = queue
         self.negative = False
 
-    def main_logic(self, *args, **kwargs):                                                                  
+    def main_logic(self, *args, **kwargs):
         try:
-            print("running cv2")
             msg = self.queue.get(block=False)
             frame = msg.get_payload()
             if self.negative:
                 frame = 255 - frame
             cv2.imshow('Display', frame)
             cv2.waitKey(1)
-            print("running cv22")
         except Empty:
             time.sleep(0)
 

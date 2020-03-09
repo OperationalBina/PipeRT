@@ -18,7 +18,6 @@ class MessageFromRedis(Routine):
         self.negative = False
 
     def main_logic(self, *args, **kwargs):
-        print("reading from redis")
         encoded_msg = self.msg_handler.read_most_recent_msg(self.in_key)
         if encoded_msg:
             msg = message_decode(encoded_msg)
