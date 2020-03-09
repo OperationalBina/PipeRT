@@ -1,6 +1,6 @@
 import argparse
 from urllib.parse import urlparse
-from flask import Flask, Response, request
+from flask import Flask, Response
 from pipert.core.component import BaseComponent
 from pipert.core.routine import Routine
 import queue
@@ -12,7 +12,6 @@ from pipert.core.message import message_decode
 from pipert.core.message_handlers import RedisHandler
 from pipert.core import QueueHandler
 import time
-import requests
 
 
 def gen(q: QueueHandler):
@@ -43,8 +42,11 @@ class MetaAndFrameFromRedis(Routine):
         self.flip = False
         self.negative = False
 
-    def receive_msg(self, in_key):
-        encoded_msg = self.msg_handler.receive(in_key)
+    def receive_msg(self, in_key, most_recent=True):
+        if most_recent:
+            encoded_msg = self.msg_handler.read_most_recent_msg(in_key)
+        else:
+            encoded_msg = self.msg_handler.receive(in_key)
         if not encoded_msg:
             return None
         msg = message_decode(encoded_msg)
@@ -52,8 +54,8 @@ class MetaAndFrameFromRedis(Routine):
         return msg
 
     def main_logic(self, *args, **kwargs):
-        pred_msg = self.receive_msg(self.in_key_meta)
-        frame_msg = self.receive_msg(self.in_key_im)
+        pred_msg = self.receive_msg(self.in_key_meta, most_recent=False)
+        frame_msg = self.receive_msg(self.in_key_im, most_recent=True)
         if frame_msg:
             arr = frame_msg.get_payload()
 
@@ -136,26 +138,8 @@ class FlaskVideoDisplay(BaseComponent):
                             mimetype='multipart/x-mixed-replace; '
                                      'boundary=frame')
 
-        def shutdown_server():
-            func = request.environ.get('werkzeug.server.shutdown')
-            if func is None:
-                raise RuntimeError('Not running with the Werkzeug Server')
-            func()
-
-        @app.route('/shutdown')
-        def shutdown():
-            # app.do_teardown_appcontext()
-            shutdown_server()
-            return 'Server shutting down...'
-
         self.server = Thread(target=app.run, kwargs={"host": '0.0.0.0'})
         self.register_routine(self.server)
-
-    def _teardown_callback(self, *args, **kwargs):
-        # self.server.terminate()
-        _ = requests.get("http://127.0.0.1:5000/shutdown")
-        # print("kill!!!")
-        # self.server.kill()
 
     def flip_im(self):
         self.t_get.flip = not self.t_get.flip

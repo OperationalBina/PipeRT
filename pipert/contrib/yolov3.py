@@ -1,18 +1,15 @@
 import argparse
-import time
-from queue import Empty, Queue
+from queue import Queue
 from urllib.parse import urlparse
 
 # from sys import platform
 from pipert.contrib.detection_demo.models import *  # set ONNX_EXPORT in models.py
 # from detection_demo.utils.datasets import *
 from pipert.contrib.detection_demo.utils import *
-from pipert.core.component import BaseComponent
 from pipert.core.message import PredictionPayload
 from pipert.core.mini_logics import MessageFromRedis, Message2Redis
-from pipert.core.routine import Routine
 from pipert.utils.structures import Instances, Boxes
-from pipert.core import Routine, BaseComponent, QueueHandler, RedisHandler
+from pipert.core import Routine, BaseComponent, QueueHandler
 
 
 def letterbox(img, new_shape=416, color=(128, 128, 128), mode='auto'):
