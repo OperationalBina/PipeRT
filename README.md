@@ -18,3 +18,11 @@ The code in **pipert.contrib** is not as fully maintained as the core part of th
 Documentation
 =============
 API documentation and an overview of the library can be found [here](https://pipert.readthedocs.io/en/latest/).
+
+Installation
+============
+- Running the pipeline for the first time:
+    - docker-compose up -d
+
+- Build the pipeline after changes:
+    - docker-compose up -d --build --force-recreate
