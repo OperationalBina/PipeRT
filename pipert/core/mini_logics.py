@@ -36,18 +36,19 @@ class Message2Redis(Routine):
 
 class MessageFromRedis(Routine):
 
-    def __init__(self, in_key, url, queue, *args, **kwargs):
+    def __init__(self, in_key, url, queue, most_recent=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.in_key = in_key
         self.url = url
         self.q_handler = QueueHandler(queue)
         self.msg_handler = None
+        self.most_recent = most_recent
+        self.read_method = None
         self.flip = False
         self.negative = False
 
     def main_logic(self, *args, **kwargs):
-        # encoded_msg = self.msg_handler.receive(self.in_key)
-        encoded_msg = self.msg_handler.read_most_recent_msg(self.in_key)
+        encoded_msg = self.read_method(self.in_key)
         if encoded_msg:
             msg = message_decode(encoded_msg)
             msg.record_entry(self.component_name, self.logger)
@@ -59,6 +60,10 @@ class MessageFromRedis(Routine):
 
     def setup(self, *args, **kwargs):
         self.msg_handler = RedisHandler(self.url)
+        if self.most_recent:
+            self.read_method = self.msg_handler.read_most_recent_msg
+        else:
+            self.read_method = self.msg_handler.read_next_msg
         self.msg_handler.connect()
 
     def cleanup(self, *args, **kwargs):

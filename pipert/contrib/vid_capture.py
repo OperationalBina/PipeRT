@@ -2,7 +2,6 @@ import time
 
 import cv2
 from imutils import resize
-
 from pipert import BaseComponent, Routine
 from queue import Queue
 import argparse
@@ -18,7 +17,7 @@ class Listen2Stream(Routine):
     def __init__(self, stream_address, queue, fps=30., *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.stream_address = stream_address
-        self.isFile = str(stream_address).endswith("mp4")
+        self.is_file = str(stream_address).endswith("mp4")
         self.stream = None
         # self.stream = cv2.VideoCapture(self.stream_address)
         self.q_handler = QueueHandler(queue)
@@ -27,10 +26,11 @@ class Listen2Stream(Routine):
 
     def begin_capture(self):
         self.stream = cv2.VideoCapture(self.stream_address)
-        if self.isFile:
+        if self.is_file:
             self.fps = self.stream.get(cv2.CAP_PROP_FPS)
             self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        _, _ = self.grab_frame()
         self.logger.info("Starting video capture on %s", self.stream_address)
 
     def change_stream(self):
@@ -38,7 +38,7 @@ class Listen2Stream(Routine):
             return
         self.stream_address = self.updated_config['stream_address']
         self.fps = self.updated_config['FPS']
-        self.isFile = str(self.stream_address).endswith("mp4")
+        self.is_file = str(self.stream_address).endswith("mp4")
         self.logger.info("Changing source stream address to %s",
                          self.updated_config['stream_address'])
         self.begin_capture()
@@ -64,7 +64,6 @@ class Listen2Stream(Routine):
             msg.update_payload(frame)
 
             success = self.q_handler.deque_non_blocking_put(msg)
-            time.sleep(0)
             return success
 
     def setup(self, *args, **kwargs):
@@ -80,7 +79,7 @@ class VideoCapture(BaseComponent):
     def __init__(self, endpoint, stream_address, out_key, redis_url, fps=30.0, maxlen=10, name="VideoCapture"):
         super().__init__(endpoint, name)
         # TODO: should queue maxsize be configurable?
-        self.queue = Queue(maxsize=1)
+        self.queue = Queue(maxsize=10)
 
         t_stream = Listen2Stream(stream_address, self.queue, fps, name="capture_frame", component_name=self.name)\
             .as_thread()

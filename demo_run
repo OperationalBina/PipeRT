@@ -22,20 +22,24 @@ python -m pipert.contrib.yolov3 -i camera:0 -o camera:2 -z 4243 &
 PID4=$!
 python -m pipert.contrib.sort -i camera:2 -o camera:3 -z 4247 --max-age 10 --window-size 10 --percent-seen 0.6 &
 PID6=$!
+#python -m pipert.contrib.video_writer -z 4248 &
+#PID9=$!
+
 sleep 5
-#python -m contrib.vid_capture -i contrib/test.mp4 &
+#python -m pipert.contrib.vid_capture -i pipert/contrib/test.mp4 &
 python -m pipert.contrib.vid_capture &
 PID5=$!
 
-sleep 40
-kill -SIGTERM $PID1
+sleep 20
+kill $PID1
 #kill $PID2
 #kill $PID3
 kill $PID4
-kill -SIGTERM $PID5
+kill $PID5
 kill $PID6
 #kill $PID7
 #kill -SIGTERM $PID8
+#kill $PID9
 
 sleep 5
 kill -9 $PID1
@@ -45,6 +49,7 @@ kill -9 $PID4
 kill -9 $PID5
 kill -9 $PID6
 #kill -9 $PID8
+#kill -9 $PID9
 
 #kill $PID
 
