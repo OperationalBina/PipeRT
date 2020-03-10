@@ -1,5 +1,3 @@
-import time
-
 import cv2
 from imutils import resize
 from pipert import BaseComponent, Routine
