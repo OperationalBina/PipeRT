@@ -101,9 +101,9 @@ class QueueHandler:
         except queue.Full:
             try:
                 _ = self.q.get(block=False)
-                dropped = True
-            except queue.Empty:
                 dropped = False
+            except queue.Empty:
+                dropped = True
             # TODO - could crash due to a race condition, could be solved with a lock
             self.q.put(item, block=False)
             return dropped
@@ -124,9 +124,9 @@ class QueueHandler:
         except queue.Full:
             try:
                 _ = self.q.get(block=False)
-                dropped = True
-            except queue.Empty:
                 dropped = False
+            except queue.Empty:
+                dropped = True
             # TODO - could crash due to a race condition, could be solved with a lock
             self.q.put(item, block=False)
             return dropped
