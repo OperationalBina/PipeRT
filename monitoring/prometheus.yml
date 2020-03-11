@@ -21,7 +21,7 @@ scrape_configs:
 
     static_configs:
     - targets: 
-      - 'localhost:9100'
+      - node-exporter:9100
   - job_name: 'pipert'
 
     # metrics_path defaults to '/metrics'
@@ -29,14 +29,14 @@ scrape_configs:
 
     static_configs:
     - targets: 
-      - 'localhost:8080'
+      - pipert:8080
       labels:
         service_name: 'cv_capture'
     - targets:
-      - 'localhost:8081'
+      - pipert:8081
       labels:
         service_name: 'yolo_v3'
     - targets:
-      - localhost:8082
+      - pipert:8082
       labels:
         service_name: 'flask_display'

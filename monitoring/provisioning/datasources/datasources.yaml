@@ -5,4 +5,4 @@ datasources:
   access: proxy
   editable: true
   isDefault: true
-  url: http://localhost:9090
+  url: http://prometheus:9090
