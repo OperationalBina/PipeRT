@@ -3,7 +3,6 @@ from pipert import BaseComponent, Routine
 from queue import Queue
 import argparse
 from urllib.parse import urlparse
-from imutils import resize
 from pipert.core.mini_logics import MessageFromRedis
 from pipert.core import QueueHandler, Message
 
