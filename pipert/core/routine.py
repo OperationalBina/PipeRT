@@ -201,6 +201,7 @@ class Routine:
         Args:
             fps: The wanted fps for the routine
         """
+
         def start_time(routine: Routine):
             routine.state.start_time = time.time()
 
@@ -229,9 +230,11 @@ class Routine:
             **kwargs: argsional keyword args to be passed to `handler`.
 
         """
+
         def decorator(f):
             self.add_event_handler(event_name, f, *args, **kwargs)
             return f
+
         return decorator
 
     def _fire_event(self, event_name, *event_args, **event_kwargs):
@@ -309,3 +312,13 @@ class Routine:
         print("Creating runner")
         self.runner = self.runner_creator(**self.runner_creator_kwargs)
         self.runner.start()
+
+    @staticmethod
+    def get_constructor_parameters():
+        return {
+            "name": "String",
+            "component_name": "String"
+        }
+
+    def get_name(self):
+        return self.name
