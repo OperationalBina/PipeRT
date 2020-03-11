@@ -8,15 +8,15 @@ from pipert.core.message import Message
 from pipert.core.routine import Routine
 
 
-class Listen2Stream(Routine):
+class ListenToStream(Routine):
 
-    def __init__(self, stream_address, queue, fps=30., *args, **kwargs):
+    def __init__(self, stream_address, out_queue, fps=30., *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.stream_address = stream_address
         self.isFile = str(stream_address).endswith("mp4")
         self.stream = None
         # self.stream = cv2.VideoCapture(self.stream_address)
-        self.queue = queue
+        self.queue = out_queue
         self.fps = fps
         self.updated_config = {}
 
@@ -49,7 +49,6 @@ class Listen2Stream(Routine):
             self.change_stream()
             self.updated_config = {}
 
-        start = time.time()
         grabbed, msg = self.grab_frame()
         if grabbed:
             frame = msg.get_payload()
@@ -65,7 +64,8 @@ class Listen2Stream(Routine):
                 msg.update_payload(frame)
                 self.queue.put(msg)
                 if self.isFile:
-                    wait = time.time() - start
+                    self.time = time.time()
+                    wait = time.time() - self.time
                     time.sleep(max(1 / self.fps - wait, 0))
                 # self.queue.put(frame, block=False)
                 time.sleep(0)
@@ -77,3 +77,13 @@ class Listen2Stream(Routine):
     def cleanup(self, *args, **kwargs):
         self.stream.release()
         del self.stream
+
+    @staticmethod
+    def get_constructor_parameters():
+        dicts = Routine.get_constructor_parameters()
+        dicts.update({
+            "stream_address": "String",
+            "out_queue": "Queue",
+            "fps": "Integer"
+        })
+        return dicts
