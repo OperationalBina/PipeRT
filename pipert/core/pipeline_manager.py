@@ -1,12 +1,11 @@
-import time
-from urllib.parse import urlparse
-
 import zerorpc
+import re
 from pipert.core.component import BaseComponent
 from pipert.core.errors import QueueDoesNotExist
 from pipert.core.routine import Routine
 from os import listdir
 from os.path import isfile, join
+import json
 
 
 class PipelineManager:
@@ -140,16 +139,33 @@ class PipelineManager:
                               if isfile(join(self.ROUTINES_FOLDER_PATH, f))]
 
         routine_file_names = [file_name[:-3] for file_name in routine_file_names]
-        print(routine_file_names)
+        routine_file_names = [file_name[0].upper() +
+                              re.sub(r'_\w',
+                                     self._remove_string_with_underscore,
+                                     file_name)[1:]
+                              for file_name in routine_file_names]
         return routine_file_names
 
-    def get_routine_params(self):
-        pass
+    @staticmethod
+    def _remove_string_with_underscore(match):
+        return match.group(0).upper()[1]
+
+    @staticmethod
+    def _add_underscore_before_uppercase(match):
+        return '_' + match.group(0).lower()
+
+    def get_routine_params(self, routine_name):
+        routine_object = self._get_routine_object_by_name(routine_name)
+        params = routine_object.get_constructor_parameters()
+        params = json.dumps(params)
+        return params
 
     def _get_routine_object_by_name(self, routine_name: str) -> Routine:
-        path = self.ROUTINES_FOLDER_PATH.replace('/', '.') + "." + routine_name
+        path = self.ROUTINES_FOLDER_PATH.replace('/', '.') + "." + \
+               re.sub(r'[A-Z]',
+                      self._add_underscore_before_uppercase,
+                      routine_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + routine_name
-        print(absolute_path)
         path = absolute_path.split('.')
         module = ".".join(path[:-1])
         try:
@@ -168,28 +184,29 @@ class PipelineManager:
         self.create_component("Display")
         self.create_queue_to_component("Stream", "video")
         self.create_queue_to_component("Display", "messages")
-        self.add_routine_to_component(component_name="Stream",
-                                      routine_name="Listen2Stream",
-                                      stream_address="/home/internet/Desktop/video.mp4",
-                                      queue="video",
-                                      fps=30,
-                                      name="capture_frame")
-        self.add_routine_to_component(component_name="Stream",
-                                      routine_name="Message2Redis",
-                                      out_key="camera:0",
-                                      url=urlparse("redis://127.0.0.1:6379"),
-                                      queue="video",
-                                      maxlen=10,
-                                      name="upload_redis")
+        # self.add_routine_to_component(component_name="Stream",
+        #                               routine_name="ListenToStream",
+        #                               stream_address="/home/internet/Desktop/video.mp4",
+        #                               out_queue="video",
+        #                               fps=30,
+        #                               name="capture_frame")
+        # self.add_routine_to_component(component_name="Stream",
+        #                               routine_name="MessageToRedis",
+        #                               redis_send_key="camera:0",
+        #                               url="redis://127.0.0.1:6379",
+        #                               message_queue="video",
+        #                               max_stream_length=10,
+        #                               name="upload_redis")
         self.add_routine_to_component(component_name="Display",
                                       routine_name="MessageFromRedis",
-                                      in_key="camera:0",
-                                      url=urlparse("redis://127.0.0.1:6379"),
-                                      queue="messages",
+                                      redis_read_key="camera:0",
+                                      url="redis://127.0.0.1:6379",
+                                      message_queue="messages",
                                       name="get_frames")
         self.add_routine_to_component(component_name="Display",
-                                      routine_name="DisplayCV2",
-                                      queue="messages",
+                                      routine_name="DisplayCv2",
+                                      frame_queue="messages",
                                       name="draw_frames")
+
 
 PipelineManager()
