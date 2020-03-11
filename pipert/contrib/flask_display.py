@@ -12,6 +12,7 @@ from pipert.core.message import message_decode
 from pipert.core.message_handlers import RedisHandler
 from pipert.core import QueueHandler
 import time
+import os
 
 
 def gen(q: QueueHandler):
@@ -157,9 +158,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Set up Redis connection
-    url = urlparse(args.url)
-
+    # url = urlparse(args.url)
+    url = os.environ.get('REDIS_URL')
+    url = urlparse(url) if url is not None else urlparse(args.url)
     zpc = FlaskVideoDisplay(args.input_meta, args.input_im, url, endpoint=f"tcp://0.0.0.0:{args.zpc}")
-    print("run flask")
+    print(f"run {zpc.name}")
     zpc.run()
-    print("Killed")
+    print(f"Killed {zpc.name}")

@@ -4,7 +4,7 @@ from pipert import BaseComponent, Routine
 from queue import Queue
 import argparse
 from urllib.parse import urlparse
-
+import os
 from pipert.core.message import Message
 from pipert.core.mini_logics import Message2Redis
 from pipert.core import QueueHandler
@@ -107,8 +107,9 @@ if __name__ == '__main__':
     opts = parser.parse_args()
 
     # Set up Redis connection
-    url = urlparse(opts.url)
-
+    # url = urlparse(opts.url)
+    url = os.environ.get('REDIS_URL')
+    url = urlparse(url) if url is not None else urlparse(opts.url)
     # Choose video source
     if opts.infile is None:
         zpc = VideoCapture(endpoint="tcp://0.0.0.0:4242", stream_address=opts.webcam, out_key=opts.output,
@@ -116,6 +117,6 @@ if __name__ == '__main__':
     else:
         zpc = VideoCapture(endpoint="tcp://0.0.0.0:4242", stream_address=opts.infile, out_key=opts.output,
                            redis_url=url, fps=opts.fps, maxlen=opts.maxlen)
-    print("run")
+    print(f"run {zpc.name}")
     zpc.run()
-    print("Killed")
+    print(f"Killed {zpc.name}")

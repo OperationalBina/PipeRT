@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 from pipert.core.routine import Routine
 from pipert.core.mini_logics import Message2Redis, MessageFromRedis
 from pipert.core import QueueHandler
+import os
 
 
 class InstancesSort(Sort):
@@ -95,10 +96,12 @@ if __name__ == '__main__':
     parser.add_argument('--percent-seen', type=float, help='output video codec (verify ffmpeg support)')
     opt = parser.parse_args()
 
-    url = urlparse(opt.url)
+    # url = urlparse(opts.url)
+    url = os.environ.get('REDIS_URL')
+    url = urlparse(url) if url is not None else urlparse(opt.url)
 
     zpc = SORTComponent(f"tcp://0.0.0.0:{opt.zpc}", opt.input, opt.output, url, "SORTComponent", opt.maxlen, opt.max_age, opt.min_hits,
                         opt.window_size, opt.percent_seen)
-    print("run")
+    print(f"run {zpc.name}")
     zpc.run()
-    print("Killed")
+    print(f"Killed {zpc.name}")

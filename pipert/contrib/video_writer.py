@@ -30,7 +30,6 @@ class VideoWriterLogic(Routine):
 
             frame = cv2.putText(frame, f"{msg.id.split('_')[-1]}", (0, self.h - 10), cv2.FONT_HERSHEY_SIMPLEX,
                                 1, (0, 0, 255), 2, cv2.LINE_AA)
-            print(frame.shape)
             self.writer.write(frame)
 
     def setup(self, *args, **kwargs):
@@ -72,6 +71,6 @@ if __name__ == '__main__':
     # Choose video source
     zpc = VideoWriter(endpoint=f"tcp://0.0.0.0:{opts.zpc}",  in_key=opts.in_key, redis_url=url, output_file=opts.output,
                       fps=opts.fps, im_size=(opts.width, opts.height))
-    print("run")
+    print(f"run {zpc.name}")
     zpc.run()
-    print("Killed")
+    print(f"Killed {zpc.name}")

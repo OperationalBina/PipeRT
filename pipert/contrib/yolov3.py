@@ -1,7 +1,7 @@
 import argparse
 from queue import Queue
 from urllib.parse import urlparse
-
+import os
 # from sys import platform
 from pipert.contrib.detection_demo.models import *  # set ONNX_EXPORT in models.py
 # from detection_demo.utils.datasets import *
@@ -157,9 +157,10 @@ if __name__ == '__main__':
     parser.add_argument('--half', action='store_true', help='half precision FP16 inference')
     opt = parser.parse_args()
 
-    url = urlparse(opt.url)
-
+    # url = urlparse(opts.url)
+    url = os.environ.get('REDIS_URL')
+    url = urlparse(url) if url is not None else urlparse(opt.url)
     zpc = YoloV3(f"tcp://0.0.0.0:{opt.zpc}", opt.output, opt.input, url, opt.maxlen)
-    print("run")
+    print(f"run {zpc.name}")
     zpc.run()
-    print("Killed")
+    print(f"Killed {zpc.name}")
