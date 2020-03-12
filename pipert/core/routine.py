@@ -60,8 +60,7 @@ class Routine(ABC):
 
     def _setup_logger(self):
         # setting up the routine's logger
-        self.logger = logging.getLogger(self.component_name + "." +
-                                        self.name)
+        self.logger = logging.getLogger(self.component_name + "." + self.name)
         self.logger.setLevel(logging.DEBUG)
         self.logger.propagate = False
         log_file = "pipeline.log"

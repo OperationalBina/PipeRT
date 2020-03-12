@@ -3,6 +3,8 @@ services:
   redis:
     container_name: redis
     image: redis:5.0.7-buster
+    logging:
+      driver: none
     networks:
       default:
         aliases:
@@ -14,6 +16,8 @@ services:
   grafana:
     container_name: grafana
     image: grafana/grafana:latest
+    logging:
+      driver: none
     networks:
       default:
         aliases:
@@ -32,6 +36,8 @@ services:
   prometheus:
     container_name: prometheus
     image: prom/prometheus:latest
+    logging:
+      driver: none
     networks:
       default:
         aliases:
@@ -58,6 +64,8 @@ services:
       - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
   base-pipert:
     container_name: base-pipert
+    logging:
+      driver: none
     build:
       context: pipe-base/.
     networks:
@@ -80,6 +88,7 @@ services:
       REDIS_URL: redis://redis:6379/0
       GRAFANA_URL: grafana://grafana:3000/0
       PROMETHEUS_URL: prometheus://prometheus:9000/0
+      NVIDIA_VISIBLE_DEVICES: all
     ports:
       - 5000:5000
     devices:
