@@ -1,0 +1,17 @@
+Running node-exporter(cpu, mem & disk metrics):
+docker run -d --restart unless-stopped --name node-exporter --net=host --pid=host \
+    -v "/:/host:ro,rslave" -v dcgm-data:/run/prometheus:ro quay.io/prometheus/node-exporter\
+     --path.rootfs=/host --collector.textfile.directory="/run/prometheus"
+
+Running dcgm-exporter(nvidia gpu metrics, works together with node-exporter):
+docker run -d --restart unless-stopped --gpus=all --name=nvidia-dcgm-exporter -v dcgm-data:/run/prometheus nvidia/dcgm-exporter
+
+Running grafana:
+docker run -itd --network host -v grafana_data:/var/lib/grafana -e GF_INSTALL_PLUGINS=grafana-piechart-panel --name grafana\
+    -v $(pwd)/monitoring/provisioning/dashboards:/etc/grafana/provisioning/dashboards\
+    -v $(pwd)/monitoring/provisioning/datasources:/etc/grafana/provisioning/datasources\
+    -v $(pwd)/monitoring/dashboards:/var/lib/grafana/dashboards grafana/grafana
+
+Running prometheus:
+docker run -itd --name prometheus --restart unless-stopped -v $(pwd)/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml --network host prom/prometheus
+
