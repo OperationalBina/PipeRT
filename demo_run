@@ -53,10 +53,6 @@ kill -9 $PID6
 #kill -9 $PID8
 #kill -9 $PID9
 
-#kill $PID
-
 sleep 1
-
 redis-cli flushall
 redis-cli shutdown
-
