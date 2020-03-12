@@ -138,13 +138,13 @@ class YoloV3Logic(Routine):
 class YoloV3(BaseComponent):
 
     def __init__(self, endpoint, out_key, in_key, redis_url, maxlen, name="YoloV3"):
-        super().__init__(endpoint, name)
+        super().__init__(endpoint, name, 8081)
         self.in_queue = Queue(maxsize=1)
         self.out_queue = Queue(maxsize=1)
 
         t_get = MessageFromRedis(in_key, redis_url, self.in_queue, name="get_frames", component_name=self.name).as_thread()
         self.register_routine(t_get)
-        t_det = YoloV3Logic(self.in_queue, self.out_queue, component_name=self.name).as_thread()
+        t_det = YoloV3Logic(self.in_queue, self.out_queue, name='yolo_logic', component_name=self.name).as_thread()
         self.register_routine(t_det)
         t_send = Message2Redis(out_key, redis_url, self.out_queue, maxlen, name="upload_redis", component_name=self.name).as_thread()
         self.register_routine(t_send)
@@ -152,9 +152,9 @@ class YoloV3(BaseComponent):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cfg', type=str, default='pipert/contrib/YoloResources/yolov3.cfg', help='cfg file path')
-    parser.add_argument('--names', type=str, default='pipert/contrib/YoloResources/coco.names', help='coco.names file path')
-    parser.add_argument('--weights', type=str, default='pipert/contrib/YoloResources/yolov3.weights', help='path to weights file')
+    parser.add_argument('--cfg', type=str, default='pipert/contrib/detection_demo/yolov3.cfg', help='cfg file path')
+    parser.add_argument('--names', type=str, default='pipert/contrib/detection_demo/coco.names', help='coco.names file path')
+    parser.add_argument('--weights', type=str, default='pipert/contrib/detection_demo/yolov3.weights', help='path to weights file')
     parser.add_argument('--source', type=str, default='0', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('-i', '--input', help='Input stream key name', type=str, default='camera:0')
     parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:2')
