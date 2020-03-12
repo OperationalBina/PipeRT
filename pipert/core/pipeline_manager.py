@@ -1,3 +1,5 @@
+from time import sleep
+
 import zerorpc
 import re
 from pipert.core.component import BaseComponent
@@ -22,6 +24,7 @@ class PipelineManager:
         self.zrpc = zerorpc.Server(self)
         self.zrpc.bind(endpoint)
         self.ROUTINES_FOLDER_PATH = "../contrib/routines"
+        self.COMPONENTS_FOLDER_PATH = "../contrib/components"
         self.zrpc.run()
 
     def create_component(self, component_name):
@@ -33,6 +36,23 @@ class PipelineManager:
                 BaseComponent(name=component_name,
                               endpoint="tcp://0.0.0.0:{0:0=4d}"
                               .format(self.endpoint_port_counter))
+            print("Component " + component_name + " has been created")
+            self.endpoint_port_counter += 1
+            return True
+
+    def create_premade_component(self, component_name, component_type_name):
+        if self._does_component_exist(component_name):
+            print("Component name '" + component_name + "' already exist")
+            return False
+        else:
+            component_object = self._get_component_object_by_name(component_type_name)
+            if component_name is None:
+                print("The component type '" + component_type_name + " doesn't exist")
+                return False
+            self.components[component_name] = \
+                component_object(name=component_name,
+                                 endpoint="tcp://0.0.0.0:{0:0=4d}"
+                                 .format(self.endpoint_port_counter))
             print("Component " + component_name + " has been created")
             self.endpoint_port_counter += 1
             return True
@@ -176,10 +196,26 @@ class PipelineManager:
         except ModuleNotFoundError:
             return None
 
+    def _get_component_object_by_name(self, component_type_name):
+        path = self.COMPONENTS_FOLDER_PATH.replace('/', '.') + "." + \
+               re.sub(r'[A-Z]',
+                      self._add_underscore_before_uppercase,
+                      component_type_name)[1:]
+        absolute_path = "pipert." + path[3:] + "." + component_type_name
+        path = absolute_path.split('.')
+        module = ".".join(path[:-1])
+        try:
+            m = __import__(module)
+            for comp in path[1:]:
+                m = getattr(m, comp)
+            return m
+        except ModuleNotFoundError:
+            return None
+
     def _does_component_exist(self, component_name):
         return component_name in self.components
 
-    def set_up_components(self):
+    def set_up_components_cv2(self):
         self.create_component("Stream")
         self.create_component("Display")
         self.create_queue_to_component("Stream", "video")
@@ -207,6 +243,55 @@ class PipelineManager:
                                       routine_name="DisplayCv2",
                                       frame_queue="messages",
                                       name="draw_frames")
+
+    def set_up_components_flask(self):
+        self.create_component("Stream")
+        self.create_queue_to_component("Stream", "video")
+        self.add_routine_to_component(component_name="Stream",
+                                      routine_name="ListenToStream",
+                                      stream_address="/home/internet/Desktop/video.mp4",
+                                      out_queue="video",
+                                      fps=30,
+                                      name="capture_frame")
+        self.add_routine_to_component(component_name="Stream",
+                                      routine_name="MessageToRedis",
+                                      redis_send_key="cam",
+                                      url="redis://127.0.0.1:6379",
+                                      message_queue="video",
+                                      max_stream_length=10,
+                                      name="upload_redis")
+
+        self.create_premade_component("FlaskDisplay", "FlaskVideoDisplay")
+        self.create_queue_to_component("FlaskDisplay", "messages")
+        # self.create_queue_to_component("FlaskDisplay", "flask_display")
+
+
+        # self.add_routine_to_component(component_name="FlaskDisplay",
+        #                               routine_name="MetaAndFrameFromRedis",
+        #                               redis_read_image_key="cam",
+        #                               redis_read_meta_key="camera:1",
+        #                               url="redis://127.0.0.1:6379",
+        #                               image_meta_queue="messages",
+        #                               name="get_frames_and_pred")
+
+        self.add_routine_to_component(component_name="FlaskDisplay",
+                                      routine_name="MessageFromRedis",
+                                      redis_read_key="cam",
+                                      url="redis://127.0.0.1:6379",
+                                      message_queue="flask_display",
+                                      name="get_frames")
+
+
+        # self.add_routine_to_component(component_name="FlaskDisplay",
+        #                               routine_name="VisLogic",
+        #                               in_queue="messages",
+        #                               out_queue="flask_display",
+        #                               name="create_image")0x7fedf5866588
+
+        # self.add_routine_to_component(component_name="FlaskDisplay",
+        #                               routine_name="DisplayCv2",
+        #                               frame_queue="flask_display",
+        #                               name="draw_frames")
 
 
 PipelineManager()
