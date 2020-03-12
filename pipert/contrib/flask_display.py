@@ -20,15 +20,16 @@ def gen(q):
         try:
             msg = q.get(block=False)
             image = msg.get_payload()
-            ret, frame = cv2.imencode('.jpg', image)
-            frame = frame.tobytes()
-            yield (b'--frame\r\n'
-                   b'Pragma-directive: no-cache\r\n'
-                   b'Cache-directive: no-cache\r\n'
-                   b'Cache-control: no-cache\r\n'
-                   b'Pragma: no-cache\r\n'
-                   b'Expires: 0\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+            if image is not None:
+                ret, frame = cv2.imencode('.jpg', image)
+                frame = frame.tobytes()
+                yield (b'--frame\r\n'
+                       b'Pragma-directive: no-cache\r\n'
+                       b'Cache-directive: no-cache\r\n'
+                       b'Cache-control: no-cache\r\n'
+                       b'Pragma: no-cache\r\n'
+                       b'Expires: 0\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
         except Empty:
             time.sleep(0)
 
@@ -47,7 +48,7 @@ class MetaAndFrameFromRedis(Routine):
 
     def receive_msg(self, in_key):
         encoded_msg = self.msg_handler.receive(in_key)
-        if not encoded_msg:
+        if not encoded_msg  :
             return None
         msg = message_decode(encoded_msg)
         msg.record_entry(self.component_name, self.logger)
@@ -98,6 +99,7 @@ class VisLogic(Routine):
             if pred_msg is not None and not pred_msg.is_empty():
                 frame = frame_msg.get_payload()
                 pred = pred_msg.get_payload()
+                print(pred)
                 image = self.vis.draw_instance_predictions(frame, pred) \
                     .get_image()
                 frame_msg.update_payload(image)

@@ -1,5 +1,6 @@
 import collections
 from abc import ABC, abstractmethod
+from pipert.core.sharedMemory import get_shared_memory_object
 
 import numpy as np
 import time
@@ -64,12 +65,41 @@ class PredictionPayload(Payload):
             return False
 
 
+class AddressPayload(Payload):
+    def __init__(self, data):
+        super().__init__(data)
+
+    def decode(self):
+        pass
+
+    def encode(self):
+        pass
+
+    def is_empty(self):
+        return not self.data
+
+    def get_frame(self):
+        memory = get_shared_memory_object(self.data)
+        if memory:
+            memory.acquire_semaphore()
+            data = memory.read_from_memory()
+            frame = np.fromstring(data, dtype=np.uint8)
+            memory.release_semaphore()
+            return cv2.imdecode(frame, cv2.IMREAD_COLOR)
+        return None
+
+    def update_frame(self):
+        pass
+
+
 class Message:
     counter = 0
 
     def __init__(self, data, source_address):
         if isinstance(data, np.ndarray):
             self.payload = FramePayload(data)
+        elif isinstance(data, str):
+            self.payload = AddressPayload(data)
         else:
             self.payload = PredictionPayload(data)
         self.source_address = source_address
@@ -80,12 +110,18 @@ class Message:
     def update_payload(self, data):
         if self.payload.encoded:
             self.payload.decode()
-        self.payload.data = data
+        if isinstance(self.payload, AddressPayload):
+            return self.payload.update_frame()
+        else:
+            return self.payload.data
 
     def get_payload(self):
         if self.payload.encoded:
             self.payload.decode()
-        return self.payload.data
+        if isinstance(self.payload, AddressPayload):
+            return self.payload.get_frame()
+        else:
+            return self.payload.data
 
     def is_empty(self):
         return self.payload.is_empty()
@@ -140,7 +176,7 @@ class Message:
                 'entry' in self.history[component_name] and \
                 'exit' in self.history[component_name]:
             return self.history[component_name]['exit'] - \
-                self.history[component_name]['entry']
+                   self.history[component_name]['entry']
         else:
             return None
 

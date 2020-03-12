@@ -8,11 +8,13 @@ from pipert.core.message import Message
 from pipert.core.message_handlers import RedisHandler
 from pipert.core.message import message_decode, message_encode
 from pipert.core.routine import Routine
+from pipert.core.sharedMemory import get_shared_memory_object, SharedMemoryGenerator
 
 
 class Listen2Stream(Routine):
 
-    def __init__(self, stream_address, queue, fps=30., *args, **kwargs):
+    def __init__(self, stream_address, queue, fps=30., use_memory=False,
+                 *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.stream_address = stream_address
         self.isFile = str(stream_address).endswith("mp4")
@@ -21,6 +23,8 @@ class Listen2Stream(Routine):
         self.queue = queue
         self.fps = fps
         self.updated_config = {}
+        self.use_memory = use_memory
+        self.memory_generator = SharedMemoryGenerator(self.component_name)
 
     def begin_capture(self):
         self.stream = cv2.VideoCapture(self.stream_address)
@@ -51,10 +55,20 @@ class Listen2Stream(Routine):
             self.change_stream()
             self.updated_config = {}
 
+        grabbed, frame = self.stream.read()
         start = time.time()
-        grabbed, msg = self.grab_frame()
+        if self.use_memory:
+            memory_name = self.memory_generator.get_next_shared_memory()
+            memory = get_shared_memory_object(memory_name)
+            memory.acquire_semaphore()
+            msg = Message(memory_name, self.stream_address)
+        else:
+            # grabbed, msg = self.grab_frame()
+            msg = Message(frame, self.stream_address)
+        msg.record_entry(self.component_name, self.logger)
+
         if grabbed:
-            frame = msg.get_payload()
+            # frame = msg.get_payload()
             frame = resize(frame, 640, 480)
             # if the stream is from a webcam, flip the frame
             if self.stream_address == 0:
@@ -64,7 +78,11 @@ class Listen2Stream(Routine):
             except Empty:
                 pass
             finally:
-                msg.update_payload(frame)
+                if self.use_memory:
+                    memory.write_to_memory(cv2.imencode('.png', frame)[1].tostring())
+                    memory.release_semaphore()
+                else:
+                    msg.update_payload(frame)
                 self.queue.put(msg)
                 if self.isFile:
                     wait = time.time() - start
@@ -78,6 +96,7 @@ class Listen2Stream(Routine):
 
     def cleanup(self, *args, **kwargs):
         self.stream.release()
+        self.memory_generator.cleanup()
         del self.stream
 
 
