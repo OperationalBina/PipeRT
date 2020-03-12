@@ -1,8 +1,7 @@
 import time
-from queue import Empty, Queue
+from queue import Empty
 import cv2
 from pipert.core.routine import Routine
-import random
 
 
 class DisplayCv2(Routine):
@@ -17,25 +16,16 @@ class DisplayCv2(Routine):
             frame = msg.get_payload()
             if self.negative:
                 frame = 255 - frame
-            self.name = str(random.randint(1, 10000))
-            print(self.name, "1")
-            print(frame)
             cv2.imshow(self.name, frame)
-            cv2.startWindowThread()
-            print(self.name, "2")
             cv2.waitKey(1)
-            print(self.name, "3")
         except Empty:
             time.sleep(0)
-        except Exception as e:
-            print(e.__traceback__)
 
     def setup(self, *args, **kwargs):
         pass
 
     def cleanup(self, *args, **kwargs):
         cv2.destroyWindow(self.name)
-        # cv2.destroyAllWindows()
 
     @staticmethod
     def get_constructor_parameters():
