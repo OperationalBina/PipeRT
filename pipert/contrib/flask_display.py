@@ -116,7 +116,7 @@ class FlaskVideoDisplay(BaseComponent):
 
     def __init__(self, in_key_meta, in_key_im, redis_url, endpoint,
                  name="FlaskVideoDisplay"):
-        super().__init__(endpoint, name)
+        super().__init__(endpoint, name, 8082)
         self.queue = queue.Queue(maxsize=1)
         self.t_get = MetaAndFrameFromRedis(in_key_meta, in_key_im, redis_url,
                                            self.queue,
@@ -126,7 +126,7 @@ class FlaskVideoDisplay(BaseComponent):
         self.register_routine(self.t_get)
 
         self.queue2 = queue.Queue(maxsize=1)
-        self.t_vis = VisLogic(self.queue, self.queue2,
+        self.t_vis = VisLogic(self.queue, self.queue2,name="vis_logic",
                               component_name=self.name).as_thread()
         self.register_routine(self.t_vis)
 

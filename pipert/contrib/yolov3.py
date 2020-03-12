@@ -127,13 +127,13 @@ class YoloV3Logic(Routine):
 class YoloV3(BaseComponent):
 
     def __init__(self, endpoint, out_key, in_key, redis_url, maxlen, name="YoloV3"):
-        super().__init__(endpoint, name)
+        super().__init__(endpoint, name, 8081)
         self.in_queue = Queue(maxsize=1)
         self.out_queue = Queue(maxsize=1)
 
         t_get = MessageFromRedis(in_key, redis_url, self.in_queue, name="get_frames", component_name=self.name).as_thread()
         self.register_routine(t_get)
-        t_det = YoloV3Logic(self.in_queue, self.out_queue, component_name=self.name).as_thread()
+        t_det = YoloV3Logic(self.in_queue, self.out_queue, name='yolo_logic', component_name=self.name).as_thread()
         self.register_routine(t_det)
         t_send = Message2Redis(out_key, redis_url, self.out_queue, maxlen, name="upload_redis", component_name=self.name).as_thread()
         self.register_routine(t_send)

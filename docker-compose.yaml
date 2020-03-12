@@ -23,6 +23,13 @@ services:
         aliases:
           - grafana
     restart: always
+    volumes:
+      - ./monitoring/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
+    environment:
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
     ports:
       - 3000:3000
 
@@ -36,9 +43,25 @@ services:
         aliases:
           - prometheus
     restart: always
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - 9090:9090
-
+  node-exporter:
+    image: prom/node-exporter
+    networks:
+      - default
+    restart: always
+    pid: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
   base-pipert:
     container_name: base-pipert
     logging:
@@ -60,8 +83,6 @@ services:
           - pipert
     depends_on:
       - redis
-      - grafana
-      - prometheus
       - base-pipert
     environment:
       REDIS_URL: redis://redis:6379/0
@@ -72,4 +93,5 @@ services:
       - 5000:5000
     devices:
       - /dev/video0:/dev/video0
-
+volumes:
+  grafana_data: {}
