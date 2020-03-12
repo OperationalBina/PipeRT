@@ -1,5 +1,10 @@
+import time
+
+import cv2
+
+from pipert import Routine
 from pipert.core.component import BaseComponent
-from queue import Queue
+from queue import Queue, Empty
 import argparse
 import redis
 from urllib.parse import urlparse
@@ -7,8 +12,32 @@ import zerorpc
 import gevent
 import signal
 from pipert.core.routine import Events
-from pipert.core.mini_logics import FramesFromRedis, DisplayCV2, add_logic_to_thread
+from pipert.core.mini_logics import FramesFromRedis
 from pipert.core.handlers import tick, tock
+
+
+class DisplayCV2(Routine):
+    def __init__(self, in_key, queue, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.in_key = in_key
+        self.queue = queue
+        self.negative = False
+
+    def main_logic(self, *args, **kwargs):
+        try:
+            frame = self.queue.get(block=False)
+            if self.negative:
+                frame = 255 - frame
+            cv2.imshow('Display', frame)
+            cv2.waitKey(1)
+        except Empty:
+            time.sleep(0)
+
+    def setup(self, *args, **kwargs):
+        pass
+
+    def cleanup(self, *args, **kwargs):
+        cv2.destroyAllWindows()
 
 
 class CV2VideoDisplay(BaseComponent):
