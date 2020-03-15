@@ -1,13 +1,8 @@
 import time
-from queue import Empty, Full
-
-import cv2
-from imutils import resize
-
-from pipert.core.message import Message
 from pipert.core.message_handlers import RedisHandler
 from pipert.core.message import message_decode, message_encode
 from pipert.core.routine import Routine
+from pipert.core import QueueHandler
 from pipert.core.sharedMemory import get_shared_memory_object
 from pipert.core.sharedMemory import SharedMemoryGenerator
 
@@ -103,20 +98,18 @@ class Message2Redis(Routine):
         super().__init__(*args, **kwargs)
         self.out_key = out_key
         self.url = url
-        self.queue = queue
+        self.q_handler = QueueHandler(queue)
         self.maxlen = maxlen
         self.msg_handler = None
 
     def main_logic(self, *args, **kwargs):
-        try:
-            msg = self.queue.get(block=False)
+        msg = self.q_handler.non_blocking_get()
+        if msg:
             msg.record_exit(self.component_name, self.logger)
             encoded_msg = message_encode(msg)
             self.msg_handler.send(self.out_key, encoded_msg)
-            time.sleep(0)
             return True
-        except Empty:
-            time.sleep(0)  # yield the control of the thread
+        else:
             return False
 
     def setup(self, *args, **kwargs):
@@ -129,88 +122,35 @@ class Message2Redis(Routine):
 
 class MessageFromRedis(Routine):
 
-    def __init__(self, in_key, url, queue, *args, **kwargs):
+    def __init__(self, in_key, url, queue, most_recent=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.in_key = in_key
         self.url = url
-        self.queue = queue
+        self.q_handler = QueueHandler(queue)
         self.msg_handler = None
+        self.most_recent = most_recent
+        self.read_method = None
         self.flip = False
         self.negative = False
 
     def main_logic(self, *args, **kwargs):
-        encoded_msg = self.msg_handler.receive(self.in_key)
+        encoded_msg = self.read_method(self.in_key)
         if encoded_msg:
             msg = message_decode(encoded_msg)
             msg.record_entry(self.component_name, self.logger)
-            try:
-                self.queue.put(msg, block=False)
-                return True
-            except Full:
-                try:
-                    self.queue.get(block=False)
-                except Empty:
-                    pass
-                finally:
-                    self.queue.put(msg, block=False)
-                    return True
+            success = self.q_handler.deque_non_blocking_put(msg)
+            return success
         else:
             time.sleep(0)
-            return False
+            return None
 
     def setup(self, *args, **kwargs):
         self.msg_handler = RedisHandler(self.url)
+        if self.most_recent:
+            self.read_method = self.msg_handler.read_most_recent_msg
+        else:
+            self.read_method = self.msg_handler.read_next_msg
         self.msg_handler.connect()
 
     def cleanup(self, *args, **kwargs):
         self.msg_handler.close()
-
-
-class DisplayCV2(Routine):
-    def __init__(self, in_key, queue, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.in_key = in_key
-        self.queue = queue
-        self.negative = False
-
-    def main_logic(self, *args, **kwargs):
-        try:
-            frame = self.queue.get(block=False)
-            if self.negative:
-                frame = 255 - frame
-            cv2.imshow('Display', frame)
-            cv2.waitKey(1)
-        except Empty:
-            time.sleep(0)
-
-    def setup(self, *args, **kwargs):
-        pass
-
-    def cleanup(self, *args, **kwargs):
-        cv2.destroyAllWindows()
-
-
-class DisplayFlask(Routine):
-    def __init__(self, in_key, queue, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.in_key = in_key
-        self.queue = queue
-        self.negative = False
-
-    def main_logic(self, *args, **kwargs):
-        try:
-            frame = self.queue.get(block=False)
-            if self.negative:
-                frame = 255 - frame
-            cv2.imshow('Display', frame)
-            cv2.waitKey(1)
-            return True
-        except Empty:
-            time.sleep(0)
-            return False
-
-    def setup(self, *args, **kwargs):
-        pass
-
-    def cleanup(self, *args, **kwargs):
-        cv2.destroyAllWindows()

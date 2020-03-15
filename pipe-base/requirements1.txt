@@ -21,3 +21,4 @@ redisAI
 ml2rt
 pytest
 torchvision
+prometheus-client

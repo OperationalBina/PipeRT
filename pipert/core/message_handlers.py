@@ -139,7 +139,8 @@ class RedisHandler(MessageHandler):
     def close(self):
         self.conn.close()
 
-    def _add_offset_to_stream_id(self, stream_id, offset):
+    @staticmethod
+    def _add_offset_to_stream_id(stream_id, offset):
         if stream_id is None:
             return None
         fixed_id = stream_id.split("-")
