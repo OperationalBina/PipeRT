@@ -176,6 +176,79 @@ class PipelineManager:
         params = json.dumps(params)
         return params
 
+    def setup_components(self, components):
+        """
+        [
+            {
+                name: str,
+                queues: [str],
+                routines:
+                    [
+                        {
+                            routine_name: str,
+                            ...(routine params)
+                        },
+                        ...
+                    }
+            },
+            ...
+        ]
+        """
+        for component in components:
+            self.create_component(component["name"])
+            for queue in component["queues"]:
+                self.create_queue_to_component(component["name"], queue)
+            for routine in component["routines"]:
+                routine_name = routine.pop("routine_name", None)
+                self.add_routine_to_component(component["name"], routine_name, **routine)
+
+    def test_create_component(self):
+        self.setup_components([
+            {
+                "name": "Stream",
+                "queues": ["video"],
+                "routines":
+                    [
+                        {
+                            "routine_name": "ListenToStream",
+                            "stream_address": "/home/internet/Desktop/video.mp4",
+                            "out_queue": "video",
+                            "fps": 30,
+                            "name": "capture_frame"
+                        },
+                        {
+                            "routine_name": "MessageToRedis",
+                            "redis_send_key": "cam",
+                            "url": "redis://127.0.0.1:6379",
+                            "message_queue": "video",
+                            "max_stream_length": 10,
+                            "name": "upload_redis"
+                        }
+                    ]
+            },
+            {
+                "name": "Display",
+                "queues": ["messages"],
+                "routines":
+                    [
+                        {
+                            "routine_name": "MessageFromRedis",
+                            "redis_read_key": "cam",
+                            "url": "redis://127.0.0.1:6379",
+                            "message_queue": "messages",
+                            "name": "get_frames"
+                        },
+                        {
+                            "routine_name": "DisplayCv2",
+                            "frame_queue": "messages",
+                            "name": "draw_frames"
+                        }
+                    ]
+            },
+        ])
+
+
+
     def _get_routine_object_by_name(self, routine_name: str) -> Routine:
         path = self.ROUTINES_FOLDER_PATH.replace('/', '.') + "." + \
                re.sub(r'[A-Z]',
