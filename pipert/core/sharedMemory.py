@@ -82,7 +82,8 @@ class SharedMemoryGenerator:
 
         memory.close_fd()
 
-        self.shared_memories[next_name] = SharedMemory(memory, semaphore, mapfile)
+        self.shared_memories[next_name] = SharedMemory(memory, semaphore,
+                                                       mapfile)
 
         if name_to_unlink:
             if name_to_unlink in self.shared_memories:

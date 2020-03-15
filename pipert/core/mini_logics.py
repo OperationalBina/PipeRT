@@ -8,7 +8,8 @@ from pipert.core.message import Message
 from pipert.core.message_handlers import RedisHandler
 from pipert.core.message import message_decode, message_encode
 from pipert.core.routine import Routine
-from pipert.core.sharedMemory import get_shared_memory_object, SharedMemoryGenerator
+from pipert.core.sharedMemory import get_shared_memory_object
+from pipert.core.sharedMemory import SharedMemoryGenerator
 
 
 class Listen2Stream(Routine):
@@ -74,7 +75,8 @@ class Listen2Stream(Routine):
                 pass
             finally:
                 if self.use_memory:
-                    memory.write_to_memory(cv2.imencode('.png', frame)[1].tostring())
+                    memory.write_to_memory(cv2.imencode('.png', frame)[1]
+                                           .tostring())
                     memory.release_semaphore()
                 else:
                     msg.update_payload(frame)
