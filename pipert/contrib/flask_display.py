@@ -48,7 +48,7 @@ class MetaAndFrameFromRedis(Routine):
 
     def receive_msg(self, in_key):
         encoded_msg = self.msg_handler.receive(in_key)
-        if not encoded_msg  :
+        if not encoded_msg:
             return None
         msg = message_decode(encoded_msg)
         msg.record_entry(self.component_name, self.logger)
@@ -99,7 +99,6 @@ class VisLogic(Routine):
             if pred_msg is not None and not pred_msg.is_empty():
                 frame = frame_msg.get_payload()
                 pred = pred_msg.get_payload()
-                print(pred)
                 image = self.vis.draw_instance_predictions(frame, pred) \
                     .get_image()
                 frame_msg.update_payload(image)

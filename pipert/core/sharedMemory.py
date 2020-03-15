@@ -42,14 +42,6 @@ class SharedMemory:
 
     def read_from_memory(self):
         self.mapfile.seek(0)
-        # file_content = []
-
-        # c = self.mapfile.read_byte()
-        # while c:
-        #     file_content.append(c)
-        #     c = self.mapfile.read_byte()
-        # file_content = [chr(c) for c in file_content]
-        # file_content = b''.join(file_content)
         file_content = self.mapfile.read(self.mapfile.size())
 
         return file_content
@@ -80,19 +72,18 @@ class SharedMemoryGenerator:
         self.max_count = max_count
         self.shared_memories = {}
 
-    def get_next_shared_memory(self):
+    def get_next_shared_memory(self, size=5000000):
         next_name, name_to_unlink = self.memory_id_gen.get_next()
 
         memory = posix_ipc.SharedMemory(next_name, posix_ipc.O_CREAT,
-                                        size=5000000)
+                                        size=size)
         semaphore = posix_ipc.Semaphore(next_name, posix_ipc.O_CREAT)
         mapfile = mmap.mmap(memory.fd, memory.size)
 
         memory.close_fd()
 
         self.shared_memories[next_name] = SharedMemory(memory, semaphore, mapfile)
-        # print(shared_memories)
-        # print()
+
         if name_to_unlink:
             if name_to_unlink in self.shared_memories:
                 self.shared_memories[name_to_unlink].free_memory()

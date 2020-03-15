@@ -88,8 +88,13 @@ class AddressPayload(Payload):
             return cv2.imdecode(frame, cv2.IMREAD_COLOR)
         return None
 
-    def update_frame(self):
-        pass
+    def update_frame(self, data):
+        get_shared_memory_object(self.data).free_memory()
+        memory = get_shared_memory_object(self.data)
+
+        memory.acquire_semaphore()
+        memory.write_to_memory(cv2.imencode('.png', data)[1].tostring())
+        memory.release_semaphore()
 
 
 class Message:
@@ -111,9 +116,10 @@ class Message:
         if self.payload.encoded:
             self.payload.decode()
         if isinstance(self.payload, AddressPayload):
-            return self.payload.update_frame()
+            if data is not None:
+                self.payload.update_frame(data)
         else:
-            return self.payload.data
+            self.payload.data = data
 
     def get_payload(self):
         if self.payload.encoded:

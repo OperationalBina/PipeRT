@@ -19,7 +19,6 @@ class Listen2Stream(Routine):
         self.stream_address = stream_address
         self.isFile = str(stream_address).endswith("mp4")
         self.stream = None
-        # self.stream = cv2.VideoCapture(self.stream_address)
         self.queue = queue
         self.fps = fps
         self.updated_config = {}
@@ -44,31 +43,27 @@ class Listen2Stream(Routine):
                          self.updated_config['stream_address'])
         self.begin_capture()
 
-    def grab_frame(self):
-        grabbed, frame = self.stream.read()
-        msg = Message(frame, self.stream_address)
-        msg.record_entry(self.component_name, self.logger)
-        return grabbed, msg
-
     def main_logic(self, *args, **kwargs):
         if self.updated_config:
             self.change_stream()
             self.updated_config = {}
 
         grabbed, frame = self.stream.read()
-        start = time.time()
-        if self.use_memory:
-            memory_name = self.memory_generator.get_next_shared_memory()
-            memory = get_shared_memory_object(memory_name)
-            memory.acquire_semaphore()
-            msg = Message(memory_name, self.stream_address)
-        else:
-            # grabbed, msg = self.grab_frame()
-            msg = Message(frame, self.stream_address)
-        msg.record_entry(self.component_name, self.logger)
 
         if grabbed:
-            # frame = msg.get_payload()
+            start = time.time()
+            if self.use_memory:
+                row, column, depth = frame.shape
+                frame_size = row*column*depth
+                memory_name = self.memory_generator.get_next_shared_memory(
+                    size=frame_size
+                )
+                memory = get_shared_memory_object(memory_name)
+                memory.acquire_semaphore()
+                msg = Message(memory_name, self.stream_address)
+            else:
+                msg = Message(frame, self.stream_address)
+            msg.record_entry(self.component_name, self.logger)
             frame = resize(frame, 640, 480)
             # if the stream is from a webcam, flip the frame
             if self.stream_address == 0:
@@ -87,7 +82,6 @@ class Listen2Stream(Routine):
                 if self.isFile:
                     wait = time.time() - start
                     time.sleep(max(1 / self.fps - wait, 0))
-                # self.queue.put(frame, block=False)
                 time.sleep(0)
                 return True
 
