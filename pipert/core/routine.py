@@ -309,7 +309,6 @@ class Routine:
         if self.runner_creator is None:
             # TODO - create better errors
             raise NoRunnerException("Runner not configured for routine")
-        print("Creating runner")
         self.runner = self.runner_creator(**self.runner_creator_kwargs)
         self.runner.start()
 
