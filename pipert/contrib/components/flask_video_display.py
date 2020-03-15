@@ -1,3 +1,5 @@
+from threading import Thread
+
 from flask import Flask, Response, request
 from pipert.core.component import BaseComponent
 from queue import Empty
@@ -38,7 +40,8 @@ class FlaskVideoDisplay(BaseComponent):
 
     def _start(self):
         super()._start()
-        self.server = Process(target=self.flask_app.run, kwargs={"host": '0.0.0.0'})
+        # TODO need to understand why working as thread and not as process
+        self.server = Thread(target=self.flask_app.run, kwargs={"host": '0.0.0.0'})
         self.server.start()
 
     def stop_run(self):
@@ -54,9 +57,6 @@ class FlaskVideoDisplay(BaseComponent):
         while not self.stop_event.is_set():
             try:
                 msg = q.get(block=False)
-                print("got one flask")
-                print("Msg: ")
-                print(msg)
                 image = msg.get_payload()
                 ret, frame = cv2.imencode('.jpg', image)
                 frame = frame.tobytes()
@@ -68,12 +68,11 @@ class FlaskVideoDisplay(BaseComponent):
                        b'Expires: 0\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
             except Empty:
-                print("queue empty")
                 time.sleep(0)
 
     def _teardown_callback(self, *args, **kwargs):
         # self.server.terminate()
         _ = requests.get("http://127.0.0.1:5000/shutdown")
-        self.server.terminate()
+        # self.server.terminate()
         # print("kill!!!")
         # self.server.kill()
