@@ -86,7 +86,7 @@ class PipelineManager:
             self.components[component_name].register_routine(routine_object(**routine_kwargs).as_thread())
             return True
         except QueueDoesNotExist as e:
-            print(e.msg)
+            print(e.message)
         except Exception as e:
             print(e.__traceback__)
         return False
@@ -140,16 +140,12 @@ class PipelineManager:
     def run_all_components(self):
         for component in self.components.values():
             if component.stop_event.is_set():
-                print("Started")
-                print(component)
                 component.run()
         return True
 
     def stop_all_components(self):
         for component in self.components.values():
             if not component.stop_event.is_set():
-                print("Stopped")
-                print(component)
                 print(component.stop_run())
         return True
 
@@ -261,37 +257,47 @@ class PipelineManager:
                                       max_stream_length=10,
                                       name="upload_redis")
 
-        self.create_premade_component("FlaskDisplay", "FlaskVideoDisplay")
-        self.create_queue_to_component("FlaskDisplay", "messages")
-        # self.create_queue_to_component("FlaskDisplay", "flask_display")
+        self.create_component("FaceDet")
+        self.create_queue_to_component("FaceDet", "frames")
+        self.create_queue_to_component("FaceDet", "preds")
 
-
-        # self.add_routine_to_component(component_name="FlaskDisplay",
-        #                               routine_name="MetaAndFrameFromRedis",
-        #                               redis_read_image_key="cam",
-        #                               redis_read_meta_key="camera:1",
-        #                               url="redis://127.0.0.1:6379",
-        #                               image_meta_queue="messages",
-        #                               name="get_frames_and_pred")
-
-        self.add_routine_to_component(component_name="FlaskDisplay",
+        self.add_routine_to_component(component_name="FaceDet",
                                       routine_name="MessageFromRedis",
                                       redis_read_key="cam",
                                       url="redis://127.0.0.1:6379",
-                                      message_queue="flask_display",
-                                      name="get_frames")
+                                      message_queue="frames",
+                                      name="from_redis")
 
+        self.add_routine_to_component(component_name="FaceDet",
+                                      routine_name="FaceDetection",
+                                      in_queue="frames",
+                                      out_queue="preds",
+                                      name="create_preds")
 
-        # self.add_routine_to_component(component_name="FlaskDisplay",
-        #                               routine_name="VisLogic",
-        #                               in_queue="messages",
-        #                               out_queue="flask_display",
-        #                               name="create_image")0x7fedf5866588
+        self.add_routine_to_component(component_name="FaceDet",
+                                      routine_name="MessageToRedis",
+                                      redis_send_key="camera:1",
+                                      url="redis://127.0.0.1:6379",
+                                      message_queue="preds",
+                                      max_stream_length=10,
+                                      name="upload_redis")
 
-        # self.add_routine_to_component(component_name="FlaskDisplay",
-        #                               routine_name="DisplayCv2",
-        #                               frame_queue="flask_display",
-        #                               name="draw_frames")
+        self.create_premade_component("FlaskDisplay", "FlaskVideoDisplay")
+        self.create_queue_to_component("FlaskDisplay", "messages")
+
+        self.add_routine_to_component(component_name="FlaskDisplay",
+                                      routine_name="MetaAndFrameFromRedis",
+                                      redis_read_image_key="cam",
+                                      redis_read_meta_key="camera:1",
+                                      url="redis://127.0.0.1:6379",
+                                      image_meta_queue="messages",
+                                      name="get_frames_and_pred")
+
+        self.add_routine_to_component(component_name="FlaskDisplay",
+                                      routine_name="VisLogic",
+                                      in_queue="messages",
+                                      out_queue="flask_display",
+                                      name="create_image")
 
 
 PipelineManager()
