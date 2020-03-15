@@ -182,7 +182,7 @@ class Message:
                 'entry' in self.history[component_name] and \
                 'exit' in self.history[component_name]:
             return self.history[component_name]['exit'] - \
-                   self.history[component_name]['entry']
+                self.history[component_name]['entry']
         else:
             return None
 

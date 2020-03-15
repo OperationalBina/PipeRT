@@ -18,8 +18,8 @@ class MemoryIdGenerator:
         self.name_count += 1
         if self.name_count >= self.max_count:
             name_to_unlink = "{0}_{1}".format(self.component_name,
-                                              (self.name_count -
-                                               self.max_count))
+                                              (self.name_count
+                                               - self.max_count))
 
         return next_name, name_to_unlink
 

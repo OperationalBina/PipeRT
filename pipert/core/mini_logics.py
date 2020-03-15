@@ -1,6 +1,8 @@
 import time
+import cv2
+from queue import Empty
 from pipert.core.message_handlers import RedisHandler
-from pipert.core.message import message_decode, message_encode
+from pipert.core.message import message_decode, message_encode, Message
 from pipert.core.routine import Routine
 from pipert.core import QueueHandler
 from pipert.core.sharedMemory import get_shared_memory_object
@@ -50,7 +52,7 @@ class Listen2Stream(Routine):
             start = time.time()
             if self.use_memory:
                 row, column, depth = frame.shape
-                frame_size = row*column*depth
+                frame_size = row * column * depth
                 memory_name = self.memory_generator.get_next_shared_memory(
                     size=frame_size
                 )
@@ -60,7 +62,7 @@ class Listen2Stream(Routine):
             else:
                 msg = Message(frame, self.stream_address)
             msg.record_entry(self.component_name, self.logger)
-            frame = resize(frame, 640, 480)
+            frame = cv2.resize(frame, 640, 480)
             # if the stream is from a webcam, flip the frame
             if self.stream_address == 0:
                 frame = cv2.flip(frame, 1)
