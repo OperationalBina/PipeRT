@@ -8,11 +8,14 @@ import os
 from pipert.core.message import Message
 from pipert.core.mini_logics import Message2Redis
 from pipert.core import QueueHandler
+from pipert.core.shared_memory import get_shared_memory_object
+from pipert.core.shared_memory import SharedMemoryGenerator
 
 
 class Listen2Stream(Routine):
 
-    def __init__(self, stream_address, queue, fps=30., *args, **kwargs):
+    def __init__(self, stream_address, queue, fps=30., use_memory=False,
+                 *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.stream_address = stream_address
         self.is_file = str(stream_address).endswith("mp4")
@@ -21,6 +24,8 @@ class Listen2Stream(Routine):
         self.q_handler = QueueHandler(queue)
         self.fps = fps
         self.updated_config = {}
+        self.use_memory = use_memory
+        self.memory_generator = SharedMemoryGenerator(self.component_name)
 
     def begin_capture(self):
         self.stream = cv2.VideoCapture(self.stream_address)
@@ -52,14 +57,31 @@ class Listen2Stream(Routine):
             self.change_stream()
             self.updated_config = {}
 
-        grabbed, msg = self.grab_frame()
+        grabbed, frame = self.stream.read()
         if grabbed:
-            frame = msg.get_payload()
+            if self.use_memory:
+                row, column, depth = frame.shape
+                frame_size = row * column * depth
+                memory_name = self.memory_generator.get_next_shared_memory(
+                    size=frame_size
+                )
+                memory = get_shared_memory_object(memory_name)
+                memory.acquire_semaphore()
+                msg = Message(memory_name, self.stream_address)
+            else:
+                msg = Message(frame, self.stream_address)
+            msg.record_entry(self.component_name, self.logger)
+
             frame = resize(frame, 640, 480)
             # if the stream is from a webcam, flip the frame
             if self.stream_address == 0:
                 frame = cv2.flip(frame, 1)
-            msg.update_payload(frame)
+            if self.use_memory:
+                memory.write_to_memory(cv2.imencode('.png', frame)[1]
+                                       .tostring())
+                memory.release_semaphore()
+            else:
+                msg.update_payload(frame)
 
             success = self.q_handler.deque_non_blocking_put(msg)
             return success
