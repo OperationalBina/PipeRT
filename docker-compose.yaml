@@ -1,4 +1,4 @@
-version: '2.3'
+version: '3.7'
 services:
   redis:
     container_name: redis
@@ -93,5 +93,7 @@ services:
       - 5000:5000
     devices:
       - /dev/video0:/dev/video0
+    command: 
+      - '--gpus all'
 volumes:
   grafana_data: {}
