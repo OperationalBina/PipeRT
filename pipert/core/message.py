@@ -1,6 +1,6 @@
 import collections
 from abc import ABC, abstractmethod
-from pipert.core.sharedMemory import get_shared_memory_object
+from pipert.core.shared_memory import get_shared_memory_object
 
 import numpy as np
 import time

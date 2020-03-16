@@ -5,8 +5,8 @@ from pipert.core.message_handlers import RedisHandler
 from pipert.core.message import message_decode, message_encode, Message
 from pipert.core.routine import Routine
 from pipert.core import QueueHandler
-from pipert.core.sharedMemory import get_shared_memory_object
-from pipert.core.sharedMemory import SharedMemoryGenerator
+from pipert.core.shared_memory import get_shared_memory_object
+from pipert.core.shared_memory import SharedMemoryGenerator
 
 
 class Listen2Stream(Routine):
