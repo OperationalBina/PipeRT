@@ -1,3 +1,6 @@
+import os
+import sys
+from flask import Flask, jsonify
 import zerorpc
 import re
 from pipert.core.component import BaseComponent
@@ -5,12 +8,10 @@ from pipert.core.errors import QueueDoesNotExist
 from pipert.core.routine import Routine
 from os import listdir
 from os.path import isfile, join
-import json
-
 
 class PipelineManager:
 
-    def __init__(self, endpoint="tcp://0.0.0.0:4001"):
+    def __init__(self, endpoint="tcp://0.0.0.0:4001", open_zerorpc=True):
         """
         Args:
             endpoint: the endpoint the PipelineManager's
@@ -22,7 +23,8 @@ class PipelineManager:
         self.zrpc.bind(endpoint)
         self.ROUTINES_FOLDER_PATH = "../contrib/routines"
         self.COMPONENTS_FOLDER_PATH = "../contrib/components"
-        self.zrpc.run()
+        if open_zerorpc:
+            self.zrpc.run()
 
     def create_component(self, component_name):
         if self._does_component_exist(component_name):
@@ -277,7 +279,6 @@ class PipelineManager:
     def get_routine_params(self, routine_name):
         routine_object = self._get_routine_object_by_name(routine_name)
         params = routine_object.get_constructor_parameters()
-        params = json.dumps(params)
         return params
 
     def setup_components(self, components):
@@ -316,7 +317,7 @@ class PipelineManager:
                 "routines":
                     [
                         {
-                            "routine_name": "ListenToStream",
+                            "routine_type_name": "ListenToStream",
                             "stream_address":
                                 "/home/internet/Desktop/video.mp4",
                             "out_queue": "video",
@@ -324,7 +325,7 @@ class PipelineManager:
                             "name": "capture_frame"
                         },
                         {
-                            "routine_name": "MessageToRedis",
+                            "routine_type_name": "MessageToRedis",
                             "redis_send_key": "cam",
                             "message_queue": "video",
                             "max_stream_length": 10,
@@ -338,13 +339,13 @@ class PipelineManager:
                 "routines":
                     [
                         {
-                            "routine_name": "MessageFromRedis",
+                            "routine_type_name": "MessageFromRedis",
                             "redis_read_key": "cam",
                             "message_queue": "messages",
                             "name": "get_frames"
                         },
                         {
-                            "routine_name": "DisplayCv2",
+                            "routine_type_name": "DisplayCv2",
                             "frame_queue": "messages",
                             "name": "draw_frames"
                         }
@@ -405,24 +406,24 @@ class PipelineManager:
         self.create_queue_to_component("Display", "messages")
         self.add_routine_to_component(
             component_name="Stream",
-            routine_name="ListenToStream",
+            routine_type_name="ListenToStream",
             stream_address="/home/internet/Desktop/video.mp4",
             out_queue="video",
             fps=30,
             name="capture_frame")
         # self.add_routine_to_component(component_name="Stream",
-        #                               routine_name="MessageToRedis",
+        #                               routine_type_name="MessageToRedis",
         #                               redis_send_key="camera:0",
         #                               message_queue="video",
         #                               max_stream_length=10,
         #                               name="upload_redis")
         self.add_routine_to_component(component_name="Display",
-                                      routine_name="MessageFromRedis",
+                                      routine_type_name="MessageFromRedis",
                                       redis_read_key="camera:0",
                                       message_queue="messages",
                                       name="get_frames")
         self.add_routine_to_component(component_name="Display",
-                                      routine_name="DisplayCv2",
+                                      routine_type_name="DisplayCv2",
                                       frame_queue="messages",
                                       name="draw_frames")
 
@@ -431,13 +432,13 @@ class PipelineManager:
         self.create_queue_to_component("Stream", "video")
         self.add_routine_to_component(
             component_name="Stream",
-            routine_name="ListenToStream",
+            routine_type_name="ListenToStream",
             stream_address="/home/internet/Desktop/video.mp4",
             out_queue="video",
             fps=30,
             name="capture_frame")
         self.add_routine_to_component(component_name="Stream",
-                                      routine_name="MessageToRedis",
+                                      routine_type_name="MessageToRedis",
                                       redis_send_key="cam",
                                       message_queue="video",
                                       max_stream_length=10,
@@ -448,19 +449,19 @@ class PipelineManager:
         self.create_queue_to_component("FaceDet", "preds")
 
         self.add_routine_to_component(component_name="FaceDet",
-                                      routine_name="MessageFromRedis",
+                                      routine_type_name="MessageFromRedis",
                                       redis_read_key="cam",
                                       message_queue="frames",
                                       name="from_redis")
 
         self.add_routine_to_component(component_name="FaceDet",
-                                      routine_name="FaceDetection",
+                                      routine_type_name="FaceDetection",
                                       in_queue="frames",
                                       out_queue="preds",
                                       name="create_preds")
 
         self.add_routine_to_component(component_name="FaceDet",
-                                      routine_name="MessageToRedis",
+                                      routine_type_name="MessageToRedis",
                                       redis_send_key="camera:1",
                                       message_queue="preds",
                                       max_stream_length=10,
@@ -470,17 +471,32 @@ class PipelineManager:
         self.create_queue_to_component("FlaskDisplay", "messages")
 
         self.add_routine_to_component(component_name="FlaskDisplay",
-                                      routine_name="MetaAndFrameFromRedis",
+                                      routine_type_name="MetaAndFrameFromRedis",
                                       redis_read_image_key="cam",
                                       redis_read_meta_key="camera:1",
                                       image_meta_queue="messages",
                                       name="get_frames_and_pred")
 
         self.add_routine_to_component(component_name="FlaskDisplay",
-                                      routine_name="VisLogic",
+                                      routine_type_name="VisLogic",
                                       in_queue="messages",
                                       out_queue="flask_display",
                                       name="create_image")
 
 
-PipelineManager()
+# use_user_interface = bool(os.environ.get("UI"))
+use_user_interface = bool(sys.argv[1])
+pipeline_manager = PipelineManager(open_zerorpc=not use_user_interface)
+
+if use_user_interface:
+    app = Flask(__name__)
+
+    @app.route("/routines")
+    def get_routines():
+        return jsonify(pipeline_manager.get_all_routines())
+
+    @app.route("/routineParams/<routine_name>")
+    def get_routine_params(routine_name):
+        return pipeline_manager.get_routine_params(routine_name)
+
+    app.run(port=5005)
