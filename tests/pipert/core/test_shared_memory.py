@@ -26,11 +26,8 @@ def test_cleanup():
 def test_max_count():
     generator = DummySharedMemoryGenerator()
     first_memory = generator.get_next_shared_memory()
-    generator.get_next_shared_memory()
-    generator.get_next_shared_memory()
-    generator.get_next_shared_memory()
-    generator.get_next_shared_memory()
-    generator.get_next_shared_memory()
+    for _ in range(5):
+        generator.get_next_shared_memory()
 
     assert first_memory not in generator.shared_memories
 

@@ -114,8 +114,7 @@ class SharedMemoryGenerator:
 
         if name_to_unlink:
             if name_to_unlink in self.shared_memories:
-                self.shared_memories[name_to_unlink].free_memory()
-                self.shared_memories.pop(name_to_unlink)
+                self._destroy_memory(name_to_unlink)
 
         semaphore.release()
 
@@ -126,5 +125,8 @@ class SharedMemoryGenerator:
             _, name_to_unlink = self.memory_id_gen.get_next()
             if name_to_unlink:
                 if name_to_unlink in self.shared_memories:
-                    self.shared_memories[name_to_unlink].free_memory()
-                    self.shared_memories.pop(name_to_unlink)
+                    self._destroy_memory(name_to_unlink)
+
+    def _destroy_memory(self, name_to_unlink):
+        self.shared_memories[name_to_unlink].free_memory()
+        self.shared_memories.pop(name_to_unlink)
