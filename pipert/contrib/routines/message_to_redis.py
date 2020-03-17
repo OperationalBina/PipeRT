@@ -48,3 +48,6 @@ class MessageToRedis(Routine):
             "max_stream_length": "Integer"
         })
         return dicts
+
+    def does_routine_use_queue(self, queue):
+        return self.queue == queue

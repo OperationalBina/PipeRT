@@ -54,3 +54,6 @@ class MessageFromRedis(Routine):
             "message_queue": "Queue"
         })
         return dicts
+
+    def does_routine_use_queue(self, queue):
+        return self.queue == queue

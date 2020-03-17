@@ -87,3 +87,6 @@ class ListenToStream(Routine):
             "fps": "Integer"
         })
         return dicts
+
+    def does_routine_use_queue(self, queue):
+        return self.queue == queue

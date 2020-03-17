@@ -319,5 +319,5 @@ class Routine:
             "component_name": "String"
         }
 
-    def get_name(self):
-        return self.name
+    def does_routine_use_queue(self, queue):
+        raise NotImplementedError

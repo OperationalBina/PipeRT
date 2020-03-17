@@ -57,3 +57,6 @@ class MetaAndFrameFromRedis(Routine):
 
     def cleanup(self, *args, **kwargs):
         self.msg_handler.close()
+
+    def does_routine_use_queue(self, queue):
+        return self.queue == queue

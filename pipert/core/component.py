@@ -98,3 +98,20 @@ class BaseComponent:
             return True
         except KeyError:
             raise QueueDoesNotExist(queue_name)
+
+    def does_routine_name_exist(self, routine_name):
+        for routine in self._routines:
+            if routine.name == routine_name:
+                return True
+        return False
+
+    def remove_routine(self, routine_name):
+        self._routines = [routine for routine in self._routines
+                          if isinstance(routine, Routine) and
+                          routine.name == routine_name]
+
+    def does_routines_use_queue(self, queue_name):
+        for routine in self._routines:
+            if routine.does_routine_use_queue(self.queues[queue_name]):
+                return True
+        return False

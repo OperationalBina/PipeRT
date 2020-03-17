@@ -75,7 +75,7 @@ class PipelineManager:
             )
 
     def add_routine_to_component(self, component_name,
-                                 routine_name, **routine_kwargs):
+                                 routine_type_name, **routine_kwargs):
         if not self._does_component_exist(component_name):
             return self._create_response(
                 False,
@@ -87,12 +87,20 @@ class PipelineManager:
                 "You can't add a routine while your component is running"
             )
 
-        routine_object = self._get_routine_object_by_name(routine_name)
+        if self.components[component_name]\
+                .does_routine_name_exist(routine_kwargs["name"]):
+            return self._create_response(
+                False,
+                f"Routine with the name {routine_kwargs['name']}"
+                f" already exist in this component"
+            )
+
+        routine_object = self._get_routine_object_by_name(routine_type_name)
 
         if routine_object is None:
             return self._create_response(
                 False,
-                f"Routine named {routine_name} doesn't exist"
+                f"The routine type '{routine_type_name}' doesn't exist"
             )
 
         try:
@@ -108,7 +116,7 @@ class PipelineManager:
                                   .as_thread())
             return self._create_response(
                 True,
-                f"The routine {routine_name} has been added"
+                f"The routine {routine_kwargs['name']} has been added"
             )
         except QueueDoesNotExist as e:
             return self._create_response(
@@ -117,8 +125,23 @@ class PipelineManager:
             )
         return False
 
+    # TODO - implement a check if queue in me in each routine
     def remove_routine_from_component(self, component_name, routine_name):
-        pass
+        if not self._does_component_exist(component_name):
+            return self._create_response(
+                False,
+                f"Component named {component_name} doesn't exist"
+            )
+        if self._does_component_running(self.components[component_name]):
+            return self._create_response(
+                False,
+                "You can't remove a routine while your component is running"
+            )
+        self.components[component_name].remove_routine(routine_name)
+        return self._create_response(
+            True,
+            f"Removed routines with the name {routine_name} from the component"
+        )
 
     def create_queue_to_component(self, component_name,
                                   queue_name, queue_size=1):
@@ -150,6 +173,13 @@ class PipelineManager:
             return self._create_response(
                 False,
                 f"Queue named {queue_name} doesn't exist"
+            )
+
+        if self.components[component_name].\
+                does_routines_use_queue(queue_name):
+            return self._create_response(
+                False,
+                f"Can't remove a queue that is being used by routines"
             )
 
         self.components[component_name].delete_queue(queue_name=queue_name)

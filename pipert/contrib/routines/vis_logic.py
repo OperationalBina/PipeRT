@@ -51,3 +51,6 @@ class VisLogic(Routine):
 
     def cleanup(self, *args, **kwargs):
         pass
+
+    def does_routine_use_queue(self, queue):
+        return self.in_queue == queue or self.out_queue == queue
