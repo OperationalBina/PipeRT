@@ -111,7 +111,10 @@ class PipelineManager:
                 f"The routine {routine_name} has been added"
             )
         except QueueDoesNotExist as e:
-            print(e.message)
+            return self._create_response(
+                False,
+                e.message()
+            )
         return False
 
     def remove_routine_from_component(self, component_name, routine_name):
@@ -264,7 +267,8 @@ class PipelineManager:
                 self.create_queue_to_component(component["name"], queue)
             for routine in component["routines"]:
                 routine_name = routine.pop("routine_name", None)
-                self.add_routine_to_component(component["name"], routine_name, **routine)
+                self.add_routine_to_component(component["name"],
+                                              routine_name, **routine)
 
     def test_create_component(self):
         self.setup_components([
@@ -275,7 +279,8 @@ class PipelineManager:
                     [
                         {
                             "routine_name": "ListenToStream",
-                            "stream_address": "/home/internet/Desktop/video.mp4",
+                            "stream_address":
+                                "/home/internet/Desktop/video.mp4",
                             "out_queue": "video",
                             "fps": 30,
                             "name": "capture_frame"
@@ -364,7 +369,8 @@ class PipelineManager:
         self.create_queue_to_component("Display", "messages")
         self.add_routine_to_component(component_name="Stream",
                                       routine_name="ListenToStream",
-                                      stream_address="/home/internet/Desktop/video.mp4",
+                                      stream_address=
+                                      "/home/internet/Desktop/video.mp4",
                                       out_queue="video",
                                       fps=30,
                                       name="capture_frame")
@@ -391,7 +397,8 @@ class PipelineManager:
         self.create_queue_to_component("Stream", "video")
         self.add_routine_to_component(component_name="Stream",
                                       routine_name="ListenToStream",
-                                      stream_address="/home/internet/Desktop/video.mp4",
+                                      stream_address=
+                                      "/home/internet/Desktop/video.mp4",
                                       out_queue="video",
                                       fps=30,
                                       name="capture_frame")
