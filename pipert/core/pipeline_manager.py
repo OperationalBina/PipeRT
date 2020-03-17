@@ -326,7 +326,6 @@ class PipelineManager:
                         {
                             "routine_name": "MessageToRedis",
                             "redis_send_key": "cam",
-                            "url": "redis://127.0.0.1:6379",
                             "message_queue": "video",
                             "max_stream_length": 10,
                             "name": "upload_redis"
@@ -341,7 +340,6 @@ class PipelineManager:
                         {
                             "routine_name": "MessageFromRedis",
                             "redis_read_key": "cam",
-                            "url": "redis://127.0.0.1:6379",
                             "message_queue": "messages",
                             "name": "get_frames"
                         },
@@ -415,14 +413,12 @@ class PipelineManager:
         # self.add_routine_to_component(component_name="Stream",
         #                               routine_name="MessageToRedis",
         #                               redis_send_key="camera:0",
-        #                               url="redis://127.0.0.1:6379",
         #                               message_queue="video",
         #                               max_stream_length=10,
         #                               name="upload_redis")
         self.add_routine_to_component(component_name="Display",
                                       routine_name="MessageFromRedis",
                                       redis_read_key="camera:0",
-                                      url="redis://127.0.0.1:6379",
                                       message_queue="messages",
                                       name="get_frames")
         self.add_routine_to_component(component_name="Display",
@@ -443,7 +439,6 @@ class PipelineManager:
         self.add_routine_to_component(component_name="Stream",
                                       routine_name="MessageToRedis",
                                       redis_send_key="cam",
-                                      url="redis://127.0.0.1:6379",
                                       message_queue="video",
                                       max_stream_length=10,
                                       name="upload_redis")
@@ -455,7 +450,6 @@ class PipelineManager:
         self.add_routine_to_component(component_name="FaceDet",
                                       routine_name="MessageFromRedis",
                                       redis_read_key="cam",
-                                      url="redis://127.0.0.1:6379",
                                       message_queue="frames",
                                       name="from_redis")
 
@@ -468,7 +462,6 @@ class PipelineManager:
         self.add_routine_to_component(component_name="FaceDet",
                                       routine_name="MessageToRedis",
                                       redis_send_key="camera:1",
-                                      url="redis://127.0.0.1:6379",
                                       message_queue="preds",
                                       max_stream_length=10,
                                       name="upload_redis")
@@ -480,7 +473,6 @@ class PipelineManager:
                                       routine_name="MetaAndFrameFromRedis",
                                       redis_read_image_key="cam",
                                       redis_read_meta_key="camera:1",
-                                      url="redis://127.0.0.1:6379",
                                       image_meta_queue="messages",
                                       name="get_frames_and_pred")
 

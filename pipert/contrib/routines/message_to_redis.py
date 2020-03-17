@@ -12,10 +12,11 @@ from pipert.core.routine import Routine, RoutineTypes
 class MessageToRedis(Routine):
     routine_type = RoutineTypes.OUTPUT
 
-    def __init__(self, redis_send_key, url, message_queue, max_stream_length, *args, **kwargs):
+    def __init__(self, redis_send_key, message_queue, max_stream_length, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.out_key = redis_send_key
-        self.url = urlparse(url)
+        # self.url = urlparse(os.environ.get('REDIS_URL'))
+        self.url = urlparse("redis://127.0.0.1:6379")
         self.queue = message_queue
         self.maxlen = max_stream_length
         self.msg_handler = None
@@ -44,7 +45,6 @@ class MessageToRedis(Routine):
         dicts = Routine.get_constructor_parameters()
         dicts.update({
             "redis_send_key": "String",
-            "url": "String",
             "message_queue": "Queue",
             "max_stream_length": "Integer"
         })

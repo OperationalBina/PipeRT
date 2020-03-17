@@ -1,3 +1,4 @@
+import os
 import time
 from queue import Empty, Full
 from urllib.parse import urlparse
@@ -10,10 +11,11 @@ from pipert.core.routine import Routine, RoutineTypes
 class MessageFromRedis(Routine):
     routine_type = RoutineTypes.INPUT
 
-    def __init__(self, redis_read_key, url, message_queue, *args, **kwargs):
+    def __init__(self, redis_read_key, message_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.in_key = redis_read_key
-        self.url = urlparse(url)
+        # self.url = urlparse(os.environ.get('REDIS_URL'))
+        self.url = urlparse("redis://127.0.0.1:6379")
         self.queue = message_queue
         self.msg_handler = None
         self.flip = False
@@ -51,7 +53,6 @@ class MessageFromRedis(Routine):
         dicts = Routine.get_constructor_parameters()
         dicts.update({
             "redis_read_key": "String",
-            "url": "String",
             "message_queue": "Queue"
         })
         return dicts
