@@ -1,5 +1,3 @@
-from time import sleep
-
 import zerorpc
 import re
 from pipert.core.component import BaseComponent
@@ -15,12 +13,11 @@ class PipelineManager:
     def __init__(self, endpoint="tcp://0.0.0.0:4001"):
         """
         Args:
-            endpoint: the endpoint the PipelineManager's zerorpc server will listen
-            in.
+            endpoint: the endpoint the PipelineManager's
+             zerorpc server will listen in.
         """
         super().__init__()
         self.components = {}
-        self.endpoint_port_counter = 4002
         self.zrpc = zerorpc.Server(self)
         self.zrpc.bind(endpoint)
         self.ROUTINES_FOLDER_PATH = "../contrib/routines"
@@ -29,132 +26,196 @@ class PipelineManager:
 
     def create_component(self, component_name):
         if self._does_component_exist(component_name):
-            print("Component name '" + component_name + "' already exist")
-            return False
+            return self._create_response(
+                False,
+                f"Component named {component_name} already exist"
+            )
         else:
             self.components[component_name] = \
-                BaseComponent(name=component_name,
-                              endpoint="tcp://0.0.0.0:{0:0=4d}"
-                              .format(self.endpoint_port_counter))
-            print("Component " + component_name + " has been created")
-            self.endpoint_port_counter += 1
-            return True
+                BaseComponent(name=component_name)
+            return self._create_response(
+                True,
+                f"Component {component_name} has been created"
+            )
 
     def create_premade_component(self, component_name, component_type_name):
         if self._does_component_exist(component_name):
-            print("Component name '" + component_name + "' already exist")
-            return False
+            return self._create_response(
+                False,
+                f"Component named {component_name} already exist"
+            )
         else:
-            component_object = self._get_component_object_by_name(component_type_name)
+            component_object = \
+                self._get_component_object_by_name(component_type_name)
             if component_name is None:
-                print("The component type '" + component_type_name + " doesn't exist")
-                return False
+                return self._create_response(
+                    False,
+                    f"The component type {component_type_name} doesn't exist"
+                )
             self.components[component_name] = \
-                component_object(name=component_name,
-                                 endpoint="tcp://0.0.0.0:{0:0=4d}"
-                                 .format(self.endpoint_port_counter))
-            print("Component " + component_name + " has been created")
-            self.endpoint_port_counter += 1
-            return True
+                component_object(name=component_name)
+            return self._create_response(
+                True,
+                f"Component {component_name} has been created"
+            )
 
     def remove_component(self, component_name):
         if not self._does_component_exist(component_name):
-            print("Component name '" + component_name + "' doesn't exist")
-            return False
+            return self._create_response(
+                False,
+                f"Component named {component_name} doesn't exist"
+            )
         else:
-            if not self.components[component_name].stop_event.is_set():
+            if self._does_component_running(self.components[component_name]):
                 self.components[component_name].stop_run()
             del self.components[component_name]
-            return True
+            return self._create_response(
+                True,
+                f"Component {component_name} has been removed"
+            )
 
-    def add_routine_to_component(self, component_name, routine_name, **routine_kwargs):
+    def add_routine_to_component(self, component_name,
+                                 routine_name, **routine_kwargs):
         if not self._does_component_exist(component_name):
-            print("The component '" + component_name + " doesn't exist")
-            return False
+            return self._create_response(
+                False,
+                f"Component named {component_name} doesn't exist"
+            )
+        if self._does_component_running(self.components[component_name]):
+            return self._create_response(
+                False,
+                "You can't add a routine while your component is running"
+            )
+
         routine_object = self._get_routine_object_by_name(routine_name)
 
         if routine_object is None:
-            print("The routine '" + routine_name + " doesn't exist")
-            return False
+            return self._create_response(
+                False,
+                f"Routine named {routine_name} doesn't exist"
+            )
 
         try:
             # replace all queue names with the queue objects of the component
             for key, value in routine_kwargs.items():
                 if 'queue' in key.lower():
-                    routine_kwargs[key] = self.components[component_name].get_queue(queue_name=value)
+                    routine_kwargs[key] = \
+                        self.components[component_name] \
+                            .get_queue(queue_name=value)
 
-            self.components[component_name].register_routine(routine_object(**routine_kwargs).as_thread())
-            return True
+            self.components[component_name] \
+                .register_routine(routine_object(**routine_kwargs)
+                                  .as_thread())
+            return self._create_response(
+                True,
+                f"The routine {routine_name} has been added"
+            )
         except QueueDoesNotExist as e:
             print(e.message)
-        except Exception as e:
-            print(e.__traceback__)
         return False
 
     def remove_routine_from_component(self, component_name, routine_name):
         pass
 
-    def create_queue_to_component(self, component_name, queue_name, queue_size=1):
+    def create_queue_to_component(self, component_name,
+                                  queue_name, queue_size=1):
         if not self._does_component_exist(component_name):
-            print("The component " + component_name + " doesn't exist")
-            return False
+            return self._create_response(
+                False,
+                f"Component named {component_name} doesn't exist"
+            )
         if self.components[component_name].does_queue_exist(queue_name):
-            print("The queue name " + queue_name + " already exist")
-            return False
+            return self._create_response(
+                False,
+                f"Queue named {queue_name} already exist"
+            )
 
-        self.components[component_name].create_queue(queue_name=queue_name, queue_size=queue_size)
-        return True
+        self.components[component_name].create_queue(queue_name=queue_name,
+                                                     queue_size=queue_size)
+        return self._create_response(
+            True,
+            f"The Queue {queue_name} has been created"
+        )
 
     def remove_queue_from_component(self, component_name, queue_name):
         if not self._does_component_exist(component_name):
-            print("The component " + component_name + " doesn't exist")
-            return False
+            return self._create_response(
+                False,
+                f"Component named {component_name} doesn't exist"
+            )
         if not self.components[component_name].does_queue_exist(queue_name):
-            print("The queue name " + queue_name + " doesn't exist")
-            return False
+            return self._create_response(
+                False,
+                f"Queue named {queue_name} doesn't exist"
+            )
 
-        return self.components[component_name].delete_queue(queue_name=queue_name)
+        self.components[component_name].delete_queue(queue_name=queue_name)
+        return self._create_response(
+            True,
+            f"The Queue {queue_name} has been removed"
+        )
 
     def run_component(self, component_name):
         if not self._does_component_exist(component_name):
-            print("The component " + component_name + " doesn't exist")
-            return False
-        elif not self.components[component_name].stop_event.is_set():
-            print("The component already running")
-            return False
+            return self._create_response(
+                False,
+                f"Component named {component_name} doesn't exist"
+            )
+        elif self._does_component_running(self.components[component_name]):
+            return self._create_response(
+                False,
+                f"The component {component_name} already running"
+            )
         else:
             self.components[component_name].run()
-            return True
+            return self._create_response(
+                True,
+                f"The component {component_name} is now running"
+            )
 
     def stop_component(self, component_name):
         if not self._does_component_exist(component_name):
-            print("The component " + component_name + " doesn't exist")
-            return False
-        elif self.components[component_name].stop_event.is_set():
-            print("The component is not running running")
-            return False
+            return self._create_response(
+                False,
+                f"Component named {component_name} doesn't exist"
+            )
+        elif self._does_component_running(self.components[component_name]):
+            return self._create_response(
+                False,
+                f"The component {component_name} is not running running"
+            )
         else:
             self.components[component_name].stop_run()
-            return True
+            return self._create_response(
+                True,
+                f"The component {component_name} has been stopped"
+            )
 
     def run_all_components(self):
         for component in self.components.values():
-            if component.stop_event.is_set():
+            if not self._does_component_running(component):
                 component.run()
-        return True
+        return self._create_response(
+            True,
+            f"All of the components are running"
+        )
 
     def stop_all_components(self):
         for component in self.components.values():
-            if not component.stop_event.is_set():
-                print(component.stop_run())
-        return True
+            if self._does_component_running(component):
+                component.stop_run()
+        return self._create_response(
+            True,
+            f"All of the components have been stopped"
+        )
 
     def get_all_routines(self):
         routine_file_names = [f for f in
                               listdir(self.ROUTINES_FOLDER_PATH)
                               if isfile(join(self.ROUTINES_FOLDER_PATH, f))]
 
-        routine_file_names = [file_name[:-3] for file_name in routine_file_names]
+        routine_file_names = [file_name[:-3] for
+                              file_name in routine_file_names]
         routine_file_names = [file_name[0].upper() +
                               re.sub(r'_\w',
                                      self._remove_string_with_underscore,
@@ -162,10 +223,12 @@ class PipelineManager:
                               for file_name in routine_file_names]
         return routine_file_names
 
+    # helping method for changing the file name to class name
     @staticmethod
     def _remove_string_with_underscore(match):
         return match.group(0).upper()[1]
 
+    # helping method for changing the class name to file name
     @staticmethod
     def _add_underscore_before_uppercase(match):
         return '_' + match.group(0).lower()
@@ -178,6 +241,7 @@ class PipelineManager:
 
     def setup_components(self, components):
         """
+        vvv Expecting to get vvv
         [
             {
                 name: str,
@@ -247,8 +311,6 @@ class PipelineManager:
             },
         ])
 
-
-
     def _get_routine_object_by_name(self, routine_name: str) -> Routine:
         path = self.ROUTINES_FOLDER_PATH.replace('/', '.') + "." + \
                re.sub(r'[A-Z]',
@@ -284,17 +346,28 @@ class PipelineManager:
     def _does_component_exist(self, component_name):
         return component_name in self.components
 
+    @staticmethod
+    def _does_component_running(component):
+        return not component.stop_event.is_set()
+
+    @staticmethod
+    def _create_response(succeeded, message):
+        return {
+            "Succeeded": succeeded,
+            "Message": message
+        }
+
     def set_up_components_cv2(self):
         self.create_component("Stream")
         self.create_component("Display")
         self.create_queue_to_component("Stream", "video")
         self.create_queue_to_component("Display", "messages")
-        # self.add_routine_to_component(component_name="Stream",
-        #                               routine_name="ListenToStream",
-        #                               stream_address="/home/internet/Desktop/video.mp4",
-        #                               out_queue="video",
-        #                               fps=30,
-        #                               name="capture_frame")
+        self.add_routine_to_component(component_name="Stream",
+                                      routine_name="ListenToStream",
+                                      stream_address="/home/internet/Desktop/video.mp4",
+                                      out_queue="video",
+                                      fps=30,
+                                      name="capture_frame")
         # self.add_routine_to_component(component_name="Stream",
         #                               routine_name="MessageToRedis",
         #                               redis_send_key="camera:0",
