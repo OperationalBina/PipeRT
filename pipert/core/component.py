@@ -4,19 +4,15 @@ from threading import Thread
 from typing import Union
 import signal
 import gevent
-import zerorpc
 from .errors import RegisteredException, QueueDoesNotExist
 from queue import Queue
 
 
 class BaseComponent:
 
-    def __init__(self, endpoint="tcp://0.0.0.0:4242", name="",
-                 *args, **kwargs):
+    def __init__(self, name="", *args, **kwargs):
         """
         Args:
-            endpoint: the endpoint the component's zerorpc server will listen
-            in.
             *args: TBD
             **kwargs: TBD
         """
@@ -24,11 +20,8 @@ class BaseComponent:
         self.name = name
         self.stop_event = Event()
         self.stop_event.set()
-        self.endpoint = endpoint
         self.queues = {}
         self._routines = []
-        self.zrpc = zerorpc.Server(self)
-        self.zrpc.bind(endpoint)
 
     def _start(self):
         """
@@ -45,8 +38,6 @@ class BaseComponent:
         self.stop_event.clear()
         self._start()
         gevent.signal(signal.SIGTERM, self.stop_run)
-        # self.zrpc.run()
-        # self.zrpc.close()
 
     def register_routine(self, routine: Union[Routine, Process, Thread]):
         """
@@ -76,7 +67,6 @@ class BaseComponent:
         server.
         """
         try:
-            # self.zrpc.stop()
             self.stop_event.set()
             self._teardown_callback()
             for routine in self._routines:
