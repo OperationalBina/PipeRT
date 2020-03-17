@@ -257,9 +257,11 @@ class PipelineManager:
 
         routines = []
         for routine_name in routine_file_names:
-            current_routine_type = self._get_routine_object_by_name(routine_name).routine_type.value
-            print(current_routine_type)
-            routines.append({"name": routine_name, "type": current_routine_type})
+            current_routine_type = \
+                self._get_routine_object_by_name(routine_name)\
+                    .routine_type.value
+            routines.append({"name": routine_name,
+                             "type": current_routine_type})
         return routines
 
     # helping method for changing the file name to class name
