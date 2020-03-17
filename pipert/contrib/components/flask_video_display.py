@@ -12,8 +12,8 @@ import requests
 # Not working for some reason, the flask_display queue is empty forever ????????
 class FlaskVideoDisplay(BaseComponent):
 
-    def __init__(self, endpoint, name="FlaskVideoDisplay"):
-        super().__init__(endpoint, name)
+    def __init__(self, name="FlaskVideoDisplay"):
+        super().__init__(name)
         self.create_queue("flask_display")
 
         app = Flask(__name__)
