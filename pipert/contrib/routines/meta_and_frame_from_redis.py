@@ -11,11 +11,12 @@ import time
 class MetaAndFrameFromRedis(Routine):
     routine_type = RoutineTypes.INPUT
 
-    def __init__(self, redis_read_meta_key, redis_read_image_key, url, image_meta_queue, *args, **kwargs):
+    def __init__(self, redis_read_meta_key, redis_read_image_key, image_meta_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.in_key_meta = redis_read_meta_key
         self.in_key_im = redis_read_image_key
-        self.url = urlparse(url)
+        # self.url = urlparse(os.environ.get('REDIS_URL'))
+        self.url = urlparse("redis://127.0.0.1:6379")
         self.queue = image_meta_queue
         self.msg_handler = None
         self.flip = False
