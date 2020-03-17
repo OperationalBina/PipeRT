@@ -367,13 +367,13 @@ class PipelineManager:
         self.create_component("Display")
         self.create_queue_to_component("Stream", "video")
         self.create_queue_to_component("Display", "messages")
-        self.add_routine_to_component(component_name="Stream",
-                                      routine_name="ListenToStream",
-                                      stream_address=
-                                      "/home/internet/Desktop/video.mp4",
-                                      out_queue="video",
-                                      fps=30,
-                                      name="capture_frame")
+        self.add_routine_to_component(
+            component_name="Stream",
+            routine_name="ListenToStream",
+            stream_address="/home/internet/Desktop/video.mp4",
+            out_queue="video",
+            fps=30,
+            name="capture_frame")
         # self.add_routine_to_component(component_name="Stream",
         #                               routine_name="MessageToRedis",
         #                               redis_send_key="camera:0",
@@ -395,13 +395,13 @@ class PipelineManager:
     def set_up_components_flask(self):
         self.create_component("Stream")
         self.create_queue_to_component("Stream", "video")
-        self.add_routine_to_component(component_name="Stream",
-                                      routine_name="ListenToStream",
-                                      stream_address=
-                                      "/home/internet/Desktop/video.mp4",
-                                      out_queue="video",
-                                      fps=30,
-                                      name="capture_frame")
+        self.add_routine_to_component(
+            component_name="Stream",
+            routine_name="ListenToStream",
+            stream_address="/home/internet/Desktop/video.mp4",
+            out_queue="video",
+            fps=30,
+            name="capture_frame")
         self.add_routine_to_component(component_name="Stream",
                                       routine_name="MessageToRedis",
                                       redis_send_key="cam",
