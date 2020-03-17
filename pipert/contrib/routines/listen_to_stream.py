@@ -5,10 +5,11 @@ import cv2
 
 from imutils import resize
 from pipert.core.message import Message
-from pipert.core.routine import Routine
+from pipert.core.routine import Routine, RoutineTypes
 
 
 class ListenToStream(Routine):
+    routine_type = RoutineTypes.INPUT
 
     def __init__(self, stream_address, out_queue, fps=30., *args, **kwargs):
         super().__init__(*args, **kwargs)

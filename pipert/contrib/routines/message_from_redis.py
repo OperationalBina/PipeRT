@@ -4,10 +4,11 @@ from urllib.parse import urlparse
 
 from pipert.core.message_handlers import RedisHandler
 from pipert.core.message import message_decode
-from pipert.core.routine import Routine
+from pipert.core.routine import Routine, RoutineTypes
 
 
 class MessageFromRedis(Routine):
+    routine_type = RoutineTypes.INPUT
 
     def __init__(self, redis_read_key, url, message_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)

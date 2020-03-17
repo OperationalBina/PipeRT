@@ -1,10 +1,12 @@
 import time
 from queue import Empty
 import cv2
-from pipert.core.routine import Routine
+from pipert.core.routine import Routine, RoutineTypes
 
 
 class DisplayCv2(Routine):
+    routine_type = RoutineTypes.OUTPUT
+
     def __init__(self, frame_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.queue = frame_queue

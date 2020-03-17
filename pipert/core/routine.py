@@ -29,7 +29,18 @@ class State(object):
         self.output = None
 
 
+class RoutineTypes(Enum):
+    """
+    Every routine will have a type
+    """
+    NO_TYPE = -1
+    INPUT = 0
+    PROCESSING = 1
+    OUTPUT = 2
+
+
 class Routine:
+    routine_type = RoutineTypes.NO_TYPE
 
     def __init__(self, name="", component_name=""):
 

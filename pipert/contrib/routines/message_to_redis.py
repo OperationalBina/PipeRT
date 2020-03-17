@@ -1,15 +1,16 @@
 import time
-from queue import Empty, Full
+from queue import Empty
 from urllib.parse import urlparse
 
 from pipert.core.message_handlers import RedisHandler
-from pipert.core.message import message_decode, message_encode
-from pipert.core.routine import Routine
+from pipert.core.message import message_encode
+from pipert.core.routine import Routine, RoutineTypes
 
 
 # TODO: add Error handling to connection
 
 class MessageToRedis(Routine):
+    routine_type = RoutineTypes.OUTPUT
 
     def __init__(self, redis_send_key, url, message_queue, max_stream_length, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -1,6 +1,7 @@
 import torch
 from pipert import Routine
 from pipert.core.message import Message
+from pipert.core.routine import RoutineTypes
 from pipert.utils.structures import Instances, Boxes
 from queue import Empty
 import time
@@ -8,6 +9,7 @@ import cv2
 
 
 class FaceDetection(Routine):
+    routine_type = RoutineTypes.PROCESSING
 
     def __init__(self, in_queue, out_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -1,4 +1,4 @@
-from pipert.core.routine import Routine
+from pipert.core.routine import Routine, RoutineTypes
 from queue import Empty, Full
 from pipert.utils.visualizer import VideoVisualizer
 from detectron2.data import MetadataCatalog
@@ -6,6 +6,8 @@ import time
 
 
 class VisLogic(Routine):
+    routine_type = RoutineTypes.PROCESSING
+
     def __init__(self, in_queue, out_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.in_queue = in_queue

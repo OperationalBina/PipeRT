@@ -1,6 +1,6 @@
 from urllib.parse import urlparse
 
-from pipert.core.routine import Routine
+from pipert.core.routine import Routine, RoutineTypes
 from queue import Empty
 import cv2
 from pipert.core.message import message_decode
@@ -9,6 +9,7 @@ import time
 
 
 class MetaAndFrameFromRedis(Routine):
+    routine_type = RoutineTypes.INPUT
 
     def __init__(self, redis_read_meta_key, redis_read_image_key, url, image_meta_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)

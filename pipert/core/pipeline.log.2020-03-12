@@ -1,0 +1,1459 @@
+2020-03-15 08:59:58,436 — .capture_frame — INFO — Starting video capture on /home/internet/Desktop/video.mp4
+2020-03-15 08:59:58,495 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_0, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:58,576 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_1, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:58,624 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_2, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:58,673 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_3, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:58,716 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_4, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:58,761 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_5, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:58,807 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_6, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:58,859 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_7, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:58,902 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_8, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:58,951 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_9, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:58,996 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_10, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,039 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_11, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,084 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_12, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,132 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_13, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,176 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_14, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,219 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_15, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,266 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_16, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,310 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_17, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,354 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_18, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,403 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_19, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,447 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_20, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,496 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_21, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,544 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_22, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,588 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_23, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,633 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_24, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,682 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_25, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,727 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_26, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,772 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_27, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,815 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_28, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,860 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_29, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,909 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_30, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 08:59:59,957 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_31, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,001 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_32, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,046 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_33, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,089 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_34, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,135 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_35, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,178 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_36, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,225 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_37, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,271 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_38, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,315 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_39, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,358 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_40, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,402 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_41, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,448 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_42, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,493 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_43, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,539 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_44, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,584 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_45, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,631 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_46, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,677 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_47, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,723 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_48, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,766 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_49, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,811 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_50, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,854 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_51, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,904 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_52, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,948 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_53, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:00,991 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_54, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,035 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_55, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,081 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_56, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,125 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_57, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,168 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_58, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,214 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_59, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,261 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_60, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,306 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_61, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,349 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_62, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,392 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_63, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,436 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_64, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,481 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_65, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,526 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_66, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,570 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_67, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,616 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_68, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,662 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_69, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,706 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_70, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,754 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_71, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,798 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_72, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,844 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_73, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,887 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_74, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,933 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_75, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:01,976 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_76, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,022 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_77, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,069 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_78, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,114 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_79, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,157 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_80, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,201 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_81, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,244 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_82, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,287 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_83, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,339 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_84, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,383 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_85, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,426 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_86, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,469 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_87, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,514 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_88, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,560 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_89, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,609 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_90, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,652 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_91, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,697 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_92, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,741 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_93, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,784 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_94, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,827 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_95, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,871 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_96, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,915 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_97, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:02,959 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_98, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,005 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_99, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,048 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_100, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,093 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_101, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,138 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_102, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,181 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_103, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,224 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_104, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,273 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_105, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,319 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_106, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,365 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_107, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,408 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_108, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,457 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_109, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,500 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_110, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,545 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_111, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,588 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_112, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,636 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_113, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,685 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_114, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,732 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_115, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,776 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_116, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,819 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_117, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,862 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_118, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,906 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_119, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,949 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_120, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:03,993 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_121, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,041 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_122, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,091 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_123, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,140 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_124, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,184 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_125, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,230 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_126, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,275 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_127, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,321 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_128, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,367 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_129, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,417 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_130, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,463 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_131, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,513 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_132, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,556 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_133, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,605 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_134, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,648 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_135, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,692 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_136, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,739 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_137, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,791 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_138, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,835 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_139, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,883 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_140, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,931 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_141, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:04,974 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_142, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,017 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_143, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,060 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_144, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,105 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_145, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,152 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_146, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,195 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_147, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,242 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_148, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,289 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_149, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,333 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_150, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,378 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_151, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,424 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_152, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,472 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_153, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,515 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_154, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,562 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_155, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,609 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_156, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,654 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_157, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,697 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_158, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,741 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_159, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,784 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_160, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,828 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_161, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,875 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_162, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,927 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_163, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:05,978 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_164, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,022 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_165, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,070 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_166, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,116 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_167, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,176 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_168, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,219 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_169, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,262 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_170, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,306 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_171, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,349 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_172, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,395 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_173, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,439 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_174, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,482 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_175, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,530 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_176, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,574 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_177, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,619 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_178, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,664 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_179, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,712 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_180, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,756 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_181, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,801 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_182, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,846 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_183, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,892 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_184, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,937 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_185, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:06,980 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_186, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,026 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_187, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,070 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_188, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,115 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_189, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,159 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_190, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,207 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_191, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,257 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_192, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,300 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_193, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,343 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_194, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,388 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_195, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,434 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_196, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,479 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_197, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,523 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_198, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,566 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_199, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,612 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_200, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,656 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_201, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,707 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_202, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,754 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_203, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,797 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_204, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,843 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_205, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,892 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_206, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,936 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_207, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:07,979 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_208, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,023 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_209, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,068 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_210, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,110 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_211, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,156 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_212, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,201 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_213, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,250 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_214, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,293 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_215, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,337 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_216, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,380 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_217, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,424 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_218, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,468 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_219, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,518 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_220, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,565 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_221, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,609 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_222, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,656 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_223, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,701 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_224, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,746 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_225, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,792 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_226, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,839 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_227, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,883 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_228, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,926 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_229, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:08,969 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_230, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,017 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_231, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,062 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_232, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,107 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_233, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,151 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_234, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,196 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_235, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,243 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_236, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,287 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_237, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,335 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_238, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,381 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_239, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,424 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_240, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,471 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_241, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,515 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_242, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,558 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_243, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,606 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_244, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,655 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_245, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,702 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_246, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,749 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_247, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,792 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_248, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,841 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_249, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,884 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_250, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,931 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_251, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:09,975 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_252, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,019 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_253, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,066 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_254, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,110 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_255, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,154 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_256, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,198 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_257, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,244 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_258, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,293 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_259, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,336 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_260, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,380 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_261, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,425 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_262, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,470 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_263, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,514 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_264, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,560 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_265, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,604 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_266, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,647 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_267, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,695 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_268, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,741 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_269, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,785 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_270, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,829 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_271, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,876 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_272, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,920 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_273, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:10,965 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_274, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,018 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_275, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,065 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_276, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,108 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_277, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,157 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_278, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,203 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_279, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,246 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_280, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,293 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_281, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,336 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_282, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,382 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_283, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,427 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_284, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,470 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_285, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,515 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_286, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,559 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_287, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,609 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_288, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,652 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_289, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,696 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_290, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,740 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_291, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,785 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_292, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,832 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_293, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,882 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_294, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,932 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_295, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:11,979 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_296, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,023 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_297, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,068 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_298, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,112 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_299, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,156 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_300, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,199 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_301, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,243 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_302, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,286 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_303, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,332 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_304, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,377 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_305, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,424 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_306, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,483 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_307, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,528 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_308, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,575 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_309, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,618 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_310, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,662 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_311, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,705 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_312, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,748 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_313, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,799 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_314, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,854 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_315, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,901 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_316, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,944 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_317, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:12,987 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_318, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,034 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_319, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,077 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_320, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,120 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_321, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,164 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_322, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,211 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_323, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,259 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_324, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,312 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_325, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,355 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_326, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,398 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_327, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,441 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_328, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,523 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_329, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,576 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_330, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,620 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_331, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,668 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_332, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,712 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_333, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,756 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_334, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,800 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_335, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,844 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_336, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,887 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_337, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,931 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_338, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:13,974 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_339, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,023 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_340, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,070 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_341, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,115 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_342, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,159 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_343, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,204 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_344, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,248 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_345, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,307 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_346, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,357 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_347, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,404 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_348, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,448 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_349, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,495 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_350, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,538 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_351, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,585 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_352, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,629 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_353, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,676 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_354, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,721 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_355, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,764 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_356, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,808 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_357, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,852 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_358, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,899 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_359, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:14,944 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_360, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,010 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_361, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,054 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_362, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,096 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_363, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,146 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_364, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,191 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_365, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,235 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_366, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,277 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_367, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,321 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_368, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,370 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_369, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,419 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_370, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,475 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_371, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,520 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_372, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,566 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_373, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,610 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_374, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,655 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_375, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,699 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_376, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,748 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_377, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,791 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_378, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,837 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_379, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,892 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_380, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,939 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_381, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:15,986 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_382, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,033 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_383, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,081 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_384, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,127 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_385, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,177 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_386, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,222 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_387, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,268 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_388, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,315 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_389, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,359 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_390, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,405 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_391, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,449 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_392, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,499 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_393, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,544 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_394, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,590 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_395, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,635 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_396, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,678 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_397, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,722 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_398, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,770 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_399, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,816 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_400, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,861 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_401, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,908 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_402, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,953 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_403, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:16,996 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_404, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,040 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_405, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,084 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_406, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,128 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_407, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,175 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_408, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,221 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_409, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,268 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_410, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,311 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_411, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,356 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_412, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,403 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_413, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,452 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_414, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,496 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_415, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,539 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_416, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,583 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_417, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,627 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_418, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,672 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_419, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,716 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_420, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,762 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_421, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,809 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_422, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,852 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_423, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,896 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_424, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,942 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_425, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:17,987 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_426, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,036 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_427, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,083 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_428, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,133 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_429, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,177 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_430, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,225 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_431, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,270 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_432, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,315 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_433, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,359 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_434, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,403 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_435, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,455 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_436, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,500 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_437, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,546 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_438, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,592 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_439, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,636 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_440, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,683 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_441, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,726 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_442, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,773 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_443, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,819 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_444, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,863 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_445, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,906 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_446, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,950 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_447, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:18,993 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_448, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,036 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_449, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,080 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_450, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,123 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_451, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,168 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_452, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,212 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_453, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,257 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_454, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,301 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_455, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,344 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_456, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,387 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_457, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,432 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_458, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,480 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_459, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,524 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_460, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,568 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_461, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,611 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_462, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,658 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_463, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,705 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_464, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,751 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_465, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,799 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_466, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,847 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_467, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,893 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_468, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,938 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_469, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:19,987 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_470, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,030 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_471, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,073 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_472, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,122 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_473, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,169 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_474, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,215 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_475, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,267 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_476, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,315 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_477, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,358 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_478, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,405 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_479, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,451 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_480, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,496 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_481, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,551 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_482, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,597 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_483, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,645 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_484, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,689 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_485, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,736 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_486, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,780 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_487, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,823 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_488, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,866 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_489, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,909 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_490, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,952 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_491, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:20,997 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_492, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,040 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_493, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,084 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_494, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,133 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_495, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,178 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_496, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,221 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_497, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,264 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_498, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,307 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_499, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,351 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_500, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,398 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_501, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,441 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_502, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,485 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_503, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,528 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_504, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,580 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_505, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,630 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_506, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,674 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_507, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,719 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_508, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,763 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_509, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,807 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_510, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,850 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_511, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,894 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_512, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,937 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_513, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:21,981 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_514, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,025 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_515, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,070 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_516, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,113 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_517, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,160 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_518, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,203 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_519, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,245 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_520, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,289 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_521, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,333 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_522, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,376 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_523, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,423 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_524, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,467 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_525, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,515 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_526, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,559 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_527, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,603 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_528, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,647 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_529, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,700 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_530, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,746 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_531, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,796 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_532, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,840 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_533, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,886 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_534, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,930 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_535, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:22,973 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_536, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,016 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_537, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,059 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_538, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,104 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_539, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,148 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_540, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,193 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_541, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,236 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_542, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,279 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_543, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,323 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_544, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,366 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_545, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,418 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_546, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,462 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_547, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,510 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_548, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,555 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_549, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,598 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_550, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,642 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_551, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,685 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_552, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,728 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_553, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,772 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_554, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,815 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_555, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,859 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_556, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,903 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_557, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,948 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_558, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:23,991 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_559, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,035 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_560, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,078 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_561, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,120 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_562, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,165 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_563, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,209 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_564, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,253 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_565, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,297 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_566, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,355 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_567, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,401 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_568, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,445 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_569, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,489 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_570, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,531 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_571, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,580 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_572, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,628 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_573, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,670 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_574, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,718 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_575, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,761 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_576, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,808 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_577, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,852 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_578, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,896 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_579, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,940 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_580, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:24,991 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_581, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,041 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_582, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,085 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_583, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,129 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_584, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,188 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_585, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,239 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_586, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,287 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_587, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,330 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_588, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,377 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_589, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,421 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_590, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,467 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_591, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,515 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_592, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,564 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_593, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,614 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_594, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,660 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_595, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,704 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_596, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,747 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_597, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,790 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_598, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,838 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_599, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,882 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_600, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,926 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_601, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:25,969 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_602, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,013 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_603, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,057 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_604, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,104 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_605, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,149 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_606, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,192 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_607, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,239 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_608, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,282 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_609, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,326 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_610, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,375 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_611, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,419 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_612, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,463 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_613, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,509 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_614, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,566 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_615, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,609 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_616, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,658 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_617, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,701 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_618, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,744 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_619, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,788 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_620, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,833 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_621, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,876 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_622, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,920 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_623, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:26,967 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_624, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,010 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_625, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,055 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_626, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,099 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_627, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,142 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_628, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,185 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_629, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,231 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_630, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,275 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_631, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,320 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_632, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,362 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_633, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,406 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_634, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,465 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_635, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,510 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_636, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,555 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_637, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,603 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_638, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,650 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_639, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,697 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_640, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,741 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_641, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,785 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_642, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,828 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_643, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,871 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_644, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,918 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_645, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:27,961 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_646, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,004 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_647, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,048 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_648, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,096 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_649, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,140 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_650, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,183 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_651, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,227 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_652, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,271 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_653, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,314 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_654, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,359 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_655, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,409 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_656, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,461 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_657, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,506 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_658, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,554 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_659, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,601 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_660, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,649 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_661, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,692 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_662, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,735 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_663, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,781 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_664, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,828 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_665, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,871 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_666, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,917 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_667, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:28,961 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_668, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,004 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_669, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,050 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_670, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,093 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_671, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,139 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_672, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,184 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_673, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,227 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_674, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,271 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_675, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,316 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_676, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,362 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_677, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,418 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_678, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,468 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_679, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,514 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_680, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,557 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_681, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,602 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_682, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,646 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_683, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,690 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_684, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,741 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_685, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,791 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_686, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,838 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_687, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,882 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_688, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,930 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_689, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:29,973 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_690, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,017 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_691, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,062 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_692, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,106 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_693, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,149 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_694, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,192 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_695, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,235 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_696, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,278 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_697, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,322 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_698, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,367 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_699, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,414 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_700, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,461 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_701, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,508 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_702, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,557 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_703, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,606 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_704, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,657 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_705, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,703 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_706, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,749 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_707, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,801 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_708, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,847 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_709, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,892 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_710, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,936 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_711, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:30,983 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_712, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,029 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_713, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,075 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_714, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,119 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_715, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,163 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_716, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,230 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_717, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,274 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_718, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,389 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_719, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,434 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_720, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,480 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_721, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,525 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_722, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,570 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_723, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,614 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_724, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,661 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_725, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,705 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_726, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,751 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_727, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
+2020-03-15 09:00:31,796 — .capture_frame — INFO — Received the following message: {msg id: /home/internet/Desktop/video.mp4_728, payload type: <class 'pipert.core.message.FramePayload'>, source address: /home/internet/Desktop/video.mp4 }
+
