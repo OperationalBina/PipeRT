@@ -33,7 +33,7 @@ class BaseComponent:
 
     def run(self):
         """
-        Starts running all the component's routines and the zerorpc server.
+        Starts running all the component's routines.
         """
         self.stop_event.clear()
         self._start()
@@ -63,8 +63,7 @@ class BaseComponent:
 
     def stop_run(self):
         """
-        Signals all the component's routines to stop and then stops the zerorpc
-        server.
+        Signals all the component's routines to stop.
         """
         try:
             self.stop_event.set()
