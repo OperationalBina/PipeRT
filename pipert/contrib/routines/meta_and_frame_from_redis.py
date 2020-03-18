@@ -60,5 +60,15 @@ class MetaAndFrameFromRedis(Routine):
     def cleanup(self, *args, **kwargs):
         self.msg_handler.close()
 
+    @staticmethod
+    def get_constructor_parameters():
+        dicts = Routine.get_constructor_parameters()
+        dicts.update({
+            "redis_read_meta_key": "String",
+            "redis_read_image_key": "String",
+            "image_meta_queue": "Queue",
+        })
+        return dicts
+
     def does_routine_use_queue(self, queue):
         return self.queue == queue

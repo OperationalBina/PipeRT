@@ -54,5 +54,14 @@ class VisLogic(Routine):
     def cleanup(self, *args, **kwargs):
         pass
 
+    @staticmethod
+    def get_constructor_parameters():
+        dicts = Routine.get_constructor_parameters()
+        dicts.update({
+            "in_queue": "Queue",
+            "out_queue": "Queue",
+        })
+        return dicts
+
     def does_routine_use_queue(self, queue):
         return self.in_queue == queue or self.out_queue == queue
