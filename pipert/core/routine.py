@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from enum import Enum
 import logging
@@ -5,8 +6,19 @@ import threading
 from logging.handlers import TimedRotatingFileHandler
 
 import torch.multiprocessing as mp
+from prometheus_client import Histogram
+from prometheus_client.utils import INF
+
 from .errors import NoRunnerException
 import time
+
+buckets = (0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05,
+           0.1, 0.2, 0.5, 1, 2, 5, INF)
+
+REQUEST_TIME = Histogram('routine_processing_seconds',
+                         'Time spent processing routine',
+                         ['routine', 'component'],
+                         buckets=buckets)
 
 
 class Events(Enum):
@@ -39,7 +51,7 @@ class RoutineTypes(Enum):
     OUTPUT = 2
 
 
-class Routine:
+class Routine(ABC):
     routine_type = RoutineTypes.NO_TYPE
 
     def __init__(self, name="", component_name=""):
@@ -61,8 +73,7 @@ class Routine:
 
     def _setup_logger(self):
         # setting up the routine's logger
-        self.logger = logging.getLogger(self.component_name + "." +
-                                        self.name)
+        self.logger = logging.getLogger(self.component_name + "." + self.name)
         self.logger.setLevel(logging.DEBUG)
         self.logger.propagate = False
         log_file = "pipeline.log"
@@ -241,11 +252,9 @@ class Routine:
             **kwargs: argsional keyword args to be passed to `handler`.
 
         """
-
         def decorator(f):
             self.add_event_handler(event_name, f, *args, **kwargs)
             return f
-
         return decorator
 
     def _fire_event(self, event_name, *event_args, **event_kwargs):
@@ -296,9 +305,15 @@ class Routine:
         # TODO - maybe add _fire_event before and after the while loop?
         while not self.stop_event.is_set():
             self._fire_event(Events.BEFORE_LOGIC)
+            tick = time.time()
             self.state.output = self.main_logic()
             self.state.count += 1
+            tock = time.time()
+
             if self.state.output:
+                REQUEST_TIME.labels(routine=self.name,
+                                    component=self.component_name)\
+                    .observe(tock - tick)
                 self.state.success += 1
             self._fire_event(Events.AFTER_LOGIC)
 
