@@ -6,6 +6,7 @@ from pipert.utils.structures import Instances, Boxes
 from queue import Empty
 import time
 import cv2
+import pkg_resources
 
 
 class FaceDetection(Routine):
@@ -55,9 +56,8 @@ class FaceDetection(Routine):
             return False
 
     def setup(self, *args, **kwargs):
-        #TODO need to check why local path not working
-        casc_path = "/home/internet/Desktop/pipeFork/PipeRT/pipert/contrib/face_detect/haarcascade_frontalface_default.xml"
-        self.face_cas = cv2.CascadeClassifier(casc_path)
+        haar_xml = pkg_resources.resource_filename('cv2', 'data/haarcascade_frontalface_default.xml')
+        self.face_cas = cv2.CascadeClassifier(haar_xml)
         self.state.dropped = 0
 
     def cleanup(self, *args, **kwargs):
