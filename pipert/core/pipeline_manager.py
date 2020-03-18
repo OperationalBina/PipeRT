@@ -1,4 +1,4 @@
-import os
+# import os
 import sys
 from flask import Flask, jsonify, request
 import zerorpc
@@ -476,12 +476,13 @@ class PipelineManager:
         self.create_premade_component("FlaskDisplay", "FlaskVideoDisplay")
         self.create_queue_to_component("FlaskDisplay", "messages")
 
-        self.add_routine_to_component(component_name="FlaskDisplay",
-                                      routine_type_name="MetaAndFrameFromRedis",
-                                      redis_read_image_key="cam",
-                                      redis_read_meta_key="camera:1",
-                                      image_meta_queue="messages",
-                                      name="get_frames_and_pred")
+        self.add_routine_to_component(
+            component_name="FlaskDisplay",
+            routine_type_name="MetaAndFrameFromRedis",
+            redis_read_image_key="cam",
+            redis_read_meta_key="camera:1",
+            image_meta_queue="messages",
+            name="get_frames_and_pred")
 
         self.add_routine_to_component(component_name="FlaskDisplay",
                                       routine_type_name="VisLogic",
