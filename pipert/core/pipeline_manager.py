@@ -364,15 +364,7 @@ class PipelineManager:
                    self._add_underscore_before_uppercase,
                    routine_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + routine_name
-        path = absolute_path.split('.')
-        module = ".".join(path[:-1])
-        try:
-            m = __import__(module)
-            for comp in path[1:]:
-                m = getattr(m, comp)
-            return m
-        except ModuleNotFoundError:
-            return None
+        return self._get_object_by_path(absolute_path)
 
     def _get_component_object_by_name(self, component_type_name):
         path = self.COMPONENTS_FOLDER_PATH.replace('/', '.') + "." + \
@@ -380,6 +372,9 @@ class PipelineManager:
                    self._add_underscore_before_uppercase,
                    component_type_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + component_type_name
+        return self._get_object_by_path(absolute_path)
+
+    def _get_object_by_path(self, absolute_path):
         path = absolute_path.split('.')
         module = ".".join(path[:-1])
         try:
