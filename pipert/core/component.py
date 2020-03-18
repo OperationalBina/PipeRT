@@ -111,8 +111,8 @@ class BaseComponent:
 
     def remove_routine(self, routine_name):
         self._routines = [routine for routine in self._routines
-                          if isinstance(routine, Routine) and
-                          routine.name == routine_name]
+                          if isinstance(routine, Routine)
+                          and routine.name == routine_name]
 
     def does_routines_use_queue(self, queue_name):
         for routine in self._routines:
