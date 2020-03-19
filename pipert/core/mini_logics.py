@@ -1,12 +1,8 @@
 import time
-import cv2
-from queue import Empty
 from pipert.core.message_handlers import RedisHandler
-from pipert.core.message import message_decode, message_encode, Message
+from pipert.core.message import message_decode, message_encode
 from pipert.core.routine import Routine
 from pipert.core import QueueHandler
-from pipert.core.shared_memory import get_shared_memory_object
-from pipert.core.shared_memory import SharedMemoryGenerator
 
 
 # TODO: add Error handling to connection

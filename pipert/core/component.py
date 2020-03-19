@@ -47,8 +47,8 @@ class BaseComponent:
         """
         self._start()
         gevent.signal(signal.SIGTERM, self.stop_run)
-        # if self.prometheus_port:
-        #     start_http_server(self.prometheus_port)
+        if self.prometheus_port:
+            start_http_server(self.prometheus_port)
         self.zrpc.run()
         self.zrpc.close()
 

@@ -8,8 +8,6 @@ import os
 from pipert.core.message import Message
 from pipert.core.mini_logics import Message2Redis
 from pipert.core import QueueHandler
-from pipert.core.shared_memory import get_shared_memory_object
-from pipert.core.shared_memory import SharedMemoryGenerator
 
 
 class Listen2Stream(Routine):
@@ -24,8 +22,6 @@ class Listen2Stream(Routine):
         self.q_handler = QueueHandler(queue)
         self.fps = fps
         self.updated_config = {}
-        self.use_memory = use_memory
-        self.memory_generator = SharedMemoryGenerator(self.component_name)
 
     def begin_capture(self):
         self.stream = cv2.VideoCapture(self.stream_address)
