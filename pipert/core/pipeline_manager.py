@@ -291,7 +291,7 @@ class PipelineManager:
                 routines:
                     [
                         {
-                            routine_name: str,
+                            routine_type_name: str,
                             ...(routine params)
                         },
                         ...
@@ -305,7 +305,7 @@ class PipelineManager:
             for queue in component["queues"]:
                 self.create_queue_to_component(component["name"], queue)
             for routine in component["routines"]:
-                routine_name = routine.pop("routine_name", None)
+                routine_name = routine.pop("routine_type_name", None)
                 self.add_routine_to_component(component["name"],
                                               routine_name, **routine)
 
