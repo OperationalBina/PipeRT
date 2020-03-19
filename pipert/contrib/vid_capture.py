@@ -59,29 +59,14 @@ class Listen2Stream(Routine):
 
         grabbed, frame = self.stream.read()
         if grabbed:
-            if self.use_memory:
-                row, column, depth = frame.shape
-                frame_size = row * column * depth
-                memory_name = self.memory_generator.get_next_shared_memory(
-                    size=frame_size
-                )
-                memory = get_shared_memory_object(memory_name)
-                memory.acquire_semaphore()
-                msg = Message(memory_name, self.stream_address)
-            else:
-                msg = Message(frame, self.stream_address)
+            msg = Message(frame, self.stream_address)
             msg.record_entry(self.component_name, self.logger)
 
             frame = resize(frame, 640, 480)
             # if the stream is from a webcam, flip the frame
             if self.stream_address == 0:
                 frame = cv2.flip(frame, 1)
-            if self.use_memory:
-                memory.write_to_memory(cv2.imencode('.png', frame)[1]
-                                       .tostring())
-                memory.release_semaphore()
-            else:
-                msg.update_payload(frame)
+            msg.update_payload(frame)
 
             success = self.q_handler.deque_non_blocking_put(msg)
             return success
@@ -96,12 +81,12 @@ class Listen2Stream(Routine):
 
 class VideoCapture(BaseComponent):
 
-    def __init__(self, endpoint, stream_address, out_key, redis_url, fps=30.0, maxlen=10, name="VideoCapture"):
-        super().__init__(endpoint, name, 8080)
+    def __init__(self, endpoint, stream_address, out_key, redis_url, fps=30.0, maxlen=10, name="VideoCapture", use_memory=False):
+        super().__init__(endpoint, name, 8080, use_memory=use_memory)
         # TODO: should queue maxsize be configurable?
         self.queue = Queue(maxsize=10)
 
-        t_stream = Listen2Stream(stream_address, self.queue, fps, name="capture_frame", component_name=self.name, user_memory=False)\
+        t_stream = Listen2Stream(stream_address, self.queue, fps, name="capture_frame", component_name=self.name)\
             .as_thread()
         t_stream.pace(fps)
         self.register_routine(t_stream)
@@ -135,10 +120,10 @@ if __name__ == '__main__':
     # Choose video source
     if opts.infile is None:
         zpc = VideoCapture(endpoint="tcp://0.0.0.0:4242", stream_address=opts.webcam, out_key=opts.output,
-                           redis_url=url, fps=opts.fps, maxlen=opts.maxlen)
+                           redis_url=url, fps=opts.fps, maxlen=opts.maxlen, use_memory=True)
     else:
         zpc = VideoCapture(endpoint="tcp://0.0.0.0:4242", stream_address=opts.infile, out_key=opts.output,
-                           redis_url=url, fps=opts.fps, maxlen=opts.maxlen)
+                           redis_url=url, fps=opts.fps, maxlen=opts.maxlen, use_memory=True)
     print(f"run {zpc.name}")
     zpc.run()
     print(f"Killed {zpc.name}")

@@ -24,7 +24,11 @@ class Message2Redis(Routine):
         msg = self.q_handler.non_blocking_get()
         if msg:
             msg.record_exit(self.component_name, self.logger)
-            encoded_msg = message_encode(msg)
+            if self.use_memory:
+                encoded_msg = message_encode(msg,
+                                             generator=self.memory_generator)
+            else:
+                encoded_msg = message_encode(msg)
             self.msg_handler.send(self.out_key, encoded_msg)
             return True
         else:

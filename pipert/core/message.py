@@ -1,6 +1,7 @@
 import collections
 from abc import ABC, abstractmethod
 from pipert.core.shared_memory import get_shared_memory_object
+from pipert.core.shared_memory import SharedMemoryGenerator
 
 import numpy as np
 import time
@@ -20,7 +21,7 @@ class Payload(ABC):
         pass
 
     @abstractmethod
-    def encode(self):
+    def encode(self, generator):
         pass
 
     @abstractmethod
@@ -34,51 +35,36 @@ class FramePayload(Payload):
         super().__init__(data)
 
     def decode(self):
-        decoded_img = cv2.imdecode(np.fromstring(self.data, dtype=np.uint8),
-                                   cv2.IMREAD_COLOR)
+        if isinstance(self.data, str):
+            decoded_img = self._get_frame()
+        else:
+            decoded_img = cv2.imdecode(np.fromstring(self.data,
+                                                     dtype=np.uint8),
+                                       cv2.IMREAD_COLOR)
         self.data = decoded_img
         self.encoded = False
 
-    def encode(self):
+    def encode(self, generator):
         buf = cv2.imencode('.jpeg', self.data)[1].tobytes()
-        self.data = buf
+        if generator is None:
+            self.data = buf
+        else:
+            row, column, depth = self.data.shape
+            frame_size = row * column * depth
+            memory_name = generator.get_next_shared_memory(
+                size=frame_size
+            )
+            memory = get_shared_memory_object(memory_name)
+            memory.acquire_semaphore()
+            memory.write_to_memory(buf)
+            memory.release_semaphore()
+            self.data = memory_name
         self.encoded = True
 
     def is_empty(self):
         return not self.data
 
-
-class PredictionPayload(Payload):
-    def __init__(self, data):
-        super().__init__(data)
-
-    def decode(self):
-        pass
-
-    def encode(self):
-        pass
-
-    def is_empty(self):
-        if not self.data.has("pred_boxes") or not self.data.pred_boxes:
-            return True
-        else:
-            return False
-
-
-class AddressPayload(Payload):
-    def __init__(self, data):
-        super().__init__(data)
-
-    def decode(self):
-        pass
-
-    def encode(self):
-        pass
-
-    def is_empty(self):
-        return not self.data
-
-    def get_frame(self):
+    def _get_frame(self):
         memory = get_shared_memory_object(self.data)
         if memory:
             memory.acquire_semaphore()
@@ -88,13 +74,22 @@ class AddressPayload(Payload):
             return cv2.imdecode(frame, cv2.IMREAD_COLOR)
         return None
 
-    def update_frame(self, data):
-        get_shared_memory_object(self.data).free_memory()
-        memory = get_shared_memory_object(self.data)
 
-        memory.acquire_semaphore()
-        memory.write_to_memory(cv2.imencode('.png', data)[1].tostring())
-        memory.release_semaphore()
+class PredictionPayload(Payload):
+    def __init__(self, data):
+        super().__init__(data)
+
+    def decode(self):
+        pass
+
+    def encode(self, generator):
+        pass
+
+    def is_empty(self):
+        if not self.data.has("pred_boxes") or not self.data.pred_boxes:
+            return True
+        else:
+            return False
 
 
 class Message:
@@ -103,8 +98,6 @@ class Message:
     def __init__(self, data, source_address):
         if isinstance(data, np.ndarray):
             self.payload = FramePayload(data)
-        elif isinstance(data, str):
-            self.payload = AddressPayload(data)
         else:
             self.payload = PredictionPayload(data)
         self.source_address = source_address
@@ -115,19 +108,12 @@ class Message:
     def update_payload(self, data):
         if self.payload.encoded:
             self.payload.decode()
-        if isinstance(self.payload, AddressPayload):
-            if data is not None:
-                self.payload.update_frame(data)
-        else:
-            self.payload.data = data
+        self.payload.data = data
 
     def get_payload(self):
         if self.payload.encoded:
             self.payload.decode()
-        if isinstance(self.payload, AddressPayload):
-            return self.payload.get_frame()
-        else:
-            return self.payload.data
+        return self.payload.data
 
     def is_empty(self):
         return self.payload.is_empty()
@@ -198,7 +184,7 @@ class Message:
                f"history: {self.history} \n"
 
 
-def message_encode(msg):
+def message_encode(msg, generator=None):
     """
     Encodes the message object.
 
@@ -207,8 +193,9 @@ def message_encode(msg):
 
     Args:
         msg: the message to encode.
+        generator: generator necessary for shared memory usage.
     """
-    msg.payload.encode()
+    msg.payload.encode(generator)
     return pickle.dumps(msg)
 
 

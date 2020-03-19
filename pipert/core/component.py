@@ -7,12 +7,13 @@ import signal
 import gevent
 import zerorpc
 from .errors import RegisteredException
+from .shared_memory import SharedMemoryGenerator
 
 
 class BaseComponent:
 
     def __init__(self, endpoint="tcp://0.0.0.0:4242", name="",
-                 prometheus_port=None, *args, **kwargs):
+                 prometheus_port=None, use_memory=False, *args, **kwargs):
         """
         Args:
             endpoint: the endpoint the component's zerorpc server will listen
@@ -28,6 +29,9 @@ class BaseComponent:
         self._routines = []
         self.zrpc = zerorpc.Server(self)
         self.zrpc.bind(endpoint)
+        self.use_memory = use_memory
+        if use_memory:
+            self.memory_generator = SharedMemoryGenerator(self.name)
 
     def _start(self):
         """
@@ -43,8 +47,8 @@ class BaseComponent:
         """
         self._start()
         gevent.signal(signal.SIGTERM, self.stop_run)
-        if self.prometheus_port:
-            start_http_server(self.prometheus_port)
+        # if self.prometheus_port:
+        #     start_http_server(self.prometheus_port)
         self.zrpc.run()
         self.zrpc.close()
 
@@ -58,6 +62,9 @@ class BaseComponent:
         if isinstance(routine, Routine):
             if routine.stop_event is None:
                 routine.stop_event = self.stop_event
+                if self.use_memory:
+                    routine.use_memory = self.use_memory
+                    routine.memory_generator = self.memory_generator
             else:
                 raise RegisteredException("routine is already registered")
         self._routines.append(routine)
@@ -79,6 +86,8 @@ class BaseComponent:
             self.zrpc.stop()
             self.stop_event.set()
             self._teardown_callback()
+            if self.use_memory:
+                self.memory_generator.cleanup()
             for routine in self._routines:
                 if isinstance(routine, Routine):
                     routine.runner.join()
