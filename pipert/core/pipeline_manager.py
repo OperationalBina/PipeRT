@@ -371,7 +371,7 @@ class PipelineManager:
                 "name": "Stream",
                 "queues": ["video"],
                 "routines":
-                    [
+                [
                         {
                             "routine_type_name": "ListenToStream",
                             "stream_address":
@@ -387,13 +387,13 @@ class PipelineManager:
                             "max_stream_length": 10,
                             "name": "upload_redis"
                         }
-                    ]
+                ]
             },
             {
                 "name": "Display",
                 "queues": ["messages"],
                 "routines":
-                    [
+                [
                         {
                             "routine_type_name": "MessageFromRedis",
                             "redis_read_key": "cam",
@@ -405,23 +405,23 @@ class PipelineManager:
                             "frame_queue": "messages",
                             "name": "draw_frames"
                         }
-                    ]
+                ]
             },
         ])
 
     def _get_routine_object_by_name(self, routine_name: str) -> Routine:
         path = self.ROUTINES_FOLDER_PATH.replace('/', '.') + "." + \
-               re.sub(r'[A-Z]',
-                      self._add_underscore_before_uppercase,
-                      routine_name)[1:]
+            re.sub(r'[A-Z]',
+                   self._add_underscore_before_uppercase,
+                   routine_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + routine_name
         return self._get_object_by_path(absolute_path)
 
     def _get_component_object_by_name(self, component_type_name):
         path = self.COMPONENTS_FOLDER_PATH.replace('/', '.') + "." + \
-               re.sub(r'[A-Z]',
-                      self._add_underscore_before_uppercase,
-                      component_type_name)[1:]
+            re.sub(r'[A-Z]',
+                   self._add_underscore_before_uppercase,
+                   component_type_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + component_type_name
         return self._get_object_by_path(absolute_path)
 
