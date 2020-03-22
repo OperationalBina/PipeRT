@@ -17,11 +17,11 @@ class PipelineManager:
         """
         super().__init__()
         self.components = {}
-        self.zrpc = zerorpc.Server(self)
-        self.zrpc.bind(endpoint)
         self.ROUTINES_FOLDER_PATH = "../contrib/routines"
         self.COMPONENTS_FOLDER_PATH = "../contrib/components"
         if open_zerorpc:
+            self.zrpc = zerorpc.Server(self)
+            self.zrpc.bind(endpoint)
             self.zrpc.run()
 
     def create_component(self, component_name):
@@ -87,7 +87,7 @@ class PipelineManager:
                 "You can't add a routine while your component is running"
             )
 
-        if self.components[component_name]\
+        if self.components[component_name] \
                 .does_routine_name_exist(routine_kwargs["name"]):
             return self._create_response(
                 False,
@@ -107,7 +107,7 @@ class PipelineManager:
             # replace all queue names with the queue objects of the component
             for key, value in routine_kwargs.items():
                 if 'queue' in key.lower():
-                    routine_kwargs[key] = self.components[component_name]\
+                    routine_kwargs[key] = self.components[component_name] \
                         .get_queue(queue_name=value)
 
             self.components[component_name] \
@@ -174,7 +174,7 @@ class PipelineManager:
                 f"Queue named {queue_name} doesn't exist"
             )
 
-        if self.components[component_name].\
+        if self.components[component_name]. \
                 does_routines_use_queue(queue_name):
             return self._create_response(
                 False,
@@ -211,17 +211,23 @@ class PipelineManager:
                 False,
                 f"Component named {component_name} doesn't exist"
             )
-        elif self._does_component_running(self.components[component_name]):
+        elif not self._does_component_running(self.components[component_name]):
             return self._create_response(
                 False,
                 f"The component {component_name} is not running running"
             )
         else:
-            self.components[component_name].stop_run()
-            return self._create_response(
-                True,
-                f"The component {component_name} has been stopped"
-            )
+            if self.components[component_name].stop_run() == 0:
+                return self._create_response(
+                    True,
+                    f"The component {component_name} has been stopped"
+                )
+            else:
+                return self._create_response(
+                    False,
+                    f"An error has occurred, can't "
+                    f"stop the component {component_name}"
+                )
 
     def run_all_components(self):
         for component in self.components.values():
@@ -257,7 +263,7 @@ class PipelineManager:
         routines = []
         for routine_name in routine_file_names:
             current_routine_type = \
-                self._get_routine_object_by_name(routine_name)\
+                self._get_routine_object_by_name(routine_name) \
                     .routine_type.value
             routines.append({"name": routine_name,
                              "type": current_routine_type})
@@ -297,12 +303,60 @@ class PipelineManager:
             ...
         ]
         """
+        if not isinstance(components, list):
+            return self._create_response(
+                False,
+                f"Expected list of components"
+            )
+        for component in components:
+            if not isinstance(component, dict):
+                return self._create_response(
+                    False,
+                    f"Expected component to be dictionary"
+                )
+            if not all(keys in component for keys in ("name", "queues", "routines")):
+                return self._create_response(
+                    False,
+                    f"All components must have name, queues and routines"
+                )
+            if not isinstance(component["name"], str):
+                return self._create_response(
+                    False,
+                    f"Expected name to be string"
+                )
+            if not isinstance(component["queues"], list):
+                return self._create_response(
+                    False,
+                    f"Expected queues to be list"
+                )
+            for queue in component["queues"]:
+                if not isinstance(queue, str):
+                    return self._create_response(
+                        False,
+                        f"Expected queue name to be string"
+                    )
+            if not isinstance(component["routines"], list):
+                return self._create_response(
+                    False,
+                    f"Expected routines to be list"
+                )
+            for routine in component["routines"]:
+                if not isinstance(routine, dict):
+                    return self._create_response(
+                        False,
+                        f"Expected routine to be dictionary"
+                    )
+                if "routine_type_name" not in routine:
+                    return self._create_response(
+                        False,
+                        f"All routines must contain routine_type_name"
+                    )
         for component in components:
             self.create_component(component["name"])
             for queue in component["queues"]:
                 self.create_queue_to_component(component["name"], queue)
             for routine in component["routines"]:
-                routine_name = routine.pop("routine_type_name", None)
+                routine_name = routine.pop("routine_type_name", "")
                 self.add_routine_to_component(component["name"],
                                               routine_name, **routine)
 
@@ -312,62 +366,62 @@ class PipelineManager:
         )
 
     def test_create_component(self):
-        self.setup_components([
+        return self.setup_components([
             {
                 "name": "Stream",
                 "queues": ["video"],
                 "routines":
-                [
-                    {
-                        "routine_type_name": "ListenToStream",
-                        "stream_address":
-                            "/home/internet/Desktop/video.mp4",
-                        "out_queue": "video",
-                        "fps": 30,
-                        "name": "capture_frame"
-                    },
-                    {
-                        "routine_type_name": "MessageToRedis",
-                        "redis_send_key": "cam",
-                        "message_queue": "video",
-                        "max_stream_length": 10,
-                        "name": "upload_redis"
-                    }
-                ]
+                    [
+                        {
+                            "routine_type_name": "ListenToStream",
+                            "stream_address":
+                                "0",
+                            "out_queue": "video",
+                            "fps": 30,
+                            "name": "capture_frame"
+                        },
+                        {
+                            "routine_type_name": "MessageToRedis",
+                            "redis_send_key": "cam",
+                            "message_queue": "video",
+                            "max_stream_length": 10,
+                            "name": "upload_redis"
+                        }
+                    ]
             },
             {
                 "name": "Display",
                 "queues": ["messages"],
                 "routines":
-                [
-                    {
-                        "routine_type_name": "MessageFromRedis",
-                        "redis_read_key": "cam",
-                        "message_queue": "messages",
-                        "name": "get_frames"
-                    },
-                    {
-                        "routine_type_name": "DisplayCv2",
-                        "frame_queue": "messages",
-                        "name": "draw_frames"
-                    }
-                ]
+                    [
+                        {
+                            "routine_type_name": "MessageFromRedis",
+                            "redis_read_key": "cam",
+                            "message_queue": "messages",
+                            "name": "get_frames"
+                        },
+                        {
+                            "routine_type_name": "DisplayCv2",
+                            "frame_queue": "messages",
+                            "name": "draw_frames"
+                        }
+                    ]
             },
         ])
 
     def _get_routine_object_by_name(self, routine_name: str) -> Routine:
         path = self.ROUTINES_FOLDER_PATH.replace('/', '.') + "." + \
-            re.sub(r'[A-Z]',
-                   self._add_underscore_before_uppercase,
-                   routine_name)[1:]
+               re.sub(r'[A-Z]',
+                      self._add_underscore_before_uppercase,
+                      routine_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + routine_name
         return self._get_object_by_path(absolute_path)
 
     def _get_component_object_by_name(self, component_type_name):
         path = self.COMPONENTS_FOLDER_PATH.replace('/', '.') + "." + \
-            re.sub(r'[A-Z]',
-                   self._add_underscore_before_uppercase,
-                   component_type_name)[1:]
+               re.sub(r'[A-Z]',
+                      self._add_underscore_before_uppercase,
+                      component_type_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + component_type_name
         return self._get_object_by_path(absolute_path)
 
@@ -430,7 +484,7 @@ class PipelineManager:
         self.add_routine_to_component(
             component_name="Stream",
             routine_type_name="ListenToStream",
-            stream_address="/home/internet/Desktop/video.mp4",
+            stream_address=0,
             out_queue="video",
             fps=30,
             name="capture_frame")
