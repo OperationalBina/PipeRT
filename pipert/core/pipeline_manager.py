@@ -372,21 +372,21 @@ class PipelineManager:
                 "queues": ["video"],
                 "routines":
                 [
-                        {
-                            "routine_type_name": "ListenToStream",
-                            "stream_address":
-                                "0",
-                            "out_queue": "video",
-                            "fps": 30,
-                            "name": "capture_frame"
-                        },
-                        {
-                            "routine_type_name": "MessageToRedis",
-                            "redis_send_key": "cam",
-                            "message_queue": "video",
-                            "max_stream_length": 10,
-                            "name": "upload_redis"
-                        }
+                    {
+                        "routine_type_name": "ListenToStream",
+                        "stream_address":
+                            "0",
+                        "out_queue": "video",
+                        "fps": 30,
+                        "name": "capture_frame"
+                    },
+                    {
+                        "routine_type_name": "MessageToRedis",
+                        "redis_send_key": "cam",
+                        "message_queue": "video",
+                        "max_stream_length": 10,
+                        "name": "upload_redis"
+                    }
                 ]
             },
             {
@@ -394,17 +394,17 @@ class PipelineManager:
                 "queues": ["messages"],
                 "routines":
                 [
-                        {
-                            "routine_type_name": "MessageFromRedis",
-                            "redis_read_key": "cam",
-                            "message_queue": "messages",
-                            "name": "get_frames"
-                        },
-                        {
-                            "routine_type_name": "DisplayCv2",
-                            "frame_queue": "messages",
-                            "name": "draw_frames"
-                        }
+                    {
+                        "routine_type_name": "MessageFromRedis",
+                        "redis_read_key": "cam",
+                        "message_queue": "messages",
+                        "name": "get_frames"
+                    },
+                    {
+                        "routine_type_name": "DisplayCv2",
+                        "frame_queue": "messages",
+                        "name": "draw_frames"
+                    }
                 ]
             },
         ])
