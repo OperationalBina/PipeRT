@@ -13,7 +13,10 @@ class ListenToStream(Routine):
 
     def __init__(self, stream_address, out_queue, fps=30., *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.stream_address = stream_address
+        try:
+            self.stream_address = int(stream_address)
+        except ValueError:
+            self.stream_address = stream_address
         self.isFile = str(stream_address).endswith("mp4")
         self.stream = None
         # self.stream = cv2.VideoCapture(self.stream_address)
