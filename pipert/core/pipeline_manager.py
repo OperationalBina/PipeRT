@@ -5,6 +5,7 @@ from pipert.core.errors import QueueDoesNotExist
 from pipert.core.routine import Routine
 from os import listdir
 from os.path import isfile, join
+from jsonschema import validate, ValidationError
 
 
 class PipelineManager:
@@ -303,54 +304,36 @@ class PipelineManager:
             ...
         ]
         """
-        if not isinstance(components, list):
+        components_validator = {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "queues": {"type": "array", "items": {"type": "string"}},
+                    "routines": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "routine_type_name": {"type": "string"}
+                            },
+                            "required": ["routine_type_name"]
+
+                        }
+                    }
+                },
+                "required": ["name", "queues", "routines"]
+            }
+        }
+
+        try:
+            validate(instance=components, schema=components_validator)
+        except ValidationError as error:
             return self._create_response(
                 False,
-                f"Expected list of components"
+                error.message
             )
-        for component in components:
-            if not isinstance(component, dict):
-                return self._create_response(
-                    False,
-                    f"Expected component to be dictionary"
-                )
-            if not all(keys in component for keys in ("name", "queues", "routines")):
-                return self._create_response(
-                    False,
-                    f"All components must have name, queues and routines"
-                )
-            if not isinstance(component["name"], str):
-                return self._create_response(
-                    False,
-                    f"Expected name to be string"
-                )
-            if not isinstance(component["queues"], list):
-                return self._create_response(
-                    False,
-                    f"Expected queues to be list"
-                )
-            for queue in component["queues"]:
-                if not isinstance(queue, str):
-                    return self._create_response(
-                        False,
-                        f"Expected queue name to be string"
-                    )
-            if not isinstance(component["routines"], list):
-                return self._create_response(
-                    False,
-                    f"Expected routines to be list"
-                )
-            for routine in component["routines"]:
-                if not isinstance(routine, dict):
-                    return self._create_response(
-                        False,
-                        f"Expected routine to be dictionary"
-                    )
-                if "routine_type_name" not in routine:
-                    return self._create_response(
-                        False,
-                        f"All routines must contain routine_type_name"
-                    )
         for component in components:
             self.create_component(component["name"])
             for queue in component["queues"]:
