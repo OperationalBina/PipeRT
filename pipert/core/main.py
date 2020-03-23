@@ -22,9 +22,29 @@ if use_user_interface:
     def get_component():
         return "TBD"
 
-    @app.route("/pipeline", methods=['POST'])
+    @app.route("/pipeline", methods=['POST', 'GET'])
     def create_pipeline():
-        return pipeline_manager.setup_components(request.json)
+        if request.method == 'GET':
+            return """
+        Expecting to get:\n
+        [
+            {
+                name: string,
+                queues: [string],
+                routines:
+                    [
+                        {
+                            routine_type_name: string,
+                            (routine_param_name : value)...
+                        },
+                        ...
+                    }
+            },
+            ...
+        ]
+        """
+        elif request.method == 'POST':
+            return pipeline_manager.setup_components(request.json)
 
     @app.route("/kill", methods=['PUT'])
     def stop_components():
