@@ -6,6 +6,7 @@ from pipert.core.routine import Routine
 from os import listdir
 from os.path import isfile, join
 from jsonschema import validate, ValidationError
+# import gc
 
 
 class PipelineManager:
@@ -123,9 +124,7 @@ class PipelineManager:
                 False,
                 e.message()
             )
-        return False
 
-    # TODO - implement a check if queue in me in each routine
     def remove_routine_from_component(self, component_name, routine_name):
         if not self._does_component_exist(component_name):
             return self._create_response(
@@ -334,6 +333,10 @@ class PipelineManager:
                 False,
                 error.message
             )
+
+        # Delete all of the current components
+        self.components = {}
+        # gc.collect()
         for component in components:
             self.create_component(component["name"])
             for queue in component["queues"]:
