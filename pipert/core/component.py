@@ -7,7 +7,9 @@ import signal
 import gevent
 import zerorpc
 from .errors import RegisteredException
+from .multiprocessing_shared_memory import MpSharedMemoryGenerator
 from .shared_memory import SharedMemoryGenerator
+from multiprocessing.managers import SharedMemoryManager
 
 
 class BaseComponent:
@@ -31,7 +33,8 @@ class BaseComponent:
         self.zrpc.bind(endpoint)
         self.use_memory = use_memory
         if use_memory:
-            self.memory_generator = SharedMemoryGenerator(self.name)
+            self.smm = MpSharedMemoryGenerator(self.name)
+            # self.smm.start()
 
     def _start(self):
         """
@@ -64,7 +67,7 @@ class BaseComponent:
                 routine.stop_event = self.stop_event
                 if self.use_memory:
                     routine.use_memory = self.use_memory
-                    routine.memory_generator = self.memory_generator
+                    routine.smm = self.smm
             else:
                 raise RegisteredException("routine is already registered")
         self._routines.append(routine)
@@ -87,7 +90,7 @@ class BaseComponent:
             self.stop_event.set()
             self._teardown_callback()
             if self.use_memory:
-                self.memory_generator.cleanup()
+                self.smm.shutdown()
             for routine in self._routines:
                 if isinstance(routine, Routine):
                     routine.runner.join()

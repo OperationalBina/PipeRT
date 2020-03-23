@@ -103,6 +103,7 @@ if __name__ == '__main__':
     parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
     parser.add_argument('-w', '--webcam', help='Webcam device number', type=int, default=0)
     parser.add_argument('-v', '--verbose', help='Verbose output', type=bool, default=False)
+    parser.add_argument('-s', '--shared', help='Shared memory', type=bool, default=False)
     parser.add_argument('--count', help='Count of frames to capture', type=int, default=None)
     parser.add_argument('--fmt', help='Frame storage format', type=str, default='.jpg')
     parser.add_argument('--fps', help='Frames per second (webcam)', type=float, default=15.0)
@@ -116,10 +117,10 @@ if __name__ == '__main__':
     # Choose video source
     if opts.infile is None:
         zpc = VideoCapture(endpoint="tcp://0.0.0.0:4242", stream_address=opts.webcam, out_key=opts.output,
-                           redis_url=url, fps=opts.fps, maxlen=opts.maxlen, use_memory=True)
+                           redis_url=url, fps=opts.fps, maxlen=opts.maxlen, use_memory=opts.shared)
     else:
         zpc = VideoCapture(endpoint="tcp://0.0.0.0:4242", stream_address=opts.infile, out_key=opts.output,
-                           redis_url=url, fps=opts.fps, maxlen=opts.maxlen, use_memory=True)
+                           redis_url=url, fps=opts.fps, maxlen=opts.maxlen, use_memory=opts.shared)
     print(f"run {zpc.name}")
     zpc.run()
     print(f"Killed {zpc.name}")

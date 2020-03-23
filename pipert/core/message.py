@@ -1,6 +1,9 @@
 import collections
 from abc import ABC, abstractmethod
+
+from pipert.core.multiprocessing_shared_memory import get_mp_shared_memory_object
 from pipert.core.shared_memory import get_shared_memory_object
+from multiprocessing.shared_memory import SharedMemory
 
 import numpy as np
 import time
@@ -43,33 +46,40 @@ class FramePayload(Payload):
         self.data = decoded_img
         self.encoded = False
 
-    def encode(self, generator):
+    def encode(self, manager):
         buf = cv2.imencode('.jpeg', self.data)[1].tobytes()
-        if generator is None:
+        if manager is None:
             self.data = buf
         else:
-            row, column, depth = self.data.shape
-            frame_size = row * column * depth
-            memory_name = generator.get_next_shared_memory(
-                size=frame_size
-            )
-            memory = get_shared_memory_object(memory_name)
-            memory.acquire_semaphore()
-            memory.write_to_memory(buf)
-            memory.release_semaphore()
-            self.data = memory_name
+            # row, column, depth = self.data.shape
+            # frame_size = row * column * depth
+            memory = manager.get_next_shared_memory(size=len(buf))
+            # print("memory.name: " + str(memory.name))
+            # print("memory.size: " + str(memory.size))
+            # print("frame_size: " + str(frame_size))
+            # print("type(bytearray(buf)): ")
+            # print(type(bytearray(buf)))
+            # print("memory.buf: " + str(memory.buf))
+            # print("type(memory.buf): " + str(type(memory.buf)))
+            memory.buf[:] = bytes(buf)
+            # memory = get_shared_memory_object(memory_name)
+            # memory.acquire_semaphore()
+            # memory.write_to_memory(buf)
+            # memory.release_semaphore()
+            self.data = memory.name
         self.encoded = True
 
     def is_empty(self):
         return not self.data
 
     def _get_frame(self):
-        memory = get_shared_memory_object(self.data)
+        memory = get_mp_shared_memory_object(self.data)
         if memory:
-            memory.acquire_semaphore()
-            data = memory.read_from_memory()
+            # memory.acquire_semaphore()
+            data = bytes(memory.buf)
+            memory.close()
             frame = np.fromstring(data, dtype=np.uint8)
-            memory.release_semaphore()
+            # memory.release_semaphore()
             return cv2.imdecode(frame, cv2.IMREAD_COLOR)
         return None
 
@@ -183,7 +193,7 @@ class Message:
                f"history: {self.history} \n"
 
 
-def message_encode(msg, generator=None):
+def message_encode(msg, manager=None):
     """
     Encodes the message object.
 
@@ -194,7 +204,7 @@ def message_encode(msg, generator=None):
         msg: the message to encode.
         generator: generator necessary for shared memory usage.
     """
-    msg.payload.encode(generator)
+    msg.payload.encode(manager)
     return pickle.dumps(msg)
 
 

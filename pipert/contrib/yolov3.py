@@ -127,7 +127,7 @@ class YoloV3Logic(Routine):
 class YoloV3(BaseComponent):
 
     def __init__(self, endpoint, out_key, in_key, redis_url, maxlen, name="YoloV3"):
-        super().__init__(endpoint, name, 8081)
+        super().__init__(endpoint, name)
         self.in_queue = Queue(maxsize=1)
         self.out_queue = Queue(maxsize=1)
 

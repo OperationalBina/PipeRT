@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-FROM python:3.6-slim-buster
+FROM python:3.8-slim-buster
 
 # Install necessary apt packages
 RUN apt-get update -y && \

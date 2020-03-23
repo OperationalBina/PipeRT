@@ -51,7 +51,7 @@ class Routine(ABC):
         self.component_name = component_name
 
         self.use_memory = False
-        self.memory_generator = None
+        self.smm = None
         self.stop_event: mp.Event = None
         self._event_handlers = defaultdict(list)
         self.state = None
