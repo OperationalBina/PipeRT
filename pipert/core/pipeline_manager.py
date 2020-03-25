@@ -6,6 +6,8 @@ from pipert.core.routine import Routine
 from os import listdir
 from os.path import isfile, join
 from jsonschema import validate, ValidationError
+
+
 # import gc
 
 
@@ -77,7 +79,7 @@ class PipelineManager:
             )
 
     def add_routine_to_component(self, component_name,
-                                 routine_type_name, **routine_kwargs):
+                                 routine_type_name, **routine_parameters_kwargs):
         if not self._does_component_exist(component_name):
             return self._create_response(
                 False,
@@ -90,10 +92,10 @@ class PipelineManager:
             )
 
         if self.components[component_name] \
-                .does_routine_name_exist(routine_kwargs["name"]):
+                .does_routine_name_exist(routine_parameters_kwargs["name"]):
             return self._create_response(
                 False,
-                f"Routine with the name {routine_kwargs['name']}"
+                f"Routine with the name {routine_parameters_kwargs['name']}"
                 f" already exist in this component"
             )
 
@@ -107,17 +109,17 @@ class PipelineManager:
 
         try:
             # replace all queue names with the queue objects of the component
-            for key, value in routine_kwargs.items():
+            for key, value in routine_parameters_kwargs.items():
                 if 'queue' in key.lower():
-                    routine_kwargs[key] = self.components[component_name] \
+                    routine_parameters_kwargs[key] = self.components[component_name] \
                         .get_queue(queue_name=value)
 
             self.components[component_name] \
-                .register_routine(routine_object(**routine_kwargs)
+                .register_routine(routine_object(**routine_parameters_kwargs)
                                   .as_thread())
             return self._create_response(
                 True,
-                f"The routine {routine_kwargs['name']} has been added"
+                f"The routine {routine_parameters_kwargs['name']} has been added"
             )
         except QueueDoesNotExist as e:
             return self._create_response(
@@ -281,8 +283,13 @@ class PipelineManager:
 
     def get_routine_params(self, routine_name):
         routine_object = self._get_routine_object_by_name(routine_name)
-        params = routine_object.get_constructor_parameters()
-        return params
+        if routine_object is not None:
+            return routine_object.get_constructor_parameters()
+        else:
+            return self._create_response(
+                False,
+                f"Routine named {routine_name} doesn't exist"
+            )
 
     def setup_components(self, components):
         """
@@ -397,17 +404,17 @@ class PipelineManager:
 
     def _get_routine_object_by_name(self, routine_name: str) -> Routine:
         path = self.ROUTINES_FOLDER_PATH.replace('/', '.') + "." + \
-            re.sub(r'[A-Z]',
-                   self._add_underscore_before_uppercase,
-                   routine_name)[1:]
+               re.sub(r'[A-Z]',
+                      self._add_underscore_before_uppercase,
+                      routine_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + routine_name
         return self._get_object_by_path(absolute_path)
 
     def _get_component_object_by_name(self, component_type_name):
         path = self.COMPONENTS_FOLDER_PATH.replace('/', '.') + "." + \
-            re.sub(r'[A-Z]',
-                   self._add_underscore_before_uppercase,
-                   component_type_name)[1:]
+               re.sub(r'[A-Z]',
+                      self._add_underscore_before_uppercase,
+                      component_type_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + component_type_name
         return self._get_object_by_path(absolute_path)
 
