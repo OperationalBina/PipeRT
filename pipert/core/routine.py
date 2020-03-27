@@ -4,7 +4,7 @@ from enum import Enum
 import logging
 import threading
 from logging.handlers import TimedRotatingFileHandler
-
+from queue import Queue
 import torch.multiprocessing as mp
 from prometheus_client import Histogram
 from prometheus_client.utils import INF
@@ -252,9 +252,11 @@ class Routine(ABC):
             **kwargs: argsional keyword args to be passed to `handler`.
 
         """
+
         def decorator(f):
             self.add_event_handler(event_name, f, *args, **kwargs)
             return f
+
         return decorator
 
     def _fire_event(self, event_name, *event_args, **event_kwargs):
@@ -312,7 +314,7 @@ class Routine(ABC):
 
             if self.state.output:
                 REQUEST_TIME.labels(routine=self.name,
-                                    component=self.component_name)\
+                                    component=self.component_name) \
                     .observe(tock - tick)
                 self.state.success += 1
             self._fire_event(Events.AFTER_LOGIC)
@@ -339,11 +341,20 @@ class Routine(ABC):
         self.runner.start()
 
     @staticmethod
+    @abstractmethod
     def get_constructor_parameters():
         return {
-            "name": "String",
-            "component_name": "String"
+            "name": "String"
         }
 
+    @abstractmethod
     def does_routine_use_queue(self, queue):
         raise NotImplementedError
+
+    def get_creation_dictionary(self):
+        parameters_dictionary_with_all_params = self.get_constructor_parameters()
+        parameters_dictionary_with_routine_params = parameters_dictionary_with_all_params.copy()
+        parameters_dictionary_with_all_params.update(self.__dict__)
+        for key in parameters_dictionary_with_routine_params.keys():
+            parameters_dictionary_with_routine_params[key] = parameters_dictionary_with_all_params[key]
+        return parameters_dictionary_with_routine_params
