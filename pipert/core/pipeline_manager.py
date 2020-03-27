@@ -21,6 +21,7 @@ class PipelineManager:
         """
         super().__init__()
         self.components = {}
+        self.endpoint_port_counter = 4002
         self.ROUTINES_FOLDER_PATH = "../contrib/routines"
         self.COMPONENTS_FOLDER_PATH = "../contrib/components"
         if open_zerorpc:
@@ -36,7 +37,10 @@ class PipelineManager:
             )
         else:
             self.components[component_name] = \
-                BaseComponent(name=component_name)
+                BaseComponent(name=component_name,
+                              endpoint="tcp://0.0.0.0:{0:0=4d}"
+                              .format(self.endpoint_port_counter))
+            self.endpoint_port_counter += 1
             return self._create_response(
                 True,
                 f"Component {component_name} has been created"
@@ -113,6 +117,8 @@ class PipelineManager:
                 if 'queue' in key.lower():
                     routine_parameters_kwargs[key] = self.components[component_name] \
                         .get_queue(queue_name=value)
+
+            routine_parameters_kwargs["component_name"] = component_name
 
             self.components[component_name] \
                 .register_routine(routine_object(**routine_parameters_kwargs)
@@ -281,7 +287,7 @@ class PipelineManager:
     def _add_underscore_before_uppercase(match):
         return '_' + match.group(0).lower()
 
-    def get_routine_params(self, routine_name):
+    def get_routine_parameters(self, routine_name):
         routine_object = self._get_routine_object_by_name(routine_name)
         if routine_object is not None:
             return routine_object.get_constructor_parameters()
@@ -364,41 +370,41 @@ class PipelineManager:
                 "name": "Stream",
                 "queues": ["video"],
                 "routines":
-                [
-                    {
-                        "routine_type_name": "ListenToStream",
-                        "stream_address":
-                            "0",
-                        "out_queue": "video",
-                        "fps": 30,
-                        "name": "capture_frame"
-                    },
-                    {
-                        "routine_type_name": "MessageToRedis",
-                        "redis_send_key": "cam",
-                        "message_queue": "video",
-                        "max_stream_length": 10,
-                        "name": "upload_redis"
-                    }
-                ]
+                    [
+                        {
+                            "routine_type_name": "ListenToStream",
+                            "stream_address":
+                                "0",
+                            "out_queue": "video",
+                            "fps": 30,
+                            "name": "capture_frame"
+                        },
+                        {
+                            "routine_type_name": "MessageToRedis",
+                            "redis_send_key": "cam",
+                            "message_queue": "video",
+                            "max_stream_length": 10,
+                            "name": "upload_redis"
+                        }
+                    ]
             },
             {
                 "name": "Display",
                 "queues": ["messages"],
                 "routines":
-                [
-                    {
-                        "routine_type_name": "MessageFromRedis",
-                        "redis_read_key": "cam",
-                        "message_queue": "messages",
-                        "name": "get_frames"
-                    },
-                    {
-                        "routine_type_name": "DisplayCv2",
-                        "frame_queue": "messages",
-                        "name": "draw_frames"
-                    }
-                ]
+                    [
+                        {
+                            "routine_type_name": "MessageFromRedis",
+                            "redis_read_key": "cam",
+                            "message_queue": "messages",
+                            "name": "get_frames"
+                        },
+                        {
+                            "routine_type_name": "DisplayCv2",
+                            "frame_queue": "messages",
+                            "name": "draw_frames"
+                        }
+                    ]
             },
         ])
 
@@ -455,12 +461,12 @@ class PipelineManager:
             out_queue="video",
             fps=30,
             name="capture_frame")
-        # self.add_routine_to_component(component_name="Stream",
-        #                               routine_type_name="MessageToRedis",
-        #                               redis_send_key="camera:0",
-        #                               message_queue="video",
-        #                               max_stream_length=10,
-        #                               name="upload_redis")
+        self.add_routine_to_component(component_name="Stream",
+                                      routine_type_name="MessageToRedis",
+                                      redis_send_key="camera:0",
+                                      message_queue="video",
+                                      max_stream_length=10,
+                                      name="upload_redis")
         self.add_routine_to_component(component_name="Display",
                                       routine_type_name="MessageFromRedis",
                                       redis_read_key="camera:0",
@@ -527,3 +533,23 @@ class PipelineManager:
                                       in_queue="messages",
                                       out_queue="flask_display",
                                       name="create_image")
+
+    def get_pipeline_creation(self):
+        pipeline = []
+        for component_name in self.components.keys():
+            component_dict = {"name": component_name, "queues": list(self.components[component_name].queues.keys())}
+            routines = []
+            for current_routine_object in self.components[component_name]._routines:
+                current_routine = current_routine_object.get_creation_dictionary()
+                current_routine["routine_type_name"] = current_routine_object.__class__.__name__
+                for routine_param_name in current_routine.keys():
+                    if "queue" in routine_param_name:
+                        for queue_name in self.components[component_name].queues.keys():
+                            if getattr(current_routine_object, routine_param_name) is \
+                                    self.components[component_name].queues[queue_name]:
+                                current_routine[routine_param_name] = queue_name
+                routines.append(current_routine)
+            component_dict["routines"] = routines
+            pipeline.append(component_dict)
+
+        return pipeline
