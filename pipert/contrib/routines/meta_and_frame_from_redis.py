@@ -13,11 +13,11 @@ class MetaAndFrameFromRedis(Routine):
 
     def __init__(self, redis_read_meta_key, redis_read_image_key, image_meta_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.in_key_meta = redis_read_meta_key
-        self.in_key_im = redis_read_image_key
+        self.redis_read_meta_key = redis_read_meta_key
+        self.redis_read_image_key = redis_read_image_key
         # self.url = urlparse(os.environ.get('REDIS_URL'))
         self.url = urlparse("redis://127.0.0.1:6379")
-        self.queue = image_meta_queue
+        self.image_meta_queue = image_meta_queue
         self.msg_handler = None
         self.flip = False
         self.negative = False
@@ -31,8 +31,8 @@ class MetaAndFrameFromRedis(Routine):
         return msg
 
     def main_logic(self, *args, **kwargs):
-        pred_msg = self.receive_msg(self.in_key_meta)
-        frame_msg = self.receive_msg(self.in_key_im)
+        pred_msg = self.receive_msg(self.redis_read_meta_key)
+        frame_msg = self.receive_msg(self.redis_read_image_key)
         if frame_msg:
             arr = frame_msg.get_payload()
 
@@ -43,11 +43,11 @@ class MetaAndFrameFromRedis(Routine):
                 arr = 255 - arr
 
             try:
-                self.queue.get(block=False)
+                self.image_meta_queue.get(block=False)
             except Empty:
                 pass
             frame_msg.update_payload(arr)
-            self.queue.put((frame_msg, pred_msg))
+            self.image_meta_queue.put((frame_msg, pred_msg))
             return True
 
         else:
@@ -71,4 +71,4 @@ class MetaAndFrameFromRedis(Routine):
         return dicts
 
     def does_routine_use_queue(self, queue):
-        return self.queue == queue
+        return self.image_meta_queue == queue

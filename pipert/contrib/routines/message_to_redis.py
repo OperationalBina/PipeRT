@@ -17,13 +17,13 @@ class MessageToRedis(Routine):
         self.out_key = redis_send_key
         # self.url = urlparse(os.environ.get('REDIS_URL'))
         self.url = urlparse("redis://127.0.0.1:6379")
-        self.queue = message_queue
+        self.message_queue = message_queue
         self.maxlen = max_stream_length
         self.msg_handler = None
 
     def main_logic(self, *args, **kwargs):
         try:
-            msg = self.queue.get(block=False)
+            msg = self.message_queue.get(block=False)
             msg.record_exit(self.component_name, self.logger)
             encoded_msg = message_encode(msg)
             self.msg_handler.send(self.out_key, encoded_msg)
@@ -51,4 +51,4 @@ class MessageToRedis(Routine):
         return dicts
 
     def does_routine_use_queue(self, queue):
-        return self.queue == queue
+        return self.message_queue == queue

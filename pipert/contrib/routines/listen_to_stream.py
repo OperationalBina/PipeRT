@@ -20,7 +20,7 @@ class ListenToStream(Routine):
         self.isFile = str(stream_address).endswith("mp4")
         self.stream = None
         # self.stream = cv2.VideoCapture(self.stream_address)
-        self.queue = out_queue
+        self.out_queue = out_queue
         self.fps = fps
         self.updated_config = {}
 
@@ -61,12 +61,12 @@ class ListenToStream(Routine):
             if self.stream_address == 0:
                 frame = cv2.flip(frame, 1)
             try:
-                self.queue.get(block=False)
+                self.out_queue.get(block=False)
             except Empty:
                 pass
             finally:
                 msg.update_payload(frame)
-                self.queue.put(msg)
+                self.out_queue.put(msg)
                 if self.isFile:
                     self.time = time.time()
                     wait = time.time() - self.time
@@ -93,4 +93,4 @@ class ListenToStream(Routine):
         return dicts
 
     def does_routine_use_queue(self, queue):
-        return self.queue == queue
+        return self.out_queue == queue

@@ -9,12 +9,12 @@ class DisplayCv2(Routine):
 
     def __init__(self, frame_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.queue = frame_queue
+        self.frame_queue = frame_queue
         self.negative = False
 
     def main_logic(self, *args, **kwargs):
         try:
-            msg = self.queue.get(block=False)
+            msg = self.frame_queue.get(block=False)
             frame = msg.get_payload()
             if self.negative:
                 frame = 255 - frame
@@ -27,7 +27,7 @@ class DisplayCv2(Routine):
         pass
 
     def cleanup(self, *args, **kwargs):
-        cv2.destroyWindow(self.name)
+        cv2.destroyAllWindows()
 
     @staticmethod
     def get_constructor_parameters():
@@ -38,4 +38,4 @@ class DisplayCv2(Routine):
         return dicts
 
     def does_routine_use_queue(self, queue):
-        return self.queue == queue
+        return self.frame_queue == queue

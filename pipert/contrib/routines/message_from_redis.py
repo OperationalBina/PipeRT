@@ -16,7 +16,7 @@ class MessageFromRedis(Routine):
         self.in_key = redis_read_key
         # self.url = urlparse(os.environ.get('REDIS_URL'))
         self.url = urlparse("redis://127.0.0.1:6379")
-        self.queue = message_queue
+        self.message_queue = message_queue
         self.msg_handler = None
         self.flip = False
         self.negative = False
@@ -27,15 +27,15 @@ class MessageFromRedis(Routine):
             msg = message_decode(encoded_msg)
             msg.record_entry(self.component_name, self.logger)
             try:
-                self.queue.put(msg, block=False)
+                self.message_queue.put(msg, block=False)
                 return True
             except Full:
                 try:
-                    self.queue.get(block=False)
+                    self.message_queue.get(block=False)
                 except Empty:
                     pass
                 finally:
-                    self.queue.put(msg, block=False)
+                    self.message_queue.put(msg, block=False)
                     return True
         else:
             time.sleep(0)
@@ -58,4 +58,4 @@ class MessageFromRedis(Routine):
         return dicts
 
     def does_routine_use_queue(self, queue):
-        return self.queue == queue
+        return self.message_queue == queue
