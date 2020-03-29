@@ -6,7 +6,7 @@ from pipert.core.routine import Routine
 from os import listdir
 from os.path import isfile, join
 from jsonschema import validate, ValidationError
-
+import functools
 
 # import gc
 
@@ -67,28 +67,43 @@ class PipelineManager:
                 f"Component {component_name} has been created"
             )
 
-    def remove_component(self, component_name):
-        if not self._does_component_exist(component_name):
-            return self._create_response(
-                False,
-                f"Component named {component_name} doesn't exist"
-            )
-        else:
-            if self._does_component_running(self.components[component_name]):
-                self.components[component_name].stop_run()
-            del self.components[component_name]
-            return self._create_response(
-                True,
-                f"Component {component_name} has been removed"
-            )
+    def _component_name_does_not_exist_error(func):
+        @functools.wraps(func)
+        def function_wrapper(self, *args, **kwargs):
+            if not self._does_component_exist(kwargs['component_name']):
+                return self._create_response(
+                    False,
+                    f"Component named {kwargs['component_name']} doesn't exist"
+                )
+            return func(self, *args, **kwargs)
 
+        return function_wrapper
+
+    def _queue_name_does_not_exist_error(func):
+        @functools.wraps(func)
+        def function_wrapper(self, *args, **kwargs):
+            if not self._does_component_exist(kwargs['component_name']):
+                return self._create_response(
+                    False,
+                    f"Component named {kwargs['component_name']} doesn't exist"
+                )
+            return func(self, *args, **kwargs)
+
+        return function_wrapper
+
+    @_component_name_does_not_exist_error
+    def remove_component(self, component_name):
+        if self._does_component_running(self.components[component_name]):
+            self.components[component_name].stop_run()
+        del self.components[component_name]
+        return self._create_response(
+            True,
+            f"Component {component_name} has been removed"
+        )
+
+    @_component_name_does_not_exist_error
     def add_routine_to_component(self, component_name,
                                  routine_type_name, **routine_parameters_kwargs):
-        if not self._does_component_exist(component_name):
-            return self._create_response(
-                False,
-                f"Component named {component_name} doesn't exist"
-            )
         if self._does_component_running(self.components[component_name]):
             return self._create_response(
                 False,
@@ -133,12 +148,8 @@ class PipelineManager:
                 e.message()
             )
 
+    @_component_name_does_not_exist_error
     def remove_routine_from_component(self, component_name, routine_name):
-        if not self._does_component_exist(component_name):
-            return self._create_response(
-                False,
-                f"Component named {component_name} doesn't exist"
-            )
         if self._does_component_running(self.components[component_name]):
             return self._create_response(
                 False,
@@ -150,13 +161,9 @@ class PipelineManager:
             f"Removed routines with the name {routine_name} from the component"
         )
 
+    @_component_name_does_not_exist_error
     def create_queue_to_component(self, component_name,
                                   queue_name, queue_size=1):
-        if not self._does_component_exist(component_name):
-            return self._create_response(
-                False,
-                f"Component named {component_name} doesn't exist"
-            )
         if self.components[component_name].does_queue_exist(queue_name):
             return self._create_response(
                 False,
@@ -170,12 +177,8 @@ class PipelineManager:
             f"The Queue {queue_name} has been created"
         )
 
+    @_component_name_does_not_exist_error
     def remove_queue_from_component(self, component_name, queue_name):
-        if not self._does_component_exist(component_name):
-            return self._create_response(
-                False,
-                f"Component named {component_name} doesn't exist"
-            )
         if not self.components[component_name].does_queue_exist(queue_name):
             return self._create_response(
                 False,
@@ -195,13 +198,9 @@ class PipelineManager:
             f"The Queue {queue_name} has been removed"
         )
 
+    @_component_name_does_not_exist_error
     def run_component(self, component_name):
-        if not self._does_component_exist(component_name):
-            return self._create_response(
-                False,
-                f"Component named {component_name} doesn't exist"
-            )
-        elif self._does_component_running(self.components[component_name]):
+        if self._does_component_running(self.components[component_name]):
             return self._create_response(
                 False,
                 f"The component {component_name} already running"
@@ -213,13 +212,9 @@ class PipelineManager:
                 f"The component {component_name} is now running"
             )
 
+    @_component_name_does_not_exist_error
     def stop_component(self, component_name):
-        if not self._does_component_exist(component_name):
-            return self._create_response(
-                False,
-                f"Component named {component_name} doesn't exist"
-            )
-        elif not self._does_component_running(self.components[component_name]):
+        if not self._does_component_running(self.components[component_name]):
             return self._create_response(
                 False,
                 f"The component {component_name} is not running running"
@@ -537,19 +532,31 @@ class PipelineManager:
     def get_pipeline_creation(self):
         pipeline = []
         for component_name in self.components.keys():
-            component_dict = {"name": component_name, "queues": list(self.components[component_name].queues.keys())}
-            routines = []
-            for current_routine_object in self.components[component_name]._routines:
-                current_routine = current_routine_object.get_creation_dictionary()
-                current_routine["routine_type_name"] = current_routine_object.__class__.__name__
-                for routine_param_name in current_routine.keys():
-                    if "queue" in routine_param_name:
-                        for queue_name in self.components[component_name].queues.keys():
-                            if getattr(current_routine_object, routine_param_name) is \
-                                    self.components[component_name].queues[queue_name]:
-                                current_routine[routine_param_name] = queue_name
-                routines.append(current_routine)
-            component_dict["routines"] = routines
-            pipeline.append(component_dict)
+            pipeline.append(self._get_component_creation(component_name))
 
         return pipeline
+
+    def _get_component_creation(self, component_name):
+        component_dict = {"name": component_name,
+                          "queues":
+                              list(self.components[component_name].
+                                   queues.keys()),
+                          "routines": []
+                          }
+        for current_routine_object in self.components[component_name]._routines:
+            component_dict["routines"]. \
+                append(self._get_routine_creation(component_name,
+                                                  current_routine_object))
+        return component_dict
+
+    def _get_routine_creation(self, component_name, routine):
+        routine_dict = routine.get_creation_dictionary()
+        routine_dict["routine_type_name"] = routine.__class__.__name__
+        for routine_param_name in routine_dict.keys():
+            if "queue" in routine_param_name:
+                for queue_name in self.components[component_name].queues.keys():
+                    if getattr(routine, routine_param_name) is \
+                            self.components[component_name].queues[queue_name]:
+                        routine_dict[routine_param_name] = queue_name
+
+        return routine_dict
