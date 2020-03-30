@@ -46,16 +46,13 @@ else:
     def get_routines():
         return jsonify(pipeline_manager.get_all_routines())
 
-
     @app.route("/routineParams/<routine_name>")
     def get_routine_params(routine_name):
         return jsonify(pipeline_manager.get_routine_parameters(routine_name))
 
-
     @app.route("/component")
     def get_component():
         return "TBD"
-
 
     @app.route("/pipeline", methods=['POST', 'GET'])
     def create_pipeline():
@@ -79,11 +76,9 @@ else:
         elif request.method == 'POST':
             return return_response(pipeline_manager.setup_components(request.json))
 
-
     @app.route("/kill", methods=['PUT'])
     def stop_components():
         return return_response(pipeline_manager.stop_all_components())
-
 
     @app.route("/run", methods=['PUT'])
     def start_components():

@@ -1,3 +1,5 @@
+import multiprocessing
+import threading
 from prometheus_client import start_http_server
 from torch.multiprocessing import Event, Process
 from pipert.core.routine import Routine
@@ -11,7 +13,8 @@ from queue import Queue
 
 class BaseComponent:
 
-    def __init__(self, name="", prometheus_port=None, *args, **kwargs):
+    def __init__(self, endpoint="tcp://0.0.0.0:4001", name="",
+                 prometheus_port=None, *args, **kwargs):
         """
         Args:
             *args: TBD
@@ -22,6 +25,7 @@ class BaseComponent:
         self.prometheus_port = prometheus_port
         self.stop_event = Event()
         self.stop_event.set()
+        self.endpoint = endpoint
         self.queues = {}
         self._routines = []
 
@@ -34,6 +38,13 @@ class BaseComponent:
             routine.start()
 
     def run(self):
+        # self.component_process = multiprocessing.Process(target=self._run)
+        # self.component_process = threading.Thread(target=self._run)
+        # self.component_process.start()
+        self._run()
+        print("process ended")
+
+    def _run(self):
         """
         Starts running all the component's routines.
         """
@@ -77,6 +88,7 @@ class BaseComponent:
                     routine.runner.join()
                 elif isinstance(routine, (Process, Thread)):
                     routine.join()
+            # self.component_process.join()
             return 0
         except RuntimeError:
             return 1
