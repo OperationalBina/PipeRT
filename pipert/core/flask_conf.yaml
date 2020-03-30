@@ -1,0 +1,47 @@
+- name: Stream
+  queues:
+  - video
+  routines:
+  - fps: 30
+    name: capture_frame
+    out_queue: video
+    routine_type_name: ListenToStream
+    stream_address: 0
+  - max_stream_length: 10
+    message_queue: video
+    name: upload_redis
+    redis_send_key: cam
+    routine_type_name: MessageToRedis
+- name: FaceDet
+  queues:
+  - frames
+  - preds
+  routines:
+  - message_queue: frames
+    name: from_redis
+    redis_read_key: cam
+    routine_type_name: MessageFromRedis
+  - in_queue: frames
+    name: create_preds
+    out_queue: preds
+    routine_type_name: FaceDetection
+  - max_stream_length: 10
+    message_queue: preds
+    name: upload_redis
+    redis_send_key: camera:1
+    routine_type_name: MessageToRedis
+- component_type_name: FlaskVideoDisplay
+  name: FlaskDisplay
+  queues:
+  - flask_display
+  - messages
+  routines:
+  - image_meta_queue: messages
+    name: get_frames_and_pred
+    redis_read_image_key: cam
+    redis_read_meta_key: camera:1
+    routine_type_name: MetaAndFrameFromRedis
+  - in_queue: messages
+    name: create_image
+    out_queue: flask_display
+    routine_type_name: VisLogic
