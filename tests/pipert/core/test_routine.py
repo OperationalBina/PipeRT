@@ -6,6 +6,13 @@ from pipert.core.errors import NoRunnerException
 
 
 class DummyRoutine(Routine):
+    @staticmethod
+    def get_constructor_parameters():
+        pass
+
+    def does_routine_use_queue(self, queue):
+        pass
+
     def __init__(self, name=""):
         super().__init__(name)
 
@@ -20,6 +27,13 @@ class DummyRoutine(Routine):
 
 
 class DummySleepRoutine(Routine):
+    @staticmethod
+    def get_constructor_parameters():
+        pass
+
+    def does_routine_use_queue(self, queue):
+        pass
+
     def __init__(self, sleep_time, name=""):
         super().__init__(name)
         self.stop_event = Event()
