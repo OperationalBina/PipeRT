@@ -8,7 +8,25 @@ from os.path import isfile, join
 from jsonschema import validate, ValidationError
 import functools
 
+
 # import gc
+
+def _component_name_existence_error(need_to_be_exist):
+    def decorator(func):
+        @functools.wraps(func)
+        def function_wrapper(self, *args, **kwargs):
+            if not (self._does_component_exist(
+                    kwargs['component_name']) == need_to_be_exist):
+                error_word = "doesn't" if need_to_be_exist else 'already'
+                return self._create_response(
+                    False,
+                    f"Component named {kwargs['component_name']} {error_word} exist"
+                )
+            return func(self, *args, **kwargs)
+
+        return function_wrapper
+
+    return decorator
 
 
 class PipelineManager:
@@ -29,23 +47,31 @@ class PipelineManager:
             self.zrpc.bind(endpoint)
             self.zrpc.run()
 
-    def create_component(self, component_name):
-        if self._does_component_exist(component_name):
-            return self._create_response(
-                False,
-                f"Component named {component_name} already exist"
-            )
-        else:
-            self.components[component_name] = \
-                BaseComponent(name=component_name,
-                              endpoint="tcp://0.0.0.0:{0:0=4d}"
-                              .format(self.endpoint_port_counter))
-            self.endpoint_port_counter += 1
-            return self._create_response(
-                True,
-                f"Component {component_name} has been created"
-            )
+    # def _component_name_does_not_exist_error(func):
+    #     @functools.wraps(func)
+    #     def function_wrapper(self, *args, **kwargs):
+    #         if not self._does_component_exist(kwargs['component_name']):
+    #             return self._create_response(
+    #                 False,
+    #                 f"Component named {kwargs['component_name']} doesn't exist"
+    #             )
+    #         return func(self, *args, **kwargs)
+    #
+    #     return function_wrapper
 
+    @_component_name_existence_error(need_to_be_exist=False)
+    def create_component(self, component_name):
+        self.components[component_name] = \
+            BaseComponent(name=component_name,
+                          endpoint="tcp://0.0.0.0:{0:0=4d}"
+                          .format(self.endpoint_port_counter))
+        self.endpoint_port_counter += 1
+        return self._create_response(
+            True,
+            f"Component {component_name} has been created"
+        )
+
+    @_component_name_existence_error(need_to_be_exist=False)
     def create_premade_component(self, component_name, component_type_name):
         if self._does_component_exist(component_name):
             return self._create_response(
@@ -67,31 +93,7 @@ class PipelineManager:
                 f"Component {component_name} has been created"
             )
 
-    def _component_name_does_not_exist_error(func):
-        @functools.wraps(func)
-        def function_wrapper(self, *args, **kwargs):
-            if not self._does_component_exist(kwargs['component_name']):
-                return self._create_response(
-                    False,
-                    f"Component named {kwargs['component_name']} doesn't exist"
-                )
-            return func(self, *args, **kwargs)
-
-        return function_wrapper
-
-    def _queue_name_does_not_exist_error(func):
-        @functools.wraps(func)
-        def function_wrapper(self, *args, **kwargs):
-            if not self._does_component_exist(kwargs['component_name']):
-                return self._create_response(
-                    False,
-                    f"Component named {kwargs['component_name']} doesn't exist"
-                )
-            return func(self, *args, **kwargs)
-
-        return function_wrapper
-
-    @_component_name_does_not_exist_error
+    @_component_name_existence_error(need_to_be_exist=True)
     def remove_component(self, component_name):
         if self._does_component_running(self.components[component_name]):
             self.components[component_name].stop_run()
@@ -101,7 +103,7 @@ class PipelineManager:
             f"Component {component_name} has been removed"
         )
 
-    @_component_name_does_not_exist_error
+    @_component_name_existence_error(need_to_be_exist=True)
     def add_routine_to_component(self, component_name,
                                  routine_type_name, **routine_parameters_kwargs):
         if self._does_component_running(self.components[component_name]):
@@ -148,7 +150,7 @@ class PipelineManager:
                 e.message()
             )
 
-    @_component_name_does_not_exist_error
+    @_component_name_existence_error(need_to_be_exist=True)
     def remove_routine_from_component(self, component_name, routine_name):
         if self._does_component_running(self.components[component_name]):
             return self._create_response(
@@ -161,7 +163,7 @@ class PipelineManager:
             f"Removed routines with the name {routine_name} from the component"
         )
 
-    @_component_name_does_not_exist_error
+    @_component_name_existence_error(need_to_be_exist=True)
     def create_queue_to_component(self, component_name,
                                   queue_name, queue_size=1):
         if self.components[component_name].does_queue_exist(queue_name):
@@ -177,7 +179,7 @@ class PipelineManager:
             f"The Queue {queue_name} has been created"
         )
 
-    @_component_name_does_not_exist_error
+    @_component_name_existence_error(need_to_be_exist=True)
     def remove_queue_from_component(self, component_name, queue_name):
         if not self.components[component_name].does_queue_exist(queue_name):
             return self._create_response(
@@ -198,7 +200,7 @@ class PipelineManager:
             f"The Queue {queue_name} has been removed"
         )
 
-    @_component_name_does_not_exist_error
+    @_component_name_existence_error(need_to_be_exist=True)
     def run_component(self, component_name):
         if self._does_component_running(self.components[component_name]):
             return self._create_response(
@@ -212,7 +214,7 @@ class PipelineManager:
                 f"The component {component_name} is now running"
             )
 
-    @_component_name_does_not_exist_error
+    @_component_name_existence_error(need_to_be_exist=True)
     def stop_component(self, component_name):
         if not self._does_component_running(self.components[component_name]):
             return self._create_response(
@@ -346,13 +348,21 @@ class PipelineManager:
         self.components = {}
         # gc.collect()
         for component in components:
-            self.create_component(component["name"])
+            if "component_type_name" in component:
+                self.create_premade_component(
+                    component_name=component["name"],
+                    component_type_name=component["component_type_name"])
+            else:
+                self.create_component(component_name=component["name"])
             for queue in component["queues"]:
-                self.create_queue_to_component(component["name"], queue)
+                self.create_queue_to_component(
+                    component_name=component["name"],
+                    queue_name=queue)
             for routine in component["routines"]:
-                routine_name = routine.pop("routine_type_name", "")
-                self.add_routine_to_component(component["name"],
-                                              routine_name, **routine)
+                routine_type_name = routine.pop("routine_type_name", "")
+                self.add_routine_to_component(
+                    component_name=component["name"],
+                    routine_type_name=routine_type_name, **routine)
 
         return self._create_response(
             True,
@@ -444,91 +454,6 @@ class PipelineManager:
             "Message": message
         }
 
-    def set_up_components_cv2(self):
-        self.create_component("Stream")
-        self.create_component("Display")
-        self.create_queue_to_component("Stream", "video")
-        self.create_queue_to_component("Display", "messages")
-        self.add_routine_to_component(
-            component_name="Stream",
-            routine_type_name="ListenToStream",
-            stream_address="/home/internet/Desktop/video.mp4",
-            out_queue="video",
-            fps=30,
-            name="capture_frame")
-        self.add_routine_to_component(component_name="Stream",
-                                      routine_type_name="MessageToRedis",
-                                      redis_send_key="camera:0",
-                                      message_queue="video",
-                                      max_stream_length=10,
-                                      name="upload_redis")
-        self.add_routine_to_component(component_name="Display",
-                                      routine_type_name="MessageFromRedis",
-                                      redis_read_key="camera:0",
-                                      message_queue="messages",
-                                      name="get_frames")
-        self.add_routine_to_component(component_name="Display",
-                                      routine_type_name="DisplayCv2",
-                                      frame_queue="messages",
-                                      name="draw_frames")
-
-    def set_up_components_flask(self):
-        self.create_component("Stream")
-        self.create_queue_to_component("Stream", "video")
-        self.add_routine_to_component(
-            component_name="Stream",
-            routine_type_name="ListenToStream",
-            stream_address=0,
-            out_queue="video",
-            fps=30,
-            name="capture_frame")
-        self.add_routine_to_component(component_name="Stream",
-                                      routine_type_name="MessageToRedis",
-                                      redis_send_key="cam",
-                                      message_queue="video",
-                                      max_stream_length=10,
-                                      name="upload_redis")
-
-        self.create_component("FaceDet")
-        self.create_queue_to_component("FaceDet", "frames")
-        self.create_queue_to_component("FaceDet", "preds")
-
-        self.add_routine_to_component(component_name="FaceDet",
-                                      routine_type_name="MessageFromRedis",
-                                      redis_read_key="cam",
-                                      message_queue="frames",
-                                      name="from_redis")
-
-        self.add_routine_to_component(component_name="FaceDet",
-                                      routine_type_name="FaceDetection",
-                                      in_queue="frames",
-                                      out_queue="preds",
-                                      name="create_preds")
-
-        self.add_routine_to_component(component_name="FaceDet",
-                                      routine_type_name="MessageToRedis",
-                                      redis_send_key="camera:1",
-                                      message_queue="preds",
-                                      max_stream_length=10,
-                                      name="upload_redis")
-
-        self.create_premade_component("FlaskDisplay", "FlaskVideoDisplay")
-        self.create_queue_to_component("FlaskDisplay", "messages")
-
-        self.add_routine_to_component(
-            component_name="FlaskDisplay",
-            routine_type_name="MetaAndFrameFromRedis",
-            redis_read_image_key="cam",
-            redis_read_meta_key="camera:1",
-            image_meta_queue="messages",
-            name="get_frames_and_pred")
-
-        self.add_routine_to_component(component_name="FlaskDisplay",
-                                      routine_type_name="VisLogic",
-                                      in_queue="messages",
-                                      out_queue="flask_display",
-                                      name="create_image")
-
     def get_pipeline_creation(self):
         pipeline = []
         for component_name in self.components.keys():
@@ -543,6 +468,8 @@ class PipelineManager:
                                    queues.keys()),
                           "routines": []
                           }
+        if type(self.components[component_name]).__name__ != BaseComponent.__name__:
+            component_dict["component_type_name"] = type(self.components[component_name]).__name__
         for current_routine_object in self.components[component_name]._routines:
             component_dict["routines"]. \
                 append(self._get_routine_creation(component_name,
