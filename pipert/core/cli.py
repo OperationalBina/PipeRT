@@ -14,6 +14,7 @@ CLEAR_CONSOLE_TEXT = 'clear'
 
 clear_console = lambda: call('clear' if os.name == 'posix' else 'cls')
 
+
 def execute_method(method_name, connection):
     parameters_values = {}
     parameters = connection.get_method_parameters(method_name)
@@ -45,6 +46,7 @@ try:
 except zerorpc.LostRemote:
     sys.exit("Unable to connect to " + endpoint)
 
+# TODO - refactor this to be dynamic
 methods = connection.get_methods()
 methods.insert(0, EXIT_METHOD_TEXT)
 methods.insert(1, SHOW_METHODS_TEXT)
