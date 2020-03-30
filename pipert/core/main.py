@@ -1,5 +1,5 @@
-# import os
-from flask import Flask, jsonify, request
+import os
+from flask import Flask, jsonify, request, Response
 from pipert.core.pipeline_manager import PipelineManager
 import inspect
 import zerorpc
@@ -22,10 +22,13 @@ class CliConnection(object):
     def get_method_parameters(self, method_name):
         return list(inspect.signature(getattr(self.pipeline_manager, method_name)).parameters.keys())
 
+    def check_connection(self):
+        return True
+
 
 # # use_user_interface = os.environ.get("UI").lower() == 'true'
 use_user_interface = input("Do you want to use the UI ? (y/n): ").lower() == 'y'
-endpoint = "tcp://0.0.0.0:4001"
+endpoint = os.environ.get("endpoint", "tcp://0.0.0.0:4001")
 
 pipeline_manager = PipelineManager(endpoint=endpoint, open_zerorpc=False)
 
@@ -36,6 +39,8 @@ if not use_user_interface:
 else:
     app = Flask(__name__)
 
+    def return_response(res_object):
+        return Response(res_object["Message"], 200 if res_object["Succeeded"] else 400)
 
     @app.route("/routines")
     def get_routines():
@@ -44,7 +49,7 @@ else:
 
     @app.route("/routineParams/<routine_name>")
     def get_routine_params(routine_name):
-        return pipeline_manager.get_routine_parameters(routine_name)
+        return jsonify(pipeline_manager.get_routine_parameters(routine_name))
 
 
     @app.route("/component")
@@ -72,17 +77,16 @@ else:
                 ]
             )
         elif request.method == 'POST':
-            return pipeline_manager.setup_components(request.json)
+            return return_response(pipeline_manager.setup_components(request.json))
 
 
     @app.route("/kill", methods=['PUT'])
     def stop_components():
-        return pipeline_manager.stop_all_components()
+        return return_response(pipeline_manager.stop_all_components())
 
 
     @app.route("/run", methods=['PUT'])
     def start_components():
-        return pipeline_manager.run_all_components()
-
+        return_response(pipeline_manager.run_all_components())
 
     app.run(port=5005)
