@@ -11,7 +11,7 @@ import functools
 
 # import gc
 
-def _component_name_existence_error(need_to_be_exist):
+def component_name_existence_error(need_to_be_exist):
     def decorator(func):
         @functools.wraps(func)
         def function_wrapper(self, *args, **kwargs):
@@ -47,19 +47,7 @@ class PipelineManager:
             self.zrpc.bind(endpoint)
             self.zrpc.run()
 
-    # def _component_name_does_not_exist_error(func):
-    #     @functools.wraps(func)
-    #     def function_wrapper(self, *args, **kwargs):
-    #         if not self._does_component_exist(kwargs['component_name']):
-    #             return self._create_response(
-    #                 False,
-    #                 f"Component named {kwargs['component_name']} doesn't exist"
-    #             )
-    #         return func(self, *args, **kwargs)
-    #
-    #     return function_wrapper
-
-    @_component_name_existence_error(need_to_be_exist=False)
+    @component_name_existence_error(need_to_be_exist=False)
     def create_component(self, component_name):
         self.components[component_name] = \
             BaseComponent(name=component_name,
@@ -71,29 +59,23 @@ class PipelineManager:
             f"Component {component_name} has been created"
         )
 
-    @_component_name_existence_error(need_to_be_exist=False)
+    @component_name_existence_error(need_to_be_exist=False)
     def create_premade_component(self, component_name, component_type_name):
-        if self._does_component_exist(component_name):
+        component_class = \
+            self._get_component_class_object_by_type_name(component_type_name)
+        if component_class is None:
             return self._create_response(
                 False,
-                f"Component named {component_name} already exist"
+                f"The component type {component_type_name} doesn't exist"
             )
-        else:
-            component_object = \
-                self._get_component_object_by_name(component_type_name)
-            if component_name is None:
-                return self._create_response(
-                    False,
-                    f"The component type {component_type_name} doesn't exist"
-                )
-            self.components[component_name] = \
-                component_object(name=component_name)
-            return self._create_response(
-                True,
-                f"Component {component_name} has been created"
-            )
+        self.components[component_name] = \
+            component_class(name=component_name)
+        return self._create_response(
+            True,
+            f"Component {component_name} has been created"
+        )
 
-    @_component_name_existence_error(need_to_be_exist=True)
+    @component_name_existence_error(need_to_be_exist=True)
     def remove_component(self, component_name):
         if self._does_component_running(self.components[component_name]):
             self.components[component_name].stop_run()
@@ -103,13 +85,19 @@ class PipelineManager:
             f"Component {component_name} has been removed"
         )
 
-    @_component_name_existence_error(need_to_be_exist=True)
+    @component_name_existence_error(need_to_be_exist=True)
     def add_routine_to_component(self, component_name,
                                  routine_type_name, **routine_parameters_kwargs):
         if self._does_component_running(self.components[component_name]):
             return self._create_response(
                 False,
                 "You can't add a routine while your component is running"
+            )
+
+        if "name" not in routine_parameters_kwargs:
+            return self._create_response(
+                False,
+                f"Routine must have a name"
             )
 
         if self.components[component_name] \
@@ -120,16 +108,16 @@ class PipelineManager:
                 f" already exist in this component"
             )
 
-        routine_object = self._get_routine_object_by_name(routine_type_name)
+        routine_class_object = self._get_routine_class_object_by_type_name(routine_type_name)
 
-        if routine_object is None:
+        if routine_class_object is None:
             return self._create_response(
                 False,
                 f"The routine type '{routine_type_name}' doesn't exist"
             )
 
         try:
-            # replace all queue names with the queue objects of the component
+            # replace all queue names with the queue objects of the component before creating routine
             for key, value in routine_parameters_kwargs.items():
                 if 'queue' in key.lower():
                     routine_parameters_kwargs[key] = self.components[component_name] \
@@ -138,7 +126,7 @@ class PipelineManager:
             routine_parameters_kwargs["component_name"] = component_name
 
             self.components[component_name] \
-                .register_routine(routine_object(**routine_parameters_kwargs)
+                .register_routine(routine_class_object(**routine_parameters_kwargs)
                                   .as_thread())
             return self._create_response(
                 True,
@@ -150,7 +138,7 @@ class PipelineManager:
                 e.message()
             )
 
-    @_component_name_existence_error(need_to_be_exist=True)
+    @component_name_existence_error(need_to_be_exist=True)
     def remove_routine_from_component(self, component_name, routine_name):
         if self._does_component_running(self.components[component_name]):
             return self._create_response(
@@ -163,7 +151,7 @@ class PipelineManager:
             f"Removed routines with the name {routine_name} from the component"
         )
 
-    @_component_name_existence_error(need_to_be_exist=True)
+    @component_name_existence_error(need_to_be_exist=True)
     def create_queue_to_component(self, component_name,
                                   queue_name, queue_size=1):
         if self.components[component_name].does_queue_exist(queue_name):
@@ -179,7 +167,7 @@ class PipelineManager:
             f"The Queue {queue_name} has been created"
         )
 
-    @_component_name_existence_error(need_to_be_exist=True)
+    @component_name_existence_error(need_to_be_exist=True)
     def remove_queue_from_component(self, component_name, queue_name):
         if not self.components[component_name].does_queue_exist(queue_name):
             return self._create_response(
@@ -200,7 +188,7 @@ class PipelineManager:
             f"The Queue {queue_name} has been removed"
         )
 
-    @_component_name_existence_error(need_to_be_exist=True)
+    @component_name_existence_error(need_to_be_exist=True)
     def run_component(self, component_name):
         if self._does_component_running(self.components[component_name]):
             return self._create_response(
@@ -214,7 +202,7 @@ class PipelineManager:
                 f"The component {component_name} is now running"
             )
 
-    @_component_name_existence_error(need_to_be_exist=True)
+    @component_name_existence_error(need_to_be_exist=True)
     def stop_component(self, component_name):
         if not self._does_component_running(self.components[component_name]):
             return self._create_response(
@@ -268,7 +256,7 @@ class PipelineManager:
         routines = []
         for routine_name in routine_file_names:
             current_routine_type = \
-                self._get_routine_object_by_name(routine_name) \
+                self._get_routine_class_object_by_type_name(routine_name) \
                     .routine_type.value
             routines.append({"name": routine_name,
                              "type": current_routine_type})
@@ -284,14 +272,14 @@ class PipelineManager:
     def _add_underscore_before_uppercase(match):
         return '_' + match.group(0).lower()
 
-    def get_routine_parameters(self, routine_name):
-        routine_object = self._get_routine_object_by_name(routine_name)
-        if routine_object is not None:
-            return routine_object.get_constructor_parameters()
+    def get_routine_parameters(self, routine_type_name):
+        routine_class_object = self._get_routine_class_object_by_type_name(routine_type_name)
+        if routine_class_object is not None:
+            return routine_class_object.get_constructor_parameters()
         else:
             return self._create_response(
                 False,
-                f"Routine named {routine_name} doesn't exist"
+                f"Routine named {routine_type_name} doesn't exist"
             )
 
     def setup_components(self, components):
@@ -369,23 +357,23 @@ class PipelineManager:
             f"All of the components have been created"
         )
 
-    def _get_routine_object_by_name(self, routine_name: str) -> Routine:
+    def _get_routine_class_object_by_type_name(self, routine_name: str) -> Routine:
         path = self.ROUTINES_FOLDER_PATH.replace('/', '.') + "." + \
             re.sub(r'[A-Z]',
                    self._add_underscore_before_uppercase,
                    routine_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + routine_name
-        return self._get_object_by_path(absolute_path)
+        return self._get_class_object_by_path(absolute_path)
 
-    def _get_component_object_by_name(self, component_type_name):
+    def _get_component_class_object_by_type_name(self, component_type_name):
         path = self.COMPONENTS_FOLDER_PATH.replace('/', '.') + "." + \
             re.sub(r'[A-Z]',
                    self._add_underscore_before_uppercase,
                    component_type_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + component_type_name
-        return self._get_object_by_path(absolute_path)
+        return self._get_class_object_by_path(absolute_path)
 
-    def _get_object_by_path(self, absolute_path):
+    def _get_class_object_by_path(self, absolute_path):
         path = absolute_path.split('.')
         module = ".".join(path[:-1])
         try:
