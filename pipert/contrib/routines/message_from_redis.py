@@ -13,7 +13,7 @@ class MessageFromRedis(Routine):
 
     def __init__(self, redis_read_key, message_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.in_key = redis_read_key
+        self.redis_read_key = redis_read_key
         # self.url = urlparse(os.environ.get('REDIS_URL'))
         self.url = urlparse("redis://127.0.0.1:6379")
         self.message_queue = message_queue
@@ -22,7 +22,7 @@ class MessageFromRedis(Routine):
         self.negative = False
 
     def main_logic(self, *args, **kwargs):
-        encoded_msg = self.msg_handler.read_most_recent_msg(self.in_key)
+        encoded_msg = self.msg_handler.read_most_recent_msg(self.redis_read_key)
         if encoded_msg:
             msg = message_decode(encoded_msg)
             msg.record_entry(self.component_name, self.logger)

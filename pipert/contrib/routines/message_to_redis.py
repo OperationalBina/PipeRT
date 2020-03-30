@@ -14,11 +14,11 @@ class MessageToRedis(Routine):
 
     def __init__(self, redis_send_key, message_queue, max_stream_length, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.out_key = redis_send_key
+        self.redis_send_key = redis_send_key
         # self.url = urlparse(os.environ.get('REDIS_URL'))
         self.url = urlparse("redis://127.0.0.1:6379")
         self.message_queue = message_queue
-        self.maxlen = max_stream_length
+        self.max_stream_length = max_stream_length
         self.msg_handler = None
 
     def main_logic(self, *args, **kwargs):
@@ -26,7 +26,7 @@ class MessageToRedis(Routine):
             msg = self.message_queue.get(block=False)
             msg.record_exit(self.component_name, self.logger)
             encoded_msg = message_encode(msg)
-            self.msg_handler.send(self.out_key, encoded_msg)
+            self.msg_handler.send(self.redis_send_key, encoded_msg)
             time.sleep(0)
             return True
         except Empty:
@@ -34,7 +34,7 @@ class MessageToRedis(Routine):
             return False
 
     def setup(self, *args, **kwargs):
-        self.msg_handler = RedisHandler(self.url, self.maxlen)
+        self.msg_handler = RedisHandler(self.url, self.max_stream_length)
         self.msg_handler.connect()
 
     def cleanup(self, *args, **kwargs):
