@@ -4,7 +4,6 @@ from enum import Enum
 import logging
 import threading
 from logging.handlers import TimedRotatingFileHandler
-from queue import Queue
 import torch.multiprocessing as mp
 from prometheus_client import Histogram
 from prometheus_client.utils import INF
@@ -285,12 +284,15 @@ class Routine(ABC):
                 kwargs.update(event_kwargs)
                 func(self, *(event_args + args), **kwargs)
 
+    @abstractmethod
     def main_logic(self, *args, **kwargs):
         raise NotImplementedError
 
+    @abstractmethod
     def setup(self, *args, **kwargs):
         raise NotImplementedError
 
+    @abstractmethod
     def cleanup(self, *args, **kwargs):
         raise NotImplementedError
 
@@ -351,10 +353,10 @@ class Routine(ABC):
     def does_routine_use_queue(self, queue):
         raise NotImplementedError
 
+    # doesn't include queue names
     def get_creation_dictionary(self):
-        parameters_dictionary_with_all_params = self.get_constructor_parameters()
-        parameters_dictionary_with_routine_params = parameters_dictionary_with_all_params.copy()
-        parameters_dictionary_with_all_params.update(self.__dict__)
+        parameters_dictionary_with_routine_params = self.get_constructor_parameters()
+        parameters_dictionary_with_all_params = self.__dict__
         for key in parameters_dictionary_with_routine_params.keys():
             parameters_dictionary_with_routine_params[key] = parameters_dictionary_with_all_params[key]
         return parameters_dictionary_with_routine_params
