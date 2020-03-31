@@ -1,8 +1,5 @@
 #!/bin/bash
 
-source ~/anaconda3/etc/profile.d/conda.sh
-conda activate dataenv
-
 service redis-server stop
 redis-server /etc/redis/6379.conf
 redis-cli flushall
