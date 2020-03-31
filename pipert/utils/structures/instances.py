@@ -64,6 +64,10 @@ class Instances:
         The length of `value` must be the number of instances,
         and must agree with other existing fields in this object.
         """
+        # for some reason some tensors come out squeezed (from yolo)
+        if isinstance(value, torch.Tensor) and value.dim() == 0:
+            value = value.unsqueeze(0)
+
         data_len = len(value)
         if len(self._fields):
             assert (

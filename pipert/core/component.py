@@ -25,7 +25,7 @@ class BaseComponent:
         self.prometheus_port = prometheus_port
         self.stop_event = Event()
         self.endpoint = endpoint
-        self._routines = []
+        self._routines = []  # TODO: Maybe make this something smarter than a list? Like a dictionary (key=routine_name)
         self.zrpc = zerorpc.Server(self)
         self.zrpc.bind(endpoint)
 

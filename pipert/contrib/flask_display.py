@@ -126,7 +126,7 @@ class FlaskVideoDisplay(BaseComponent):
         self.register_routine(self.t_get)
 
         self.queue2 = queue.Queue(maxsize=1)
-        self.t_vis = VisLogic(self.queue, self.queue2,name="vis_logic",
+        self.t_vis = VisLogic(self.queue, self.queue2, name="vis_logic",
                               component_name=self.name).as_thread()
         self.register_routine(self.t_vis)
 

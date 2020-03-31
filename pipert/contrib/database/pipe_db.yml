@@ -1,0 +1,7 @@
+# other parameters may be added freely and used ad hoc, but these must always remain:
+
+user: 'postgres'      # database server username
+pw: 'Aa123456'        # database server password
+host: '172.20.0.5'    # database server host address
+port: 5432            # database server host port
+db: 'pipedb'          # database name

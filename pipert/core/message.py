@@ -73,7 +73,7 @@ class Message:
         else:
             self.payload = PredictionPayload(data)
         self.source_address = source_address
-        self.history = collections.defaultdict(dict)
+        self.history = collections.defaultdict(dict)  # TODO: Maybe use OrderedDict?
         self.id = f"{self.source_address}_{Message.counter}"
         Message.counter += 1
 
