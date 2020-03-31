@@ -49,5 +49,8 @@ RUN pip3 install torch
 RUN pip3 install -r requirements1.txt
 RUN pip3 install -r requirements2.txt
 
+# Install Splunk HEC handler for python
+RUN pip install 'git+git://github.com/georgestarcher/Splunk-Class-httpevent.git'
+
 # Install detectron2
 RUN pip install 'git+https://github.com/facebookresearch/detectron2.git'
