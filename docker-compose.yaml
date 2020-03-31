@@ -61,6 +61,4 @@ services:
       PROMETHEUS_URL: prometheus://prometheus:9000/0
     ports:
       - 5000:5000
-    devices:
-      - /dev/video0:/dev/video0
 
