@@ -94,6 +94,14 @@ class PipelineManager:
                 "You can't add a routine while your component is running"
             )
 
+        routine_class_object = self._get_routine_class_object_by_type_name(routine_type_name)
+
+        if routine_class_object is None:
+            return self._create_response(
+                False,
+                f"The routine type '{routine_type_name}' doesn't exist"
+            )
+
         if "name" not in routine_parameters_kwargs:
             return self._create_response(
                 False,
@@ -106,14 +114,6 @@ class PipelineManager:
                 False,
                 f"Routine with the name {routine_parameters_kwargs['name']}"
                 f" already exist in this component"
-            )
-
-        routine_class_object = self._get_routine_class_object_by_type_name(routine_type_name)
-
-        if routine_class_object is None:
-            return self._create_response(
-                False,
-                f"The routine type '{routine_type_name}' doesn't exist"
             )
 
         try:
@@ -136,6 +136,11 @@ class PipelineManager:
             return self._create_response(
                 False,
                 e.message()
+            )
+        except TypeError as error:
+            return self._create_response(
+                False,
+                str(error)
             )
 
     @component_name_existence_error(need_to_be_exist=True)
@@ -240,7 +245,7 @@ class PipelineManager:
             f"All of the components have been stopped"
         )
 
-    def get_all_routines(self):
+    def get_all_routine_types(self):
         routine_file_names = [f for f in
                               listdir(self.ROUTINES_FOLDER_PATH)
                               if isfile(join(self.ROUTINES_FOLDER_PATH, f))]

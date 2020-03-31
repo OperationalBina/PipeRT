@@ -1,5 +1,5 @@
 import os
-
+from pprint import pprint
 import yaml
 import zerorpc
 from yaml.scanner import ScannerError
@@ -72,14 +72,14 @@ own_methods = {
     "clear": lambda: call('clear' if os.name == 'posix' else 'cls')
 }
 methods = connection.get_methods()
-own_methods[SHOW_METHODS_METHOD_TEXT] = lambda: print(methods + list(own_methods.keys()))
+own_methods[SHOW_METHODS_METHOD_TEXT] = lambda: pprint(methods + list(own_methods.keys()), width=400)
 user_input = input("Enter method to execute: ")
 
 while user_input != EXIT_METHOD_TEXT:
     if user_input in own_methods:
         own_methods[user_input]()
     elif user_input in methods:
-        print(execute_method(user_input, connection))
+        pprint(execute_method(user_input, connection), indent=2)
     else:
         print(f"Cant find method '{user_input}', enter {SHOW_METHODS_METHOD_TEXT} to view all methods")
     user_input = input("Enter method to execute : ")

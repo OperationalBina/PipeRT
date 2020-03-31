@@ -44,7 +44,7 @@ else:
 
     @app.route("/routines")
     def get_routines():
-        return jsonify(pipeline_manager.get_all_routines())
+        return jsonify(pipeline_manager.get_all_routine_types())
 
     @app.route("/routineParams/<routine_name>")
     def get_routine_params(routine_name):
