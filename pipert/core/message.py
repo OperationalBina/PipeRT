@@ -44,7 +44,7 @@ class FramePayload(Payload):
         self.encoded = True
 
     def is_empty(self):
-        return not self.data
+        return self.data is None
 
 
 class PredictionPayload(Payload):
