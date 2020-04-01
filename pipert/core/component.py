@@ -105,6 +105,9 @@ class BaseComponent:
         except KeyError:
             raise QueueDoesNotExist(queue_name)
 
+    def get_all_queue_names(self):
+        return self.queues.keys()
+
     def does_queue_exist(self, queue_name):
         return queue_name in self.queues
 
