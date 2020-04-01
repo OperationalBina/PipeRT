@@ -339,28 +339,31 @@ class PipelineManager:
 
         # Delete all of the current components
         self.components = {}
+        responses = []
         # gc.collect()
         for component in components:
             if "component_type_name" in component:
-                self.create_premade_component(
+                responses.append(self.create_premade_component(
                     component_name=component["name"],
-                    component_type_name=component["component_type_name"])
+                    component_type_name=component["component_type_name"]))
             else:
-                self.create_component(component_name=component["name"])
+                responses.append(self.create_component(component_name=component["name"]))
             for queue in component["queues"]:
-                self.create_queue_to_component(
+                responses.append(self.create_queue_to_component(
                     component_name=component["name"],
-                    queue_name=queue)
+                    queue_name=queue))
             for routine in component["routines"]:
                 routine_type_name = routine.pop("routine_type_name", "")
-                self.add_routine_to_component(
+                responses.append(self.add_routine_to_component(
                     component_name=component["name"],
-                    routine_type_name=routine_type_name, **routine)
-
-        return self._create_response(
-            True,
-            f"All of the components have been created"
-        )
+                    routine_type_name=routine_type_name, **routine))
+        if all(response["Succeeded"] for response in responses):
+            return self._create_response(
+                True,
+                f"All of the components have been created"
+            )
+        else:
+            return list(filter(lambda response: not response["Succeeded"], responses))
 
     def _get_routine_class_object_by_type_name(self, routine_name: str) -> Routine:
         path = self.ROUTINES_FOLDER_PATH.replace('/', '.') + "." + \
@@ -414,7 +417,7 @@ class PipelineManager:
         component_dict = {"name": component_name,
                           "queues":
                               list(self.components[component_name].
-                                   queues.keys()),
+                                   get_all_queue_names()),
                           "routines": []
                           }
         if type(self.components[component_name]).__name__ != BaseComponent.__name__:
