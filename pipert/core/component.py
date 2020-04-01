@@ -1,4 +1,4 @@
-import multiprocessing
+import multiprocessing as mp
 import threading
 from prometheus_client import start_http_server
 from torch.multiprocessing import Event, Process
@@ -28,6 +28,10 @@ class BaseComponent:
         self.endpoint = endpoint
         self.queues = {}
         self._routines = []
+        self.component_runner = None
+        self.runner_creator = None
+        self.runner_creator_kwargs = {}
+        self.as_thread()
 
     def _start(self):
         """
@@ -38,11 +42,8 @@ class BaseComponent:
             routine.start()
 
     def run(self):
-        # self.component_process = multiprocessing.Process(target=self._run)
-        # self.component_process = threading.Thread(target=self._run)
-        # self.component_process.start()
-        self._run()
-        print("process ended")
+        self.component_runner = self.runner_creator(**self.runner_creator_kwargs)
+        self.component_runner.start()
 
     def _run(self):
         """
@@ -88,7 +89,7 @@ class BaseComponent:
                     routine.runner.join()
                 elif isinstance(routine, (Process, Thread)):
                     routine.join()
-            # self.component_process.join()
+            # self.component_runner.join()
             return 0
         except RuntimeError:
             return 1
@@ -131,3 +132,13 @@ class BaseComponent:
             if routine.does_routine_use_queue(self.queues[queue_name]):
                 return True
         return False
+
+    def as_thread(self):
+        self.runner_creator = threading.Thread
+        self.runner_creator_kwargs = {"target": self._run}
+        return self
+
+    def as_process(self):
+        self.runner_creator = mp.Process
+        self.runner_creator_kwargs = {"target": self._run}
+        return self
