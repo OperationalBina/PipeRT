@@ -90,7 +90,7 @@ class BaseComponent:
             self.stop_event.set()
             self._teardown_callback()
             if self.use_memory:
-                self.smm.shutdown()
+                self.smm.cleanup()
             for routine in self._routines:
                 if isinstance(routine, Routine):
                     routine.runner.join()

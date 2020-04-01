@@ -8,7 +8,10 @@ def get_mp_shared_memory_object(name):
     Params:
         -name: The name of a shared memory.
     """
-    memory = SharedMemory(name=name)
+    try:
+        memory = SharedMemory(name=name)
+    except FileNotFoundError:
+        memory = None
 
     return memory
 

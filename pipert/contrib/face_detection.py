@@ -31,38 +31,42 @@ class FaceDetLogic(Routine):
         try:
             frame_msg = self.in_queue.get(block=False)
             frame = frame_msg.get_payload()
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            if frame is not None:
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-            faces = self.face_cas.detectMultiScale(
-                gray,
-                scaleFactor=1.1,
-                minNeighbors=5,
-                minSize=(20, 20)
-            )
-            if len(faces):
-                faces = torch.from_numpy(faces)
-                faces[:, 2:] += faces[:, :2]
-                # print(faces.size(), faces)
-                new_instances = Instances(frame.shape[:2])
-                new_instances.set("pred_boxes", Boxes(faces))
-                new_instances.set("pred_classes", torch.zeros(faces.size(0)).int())
+                faces = self.face_cas.detectMultiScale(
+                    gray,
+                    scaleFactor=1.1,
+                    minNeighbors=5,
+                    minSize=(20, 20)
+                )
+                if len(faces):
+                    faces = torch.from_numpy(faces)
+                    faces[:, 2:] += faces[:, :2]
+                    # print(faces.size(), faces)
+                    new_instances = Instances(frame.shape[:2])
+                    new_instances.set("pred_boxes", Boxes(faces))
+                    new_instances.set("pred_classes", torch.zeros(faces.size(0)).int())
+                else:
+                    new_instances = Instances(frame.shape[:2])
+                    new_instances.set("pred_classes", [])
+
+                try:
+                    self.out_queue.get(block=False)
+                    self.state.dropped += 1
+                except Empty:
+                    pass
+
+                pred_msg = Message(new_instances, frame_msg.source_address)
+                try:
+                    self.out_frame_queue.put(frame_msg, block=False)
+                    self.out_queue.put(pred_msg, block=False)
+                except Full:
+                    return False
+                return True
             else:
-                new_instances = Instances(frame.shape[:2])
-                new_instances.set("pred_classes", [])
-
-            try:
-                self.out_queue.get(block=False)
-                self.state.dropped += 1
-            except Empty:
-                pass
-
-            pred_msg = Message(new_instances, frame_msg.source_address)
-            try:
-                self.out_frame_queue.put(frame_msg, block=False)
-                self.out_queue.put(pred_msg, block=False)
-            except Full:
+                time.sleep(0)
                 return False
-            return True
 
         except Empty:
             time.sleep(0)
