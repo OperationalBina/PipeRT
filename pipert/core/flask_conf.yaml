@@ -33,7 +33,6 @@
 - component_type_name: FlaskVideoDisplay
   name: FlaskDisplay
   queues:
-  - flask_display
   - messages
   routines:
   - image_meta_queue: messages
