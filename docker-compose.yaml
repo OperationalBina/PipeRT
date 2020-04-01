@@ -91,11 +91,3 @@ services:
       NVIDIA_VISIBLE_DEVICES: all
     ports:
       - 5000:5000
-<<<<<<< HEAD
-
-=======
-    devices:
-      - /dev/video0:/dev/video0
-volumes:
-  grafana_data: {}
->>>>>>> de5485e1e2524a6c48a7ecd5e8412ea9e754aa12
