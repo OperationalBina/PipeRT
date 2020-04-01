@@ -1,24 +1,13 @@
+import time
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from enum import Enum
 import logging
 import threading
 from logging.handlers import TimedRotatingFileHandler
-
 import torch.multiprocessing as mp
-from prometheus_client import Histogram
-from prometheus_client.utils import INF
-
 from .errors import NoRunnerException
-import time
-
-buckets = (0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05,
-           0.1, 0.2, 0.5, 1, 2, 5, INF)
-
-REQUEST_TIME = Histogram('routine_processing_seconds',
-                         'Time spent processing routine',
-                         ['routine', 'component'],
-                         buckets=buckets)
+from .metrics_collector import NullCollector
 
 
 class Events(Enum):
@@ -43,13 +32,13 @@ class State(object):
 
 class Routine(ABC):
 
-    def __init__(self, name="", component_name=""):
+    def __init__(self, name="", component_name="", metrics_collector=NullCollector()):
 
         self.name = name
 
         # name of the component that instantiated the routine
         self.component_name = component_name
-
+        self.metrics_collector = metrics_collector
         self.stop_event: mp.Event = None
         self._event_handlers = defaultdict(list)
         self.state = None
@@ -59,14 +48,13 @@ class Routine(ABC):
         self._setup_logger()
 
     def _setup_logger(self):
-        # setting up the routine's logger
         self.logger = logging.getLogger(self.component_name + "." + self.name)
         self.logger.setLevel(logging.DEBUG)
         self.logger.propagate = False
         log_file = "pipeline.log"
         file_handler = TimedRotatingFileHandler(log_file, when='midnight')
         file_handler.setFormatter(logging.Formatter(
-            "%(asctime)s — %(name)s — %(levelname)s — %(message)s"))
+            "%(asctime)s - %(levelname)s - %(name)s - %(message)s"))
         self.logger.addHandler(file_handler)
 
     def register_events(self, *event_names):
@@ -298,9 +286,7 @@ class Routine(ABC):
             tock = time.time()
 
             if self.state.output:
-                REQUEST_TIME.labels(routine=self.name,
-                                    component=self.component_name)\
-                    .observe(tock - tick)
+                self.metrics_collector.collect_execution_time(tock - tick, self.name, self.component_name)
                 self.state.success += 1
             self._fire_event(Events.AFTER_LOGIC)
 

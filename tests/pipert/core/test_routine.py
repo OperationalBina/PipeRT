@@ -10,6 +10,7 @@ class DummyRoutine(Routine):
         super().__init__(name)
 
     def main_logic(self, *args, **kwargs):
+        self.metrics_collector.collect_latency(0.1, self.component_name)
         return True
 
     def setup(self, *args, **kwargs):
