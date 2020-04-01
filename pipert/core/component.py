@@ -1,4 +1,3 @@
-from prometheus_client import start_http_server
 from torch.multiprocessing import Event, Process
 from pipert.core.routine import Routine
 from threading import Thread
@@ -7,12 +6,13 @@ import signal
 import gevent
 import zerorpc
 from .errors import RegisteredException
+from .metrics_collector import NullCollector
 
 
 class BaseComponent:
 
     def __init__(self, endpoint="tcp://0.0.0.0:4242", name="",
-                 prometheus_port=None, *args, **kwargs):
+                 metrics_collector=NullCollector(), *args, **kwargs):
         """
         Args:
             endpoint: the endpoint the component's zerorpc server will listen
@@ -22,7 +22,7 @@ class BaseComponent:
         """
         super().__init__()
         self.name = name
-        self.prometheus_port = prometheus_port
+        self.metrics_collector = metrics_collector
         self.stop_event = Event()
         self.endpoint = endpoint
         self._routines = []
@@ -43,8 +43,7 @@ class BaseComponent:
         """
         self._start()
         gevent.signal(signal.SIGTERM, self.stop_run)
-        if self.prometheus_port:
-            start_http_server(self.prometheus_port)
+        self.metrics_collector.setup()
         self.zrpc.run()
         self.zrpc.close()
 
