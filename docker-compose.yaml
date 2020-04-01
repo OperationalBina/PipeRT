@@ -3,6 +3,8 @@ services:
   redis:
     container_name: redis
     image: redis:5.0.7-buster
+    logging:
+      driver: none
     networks:
       default:
         aliases:
@@ -14,27 +16,56 @@ services:
   grafana:
     container_name: grafana
     image: grafana/grafana:latest
+    logging:
+      driver: none
     networks:
       default:
         aliases:
           - grafana
     restart: always
+    volumes:
+      - ./monitoring/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
+    environment:
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
     ports:
       - 3000:3000
 
   prometheus:
     container_name: prometheus
     image: prom/prometheus:latest
+    logging:
+      driver: none
     networks:
       default:
         aliases:
           - prometheus
     restart: always
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - 9090:9090
-
+  node-exporter:
+    image: prom/node-exporter
+    networks:
+      - default
+    restart: always
+    pid: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
   base-pipert:
     container_name: base-pipert
+    logging:
+      driver: none
     build:
       context: pipe-base/.
     networks:
@@ -52,13 +83,19 @@ services:
           - pipert
     depends_on:
       - redis
-      - grafana
-      - prometheus
       - base-pipert
     environment:
       REDIS_URL: redis://redis:6379/0
       GRAFANA_URL: grafana://grafana:3000/0
       PROMETHEUS_URL: prometheus://prometheus:9000/0
+      NVIDIA_VISIBLE_DEVICES: all
     ports:
       - 5000:5000
+<<<<<<< HEAD
 
+=======
+    devices:
+      - /dev/video0:/dev/video0
+volumes:
+  grafana_data: {}
+>>>>>>> de5485e1e2524a6c48a7ecd5e8412ea9e754aa12
