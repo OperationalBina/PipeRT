@@ -12,10 +12,12 @@ Every message contains:
 3. history - a documentation of when data came in and out of the component.
 
 Payloads:
+:class:`~message.Payload`
 We have 2 payloads - frame and prediction.
 Each payload has an encoding and decoding functions.
 These functions in the prediction payload do nothing, but in the frame payload,
 the encoding compressing the frame in .jpg form and the decoding does the opposite function.
+The frame payload can be address to the shared memory.
 
 Before sending the message, we need to pickle it - turn it into bytes.
 Redis only gets information in bytes and that is the reason we need to encode the message,

@@ -60,6 +60,7 @@ Adding Detection Components
 In order to add a new detection component to the pipeline you need to create a new class that inherits from BaseComponent,
 and at least one new routine (which inherits from the Routine class). The new routine would be responsible for performing
 the detection on top of the frames that it receives from an “input routine” and then sending it to the “output routine”.
+The communication between components can also be by shared memory.
 Message2Redis, MessageFromRedis are two general routines that enable to send and receive messages from and to Redis.
 Every component can use them or can use a new routine specific for the usage it needs,
 for example, the flask_display component use MetaAndFrameFromRedis routine that gets it the frame and the prediction in one routine.
