@@ -1,5 +1,8 @@
 language: python
 
+notifications:
+  slack: pipert:PAJOavVnxv8Bk6BDvrPiXmgG
+
 python:
   - "3.6"
 
