@@ -14,7 +14,8 @@ class FlaskVideoDisplay(BaseComponent):
 
     def __init__(self, name="FlaskVideoDisplay"):
         super().__init__(name)
-        self.create_queue("flask_display")
+        self.display_queue_name = "flask_display"
+        self.create_queue(self.display_queue_name)
 
         app = Flask(__name__)
 
@@ -76,3 +77,8 @@ class FlaskVideoDisplay(BaseComponent):
         # self.server.terminate()
         # print("kill!!!")
         # self.server.kill()
+
+    def get_all_queue_names(self):
+        queue_names = list(self.queues.keys())
+        queue_names.remove(self.display_queue_name)
+        return queue_names
