@@ -22,3 +22,4 @@ ml2rt
 pytest
 torchvision
 prometheus-client
+jsonschema
