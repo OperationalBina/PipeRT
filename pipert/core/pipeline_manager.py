@@ -267,6 +267,20 @@ class PipelineManager:
                              "type": current_routine_type})
         return routines
 
+    @component_name_existence_error(need_to_be_exist=True)
+    def change_component_execution_mode(self, component_name, execution_mode):
+        try:
+            getattr(self.components[component_name], "as_" + execution_mode.lower())()
+            return self._create_response(
+                True,
+                f"The component {component_name} changed execution mode to {execution_mode}"
+            )
+        except AttributeError:
+            return self._create_response(
+                False,
+                f"Cannot find execution mode '{execution_mode}'"
+            )
+
     # helping method for changing the file name to class name
     @staticmethod
     def _remove_string_with_underscore(match):
