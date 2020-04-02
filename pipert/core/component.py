@@ -55,8 +55,6 @@ class BaseComponent:
         self._start()
         gevent.signal(signal.SIGTERM, self.stop_run)
         self.metrics_collector.setup()
-        self.zrpc.run()
-        self.zrpc.close()
 
     def register_routine(self, routine: Union[Routine, Process, Thread]):
         """
