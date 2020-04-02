@@ -7,14 +7,17 @@ from threading import Thread
 from typing import Union
 import signal
 import gevent
+import zerorpc
+from .errors import RegisteredException
+from .metrics_collector import NullCollector
 from .errors import RegisteredException, QueueDoesNotExist
 from queue import Queue
 
 
 class BaseComponent:
 
-    def __init__(self, endpoint="tcp://0.0.0.0:4001", name="",
-                 prometheus_port=None, *args, **kwargs):
+    def __init__(self, endpoint="tcp://0.0.0.0:4242", name="",
+                 metrics_collector=NullCollector(), *args, **kwargs):
         """
         Args:
             *args: TBD
@@ -22,7 +25,7 @@ class BaseComponent:
         """
         super().__init__()
         self.name = name
-        self.prometheus_port = prometheus_port
+        self.metrics_collector = metrics_collector
         self.stop_event = Event()
         self.stop_event.set()
         self.endpoint = endpoint
@@ -51,8 +54,9 @@ class BaseComponent:
         self.stop_event.clear()
         self._start()
         gevent.signal(signal.SIGTERM, self.stop_run)
-        if self.prometheus_port:
-            start_http_server(self.prometheus_port)
+        self.metrics_collector.setup()
+        self.zrpc.run()
+        self.zrpc.close()
 
     def register_routine(self, routine: Union[Routine, Process, Thread]):
         """
