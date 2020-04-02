@@ -1,14 +1,11 @@
 import multiprocessing
 import threading
-from prometheus_client import start_http_server
 from torch.multiprocessing import Event, Process
 from pipert.core.routine import Routine
 from threading import Thread
 from typing import Union
 import signal
 import gevent
-import zerorpc
-from .errors import RegisteredException
 from .metrics_collector import NullCollector
 from .errors import RegisteredException, QueueDoesNotExist
 from queue import Queue
