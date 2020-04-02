@@ -1,4 +1,3 @@
-from prometheus_client import start_http_server
 from torch.multiprocessing import Event, Process
 from pipert.core.routine import Routine
 from threading import Thread
@@ -7,15 +6,15 @@ import signal
 import gevent
 import zerorpc
 from .errors import RegisteredException
+from .metrics_collector import NullCollector
 from .multiprocessing_shared_memory import MpSharedMemoryGenerator
-from .shared_memory import SharedMemoryGenerator
-from multiprocessing.managers import SharedMemoryManager
 
 
 class BaseComponent:
 
     def __init__(self, endpoint="tcp://0.0.0.0:4242", name="",
-                 prometheus_port=None, use_memory=False, *args, **kwargs):
+                 metrics_collector=NullCollector(), use_memory=False,
+                 *args, **kwargs):
         """
         Args:
             endpoint: the endpoint the component's zerorpc server will listen
@@ -25,7 +24,7 @@ class BaseComponent:
         """
         super().__init__()
         self.name = name
-        self.prometheus_port = prometheus_port
+        self.metrics_collector = metrics_collector
         self.stop_event = Event()
         self.endpoint = endpoint
         self._routines = []
@@ -34,7 +33,6 @@ class BaseComponent:
         self.use_memory = use_memory
         if use_memory:
             self.smm = MpSharedMemoryGenerator(self.name)
-            # self.smm.start()
 
     def _start(self):
         """
@@ -50,8 +48,7 @@ class BaseComponent:
         """
         self._start()
         gevent.signal(signal.SIGTERM, self.stop_run)
-        if self.prometheus_port:
-            start_http_server(self.prometheus_port)
+        self.metrics_collector.setup()
         self.zrpc.run()
         self.zrpc.close()
 

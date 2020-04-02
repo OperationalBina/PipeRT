@@ -1,12 +1,9 @@
 #!/bin/bash
 
-#source ~/anaconda3/etc/profile.d/conda.sh
-#conda activate dataenv
-
-#service redis-server stop
-#redis-server /etc/redis/6379.conf
-#redis-cli flushall
-#sleep 1
+service redis-server stop
+redis-server /etc/redis/6379.conf
+redis-cli flushall
+sleep 1
 
 #REDIS_URL=${REDIS_URL:='redis://localhost:6379'}
 REDIS_URL=${REDIS_URL:='redis://127.0.0.1:6379'}

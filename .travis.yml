@@ -1,5 +1,8 @@
 language: python
 
+notifications:
+  slack: pipert:PAJOavVnxv8Bk6BDvrPiXmgG
+
 python:
   - "3.6"
 
@@ -21,8 +24,7 @@ jobs:
       services:
         - redis-server
       install:
-        - pip install -r pipe-base/requirements1.txt
-        - pip install -r pipe-base/requirements2.txt
+        - pip install -r pipe-base/requirements.txt
         - pip install -r tests/requirements.txt
         - pip install codecov
         - echo "Running unit tests…"
