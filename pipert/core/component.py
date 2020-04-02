@@ -38,11 +38,7 @@ class BaseComponent:
             routine.start()
 
     def run(self):
-        # self.component_process = multiprocessing.Process(target=self._run)
-        # self.component_process = threading.Thread(target=self._run)
-        # self.component_process.start()
         self._run()
-        print("process ended")
 
     def _run(self):
         """
@@ -87,30 +83,61 @@ class BaseComponent:
                     routine.runner.join()
                 elif isinstance(routine, (Process, Thread)):
                     routine.join()
-            # self.component_process.join()
             return 0
         except RuntimeError:
             return 1
 
     def create_queue(self, queue_name, queue_size=1):
+        """
+           Create a new queue for the component.
+           Returns True if created or False otherwise
+           Args:
+               queue_name: the name of the queue, must be unique
+               queue_size: the size of the queue
+        """
         if queue_name in self.queues:
-            print("Queue name " + queue_name + " already exist")
             return False
         self.queues[queue_name] = Queue(maxsize=queue_size)
+        return True
 
     def get_queue(self, queue_name):
+        """
+           Returns the queue object by its name
+           Args:
+               queue_name: the name of the queue
+           Raises:
+               KeyError - if no queue has the name
+        """
         try:
             return self.queues[queue_name]
         except KeyError:
             raise QueueDoesNotExist(queue_name)
 
     def get_all_queue_names(self):
-        return self.queues.keys()
+        """
+           Returns the list of names of queues that
+           the component expose.
+        """
+        return list(self.queues.keys())
 
     def does_queue_exist(self, queue_name):
+        """
+           Returns True the component has a queue named
+           queue_name or False otherwise
+           Args:
+               queue_name: the name of the queue to check
+        """
         return queue_name in self.queues
 
     def delete_queue(self, queue_name):
+        """
+           Deletes a queue with the name queue_name.
+           Returns True if succeeded.
+           Args:
+               queue_name: the name of the queue to delete
+           Raises:
+               KeyError - if no queue has the name queue_name
+        """
         try:
             del self.queues[queue_name]
             return True

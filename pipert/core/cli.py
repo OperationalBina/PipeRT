@@ -11,10 +11,12 @@ SHOW_METHODS_METHOD_TEXT = 'show_methods'
 
 
 def load_config_file():
+    """
+    Loading a configuration file of the pipeline to be configured
+    """
     file_path = input("Enter the config file path: ")
     try:
         with open(file_path) as config_file:
-            # /home/internet/Desktop/components.yaml
             components = yaml.load(config_file, Loader=yaml.FullLoader)
         print(connection.execute_method("setup_components", {"components": components}))
     except FileNotFoundError as error:
@@ -26,6 +28,9 @@ def load_config_file():
 
 
 def export_config_file():
+    """
+        Exporting a configuration file of the current pipeline state
+    """
     with open("config.yaml", 'w') as config_file:
         yaml.dump(connection.
                   execute_method("get_pipeline_creation", {}),
@@ -34,6 +39,13 @@ def export_config_file():
 
 
 def execute_method(method_name, connection):
+    """
+    Executing a method inside the pipeline manager
+    Args:
+        method_name: the method name
+        connection: the connection to the pipeline manager
+                    object for executing methods
+    """
     parameters_values = {}
     parameters = connection.get_method_parameters(method_name)
     for parameter_name in parameters:
@@ -54,8 +66,7 @@ def execute_method(method_name, connection):
 
 
 connection = zerorpc.Client()
-# endpoint = input("Enter a zerorpc endpoint to connect to: ")
-endpoint = "tcp://0.0.0.0:4001"
+endpoint = input("Enter a zerorpc endpoint to connect to: ")
 connection.connect(endpoint)
 try:
     print("Connecting to", endpoint + "...")

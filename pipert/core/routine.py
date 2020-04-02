@@ -308,13 +308,11 @@ class Routine(ABC):
         self.cleanup()
 
     def as_thread(self):
-        # self.runner = threading.Thread(target=self._extended_run)
         self.runner_creator = threading.Thread
         self.runner_creator_kwargs = {"target": self._extended_run}
         return self
 
     def as_process(self):
-        # self.runner = mp.Process(target=self._extended_run)
         self.runner_creator = mp.Process
         self.runner_creator_kwargs = {"target": self._extended_run}
         return self
@@ -329,16 +327,31 @@ class Routine(ABC):
     @staticmethod
     @abstractmethod
     def get_constructor_parameters():
+        """
+           Returns a dictionary of the constructor's
+           parameters built as key for name and value
+           for type name
+        """
         return {
             "name": "String"
         }
 
     @abstractmethod
-    def does_routine_use_queue(self, queue):
+    def does_routine_use_queue(self, queue_name):
+        """
+           Returns True whether the routine uses the given
+           queue_name.
+           Args:
+               queue_name: the name of the queue
+        """
         raise NotImplementedError
 
-    # doesn't include queue names
     def get_creation_dictionary(self):
+        """
+           Returns a dictionary containing the routine parameters name as keys
+           and their values as values. The method return queue objects instead
+           of queue names when encountering them.
+        """
         parameters_dictionary_with_routine_params = self.get_constructor_parameters()
         parameters_dictionary_with_all_params = self.__dict__
         for key in parameters_dictionary_with_routine_params.keys():
