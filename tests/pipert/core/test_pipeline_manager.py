@@ -11,7 +11,7 @@ def pipeline_manager():
 
 @pytest.fixture(scope="function")
 def pipeline_manager_with_component(pipeline_manager):
-    response = pipeline_manager.create_component("comp")
+    response = pipeline_manager.create_component(component_name="comp")
     assert response["Succeeded"], response["Message"]
     return pipeline_manager
 
@@ -19,7 +19,7 @@ def pipeline_manager_with_component(pipeline_manager):
 @pytest.fixture(scope="function")
 def pipeline_manager_with_component_and_queue(pipeline_manager_with_component):
     response = pipeline_manager_with_component. \
-        create_queue_to_component("comp", "queue1")
+        create_queue_to_component(component_name="comp", queue_name="queue1")
     assert response["Succeeded"], response["Message"]
     return pipeline_manager_with_component
 
@@ -38,49 +38,49 @@ def pipeline_manager_with_component_and_queue_and_routine(pipeline_manager_with_
 
 
 def test_create_component(pipeline_manager):  # cant add with the same name for queue comp and routine
-    response = pipeline_manager.create_component("comp")
+    response = pipeline_manager.create_component(component_name="comp")
     assert response["Succeeded"], response["Message"]
     assert "comp" in pipeline_manager.components
 
 
 def test_create_component_with_same_name(pipeline_manager_with_component):
-    response = pipeline_manager_with_component.create_component("comp")
+    response = pipeline_manager_with_component.create_component(component_name="comp")
     assert not response["Succeeded"], response["Message"]
 
 
 def test_remove_component(pipeline_manager_with_component):
-    response = pipeline_manager_with_component.remove_component("comp")
+    response = pipeline_manager_with_component.remove_component(component_name="comp")
     assert response["Succeeded"], response["Message"]
     assert "comp" not in pipeline_manager_with_component.components
 
 
 def test_add_queue(pipeline_manager_with_component):
-    response = pipeline_manager_with_component.create_queue_to_component("comp", "queue1")
+    response = pipeline_manager_with_component.create_queue_to_component(component_name="comp", queue_name="queue1")
     assert response["Succeeded"], response["Message"]
     assert "queue1" in pipeline_manager_with_component.components["comp"].queues
 
 
 def test_add_queue_with_same_name(pipeline_manager_with_component_and_queue):
     response = pipeline_manager_with_component_and_queue. \
-        create_queue_to_component("comp", "queue1")
+        create_queue_to_component(component_name="comp", queue_name="queue1")
     assert not response["Succeeded"], response["Message"]
 
 
 def test_remove_queue(pipeline_manager_with_component_and_queue):
     response = pipeline_manager_with_component_and_queue. \
-        remove_queue_from_component("comp", "queue1")
+        remove_queue_from_component(component_name="comp", queue_name="queue1")
     assert response["Succeeded"], response["Message"]
 
 
 def test_remove_queue_that_is_used_by_routine(pipeline_manager_with_component_and_queue_and_routine):
     response = pipeline_manager_with_component_and_queue_and_routine. \
-        remove_queue_from_component("comp", "queue1")
+        remove_queue_from_component(component_name="comp", queue_name="queue1")
     assert not response["Succeeded"], response["Message"]
     response = pipeline_manager_with_component_and_queue_and_routine. \
-        remove_routine_from_component("comp", "routine1")
+        remove_routine_from_component(component_name="comp", routine_name="routine1")
     assert response["Succeeded"], response["Message"]
     response = pipeline_manager_with_component_and_queue_and_routine. \
-        remove_queue_from_component("comp", "queue1")
+        remove_queue_from_component(component_name="comp", queue_name="queue1")
     assert response["Succeeded"], response["Message"]
 
 
@@ -112,7 +112,7 @@ def test_create_routine_with_same_name(pipeline_manager_with_component_and_queue
 
 def test_remove_routine(pipeline_manager_with_component_and_queue_and_routine):
     response = pipeline_manager_with_component_and_queue_and_routine. \
-        remove_routine_from_component("comp", "routine1")
+        remove_routine_from_component(component_name="comp", routine_name="routine1")
     assert response["Succeeded"], response["Message"]
 
     assert \
@@ -124,13 +124,13 @@ def test_run_and_stop_component(pipeline_manager_with_component_and_queue_and_ro
     assert pipeline_manager_with_component_and_queue_and_routine. \
         components["comp"].stop_event.is_set()
     response = pipeline_manager_with_component_and_queue_and_routine. \
-        run_component("comp")
+        run_component(component_name="comp")
     assert response["Succeeded"], response["Message"]
     assert not pipeline_manager_with_component_and_queue_and_routine. \
         components["comp"].stop_event.is_set()
 
     response = pipeline_manager_with_component_and_queue_and_routine. \
-        stop_component("comp")
+        stop_component(component_name="comp")
     assert response["Succeeded"], response["Message"]
     assert pipeline_manager_with_component_and_queue_and_routine. \
         components["comp"].stop_event.is_set()
