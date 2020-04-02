@@ -1,5 +1,8 @@
 language: python
 
+notifications:
+  slack: pipert:PAJOavVnxv8Bk6BDvrPiXmgG
+
 python:
   - "3.6"
 
@@ -18,8 +21,10 @@ jobs:
 
     - stage: Test
       python: "3.6"
+      services:
+        - redis-server
       install:
-        - pip install -r requirements.txt
+        - pip install -r pipe-base/requirements.txt
         - pip install -r tests/requirements.txt
         - pip install codecov
         - echo "Running unit tests…"
@@ -28,5 +33,5 @@ jobs:
         - coverage run -a --source=. --concurrency=gevent -m pytest
       after_script:
         - coverage report
-        - codecov -t=$CODECOV_TOKEN
+        - codecov
 
