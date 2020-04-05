@@ -16,6 +16,9 @@ from pipert.core.routine import Routine
 from pipert.core.mini_logics import Message2Redis, MessageFromRedis
 from pipert.core.routine import Events
 from pipert.core.handlers import tick, tock
+from pipert.contrib.metrics_collectors.prometheus_collector import PrometheusCollector
+from pipert.core.metrics_collector import NullCollector
+from pipert.contrib.metrics_collectors.splunk_collector import SplunkCollector
 
 
 class FaceDetLogic(Routine):
@@ -83,8 +86,8 @@ class FaceDetLogic(Routine):
 
 class FaceDetComponent(BaseComponent):
 
-    def __init__(self, endpoint, in_key, out_key, out_frame_key, redis_url, maxlen=100, name="FaceDetection", use_memory=False):
-        super().__init__(endpoint, name, 8081, use_memory=use_memory)
+    def __init__(self, endpoint, in_key, out_key, out_frame_key, redis_url, metrics_collector, maxlen=100, name="FaceDetection", use_memory=False):
+        super().__init__(endpoint, name, metrics_collector, use_memory=use_memory)
         # TODO: should queue maxsize be configurable?
         self.in_queue = Queue(maxsize=1)
         self.out_queue = Queue(maxsize=1)
@@ -108,6 +111,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--input', help='Input stream key name', type=str, default='camera:2')
     parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:3')
     parser.add_argument('-of', '--outputFrame', help='Output Frame stream key name', type=str, default='camera:4')
+    parser.add_argument('--monitoring', help='Name of the monitoring service', type=str, default='prometheus')
     parser.add_argument('-s', '--shared', help='Shared memory', type=bool, default=False)
     parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
     parser.add_argument('-z', '--zpc', help='zpc port', type=str, default='4248')
@@ -117,7 +121,14 @@ if __name__ == '__main__':
 
     url = urlparse(opt.url)
 
-    zpc = FaceDetComponent(f"tcp://0.0.0.0:{opt.zpc}", opt.input, opt.output, opt.outputFrame, url, maxlen=opt.maxlen,
+    if opt.monitoring == 'prometheus':
+        collector = PrometheusCollector(8081)
+    elif opt.monitoring == 'splunk':
+        collector = SplunkCollector()
+    else:
+        collector = NullCollector()
+
+    zpc = FaceDetComponent(f"tcp://0.0.0.0:{opt.zpc}", opt.input, opt.output, opt.outputFrame, url, metrics_collector=collector, maxlen=opt.maxlen,
                            use_memory=opt.shared)
     print("run")
     zpc.run()

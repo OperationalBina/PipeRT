@@ -22,7 +22,7 @@ class Message2Redis(Routine):
             msg.record_exit(self.component_name, self.logger)
             if self.use_memory and isinstance(msg.payload, FramePayload):
                 encoded_msg = message_encode(msg,
-                                             manager=self.smm)
+                                             generator=self.generator)
             else:
                 encoded_msg = message_encode(msg)
             self.msg_handler.send(self.out_key, encoded_msg)

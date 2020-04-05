@@ -40,7 +40,7 @@ class Routine(ABC):
         self.component_name = component_name
         self.metrics_collector = metrics_collector
         self.use_memory = False
-        self.smm = None
+        self.generator = None
         self.stop_event: mp.Event = None
         self._event_handlers = defaultdict(list)
         self.state = None

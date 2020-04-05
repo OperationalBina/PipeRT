@@ -1,8 +1,36 @@
-from pipert.core.shared_memory import MemoryIdGenerator
 from multiprocessing.shared_memory import SharedMemory
 
 
-def get_mp_shared_memory_object(name):
+class MemoryIdGenerator:
+    """
+    Generates a new id for a unique shared memory each time get_next is
+    called. The id's are in the following format:
+    "{component_name}_{serial_memory_number}", this helps make a unique
+    shared memory each time even with threads so that we won't override
+    any existing shared memories that were already created.
+    """
+    def __init__(self, component_name, max_count):
+        self.component_name = component_name
+        self.name_count = 0
+        self.max_count = max_count
+
+    def get_next(self):
+        """
+        Generates the next id to use for the shared memory and return
+        the name of a shared memory to free if necessary.
+        """
+        next_name = "{0}_{1}".format(self.component_name, self.name_count)
+        name_to_unlink = ""
+        self.name_count += 1
+        if self.name_count >= self.max_count:
+            name_to_unlink = "{0}_{1}".format(self.component_name,
+                                              (self.name_count
+                                               - self.max_count))
+
+        return next_name, name_to_unlink
+
+
+def get_shared_memory_object(name):
     """
     Returns a SharedMemory object that correlates to the name given.
     Params:
