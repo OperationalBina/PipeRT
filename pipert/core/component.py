@@ -6,11 +6,13 @@ import signal
 import gevent
 import zerorpc
 from .errors import RegisteredException
+from .metrics_collector import NullCollector
 
 
 class BaseComponent:
 
-    def __init__(self, endpoint="tcp://0.0.0.0:4242", *args, **kwargs):
+    def __init__(self, endpoint="tcp://0.0.0.0:4242", name="",
+                 metrics_collector=NullCollector(), *args, **kwargs):
         """
         Args:
             endpoint: the endpoint the component's zerorpc server will listen
@@ -19,6 +21,8 @@ class BaseComponent:
             **kwargs: TBD
         """
         super().__init__()
+        self.name = name
+        self.metrics_collector = metrics_collector
         self.stop_event = Event()
         self.endpoint = endpoint
         self._routines = []
@@ -39,6 +43,7 @@ class BaseComponent:
         """
         self._start()
         gevent.signal(signal.SIGTERM, self.stop_run)
+        self.metrics_collector.setup()
         self.zrpc.run()
         self.zrpc.close()
 
