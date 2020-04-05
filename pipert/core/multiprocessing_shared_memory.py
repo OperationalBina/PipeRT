@@ -58,7 +58,13 @@ class MpSharedMemoryGenerator:
     def get_next_shared_memory(self, size=500000):
         next_name, name_to_unlink = self.memory_id_gen.get_next()
 
-        memory = SharedMemory(name=next_name, create=True, size=size)
+        try:
+            memory = SharedMemory(name=next_name, create=True, size=size)
+        except FileExistsError:
+            memory = SharedMemory(name=next_name)
+            memory.close()
+            memory.unlink()
+            memory = SharedMemory(name=next_name, create=True, size=size)
 
         self.shared_memories[next_name] = memory
 
