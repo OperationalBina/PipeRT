@@ -38,7 +38,7 @@ Here is an example of how a config file looks like and an explanation on its str
     24.      name: draw_frames
     25.      routine_type_name: DisplayCv2
 
-To make it more clear, the file is a list of components objects.
+To make it more clear, the file is a list of component objects.
 
 Line 1: start of new component object, setting its name value.
 
