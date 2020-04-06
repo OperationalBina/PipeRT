@@ -3,6 +3,7 @@ from pprint import pprint
 import yaml
 import zerorpc
 from yaml.scanner import ScannerError
+from yaml.parser import ParserError
 import sys
 from subprocess import call
 
@@ -21,7 +22,7 @@ def load_config_file():
         print(error.args[1], "'{}'".format(file_path))
     except IsADirectoryError as error:
         print("'{}' is a directory not a file".format(file_path))
-    except ScannerError:
+    except (ScannerError, ParserError):
         print("Expecting yaml file, can't parse the file '{}'".format(file_path))
 
 
