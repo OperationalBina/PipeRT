@@ -362,6 +362,10 @@ class PipelineManager:
                     component_type_name=component["component_type_name"]))
             else:
                 responses.append(self.create_component(component_name=component["name"]))
+            if "execution_mode" in component:
+                responses.append(self.change_component_execution_mode(
+                    component_name=component["name"],
+                    execution_mode=component["execution_mode"]))
             for queue in component["queues"]:
                 responses.append(self.create_queue_to_component(
                     component_name=component["name"],
