@@ -44,7 +44,7 @@ class FramePayload(Payload):
         self.encoded = True
 
     def is_empty(self):
-        return not self.data
+        return self.data is None
 
 
 class PredictionPayload(Payload):
@@ -74,6 +74,7 @@ class Message:
             self.payload = PredictionPayload(data)
         self.source_address = source_address
         self.history = collections.defaultdict(dict)
+        self.reached_exit = False
         self.id = f"{self.source_address}_{Message.counter}"
         Message.counter += 1
 
@@ -100,7 +101,7 @@ class Message:
             logger: the logger object of the component's input routine.
         """
         self.history[component_name]["entry"] = time.time()
-        logger.info("Received the following message: %s", str(self))
+        logger.debug("Received the following message: %s", str(self))
 
     def record_custom(self, component_name, section):
         """
@@ -117,13 +118,20 @@ class Message:
     def record_exit(self, component_name, logger):
         """
         Records the timestamp of the message's exit out of a component.
+        Additionally, it enables a flag called 'reached_exit' if the message is exiting
+        the pipeline's "output component".
 
         Args:
             component_name: the name of the component that the message exited.
             logger: the logger object of the component's output routine.
         """
-        self.history[component_name]["exit"] = time.time()
-        logger.info("Sending the following message: %s", str(self))
+        if "exit" not in self.history[component_name]:
+            self.history[component_name]["exit"] = time.time()
+            if component_name == "FlaskVideoDisplay" or component_name == "VideoWriter":
+                logger.debug("The following message has reached the exit: %s", str(self))
+                self.reached_exit = True
+            else:
+                logger.debug("Sending the following message: %s", str(self))
 
     def get_latency(self, component_name):
         """
@@ -141,6 +149,18 @@ class Message:
                 'exit' in self.history[component_name]:
             return self.history[component_name]['exit'] - \
                 self.history[component_name]['entry']
+        else:
+            return None
+
+    def get_end_to_end_latency(self, output_component):
+        """
+        Returns the time it took for a message to pass through the pipeline.
+
+        Args:
+            output_component: the name of the pipeline's output component.
+        """
+        if output_component in self.history and self.reached_exit:
+            return self.history[output_component]['exit'] - self.history['VideoCapture']['entry']
         else:
             return None
 

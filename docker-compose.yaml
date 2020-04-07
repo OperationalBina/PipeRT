@@ -91,8 +91,6 @@ services:
       NVIDIA_VISIBLE_DEVICES: all
     ports:
       - 5000:5000
-    devices:
-      - /dev/video0:/dev/video0
     command: 
       - '--gpus all'
 volumes:
