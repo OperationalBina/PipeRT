@@ -367,17 +367,17 @@ class PipelineManager:
 
     def _get_routine_class_object_by_type_name(self, routine_name: str) -> Routine:
         path = self.ROUTINES_FOLDER_PATH.replace('/', '.') + "." + \
-            re.sub(r'[A-Z]',
-                   self._add_underscore_before_uppercase,
-                   routine_name)[1:]
+               re.sub(r'[A-Z]',
+                      self._add_underscore_before_uppercase,
+                      routine_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + routine_name
         return self._get_class_object_by_path(absolute_path)
 
     def _get_component_class_object_by_type_name(self, component_type_name):
         path = self.COMPONENTS_FOLDER_PATH.replace('/', '.') + "." + \
-            re.sub(r'[A-Z]',
-                   self._add_underscore_before_uppercase,
-                   component_type_name)[1:]
+               re.sub(r'[A-Z]',
+                      self._add_underscore_before_uppercase,
+                      component_type_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + component_type_name
         return self._get_class_object_by_path(absolute_path)
 
@@ -407,25 +407,30 @@ class PipelineManager:
         }
 
     def get_pipeline_creation(self):
-        pipeline = []
+        components = {}
         for component_name in self.components.keys():
-            pipeline.append(self._get_component_creation(component_name))
+            components[component_name] = self._get_component_creation(component_name)
 
-        return pipeline
+        return {"components": components}
 
     def _get_component_creation(self, component_name):
-        component_dict = {"name": component_name,
-                          "queues":
-                              list(self.components[component_name].
-                                   get_all_queue_names()),
-                          "routines": []
-                          }
+
+        component_dict = {
+            "queues":
+                list(self.components[component_name].
+                     get_all_queue_names()),
+            "routines": {}
+        }
+
         if type(self.components[component_name]).__name__ != BaseComponent.__name__:
             component_dict["component_type_name"] = type(self.components[component_name]).__name__
         for current_routine_object in self.components[component_name]._routines:
-            component_dict["routines"]. \
-                append(self._get_routine_creation(component_name,
-                                                  current_routine_object))
+            routine_creation_object = self._get_routine_creation(
+                component_name, current_routine_object)
+            routine_name = routine_creation_object.pop("name")
+            component_dict["routines"][routine_name] = \
+                routine_creation_object
+
         return component_dict
 
     def _get_routine_creation(self, component_name, routine):
