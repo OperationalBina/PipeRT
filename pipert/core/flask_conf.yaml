@@ -1,4 +1,5 @@
 - name: Stream
+  execution_mode: process
   queues:
   - video
   routines:
