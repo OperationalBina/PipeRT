@@ -1,4 +1,3 @@
-import multiprocessing as mp
 import threading
 from prometheus_client import start_http_server
 from torch.multiprocessing import Event, Process
@@ -55,6 +54,11 @@ class BaseComponent:
         if self.prometheus_port:
             start_http_server(self.prometheus_port)
 
+        # keeps the process alive
+        while not self.stop_event.is_set():
+            pass
+        self._stop_run()
+
     def register_routine(self, routine: Union[Routine, Process, Thread]):
         """
         Registers routine to the list of component's routines
@@ -78,11 +82,14 @@ class BaseComponent:
         pass
 
     def stop_run(self):
+        self.stop_event.set()
+        self.component_runner.join()
+
+    def _stop_run(self):
         """
         Signals all the component's routines to stop.
         """
         try:
-            self.stop_event.set()
             self._teardown_callback()
             for routine in self._routines:
                 if isinstance(routine, Routine):
@@ -142,6 +149,6 @@ class BaseComponent:
         return self
 
     def as_process(self):
-        self.runner_creator = mp.Process
+        self.runner_creator = Process
         self.runner_creator_kwargs = {"target": self._run}
         return self
