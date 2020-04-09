@@ -54,7 +54,7 @@ class BaseComponent:
         if self.prometheus_port:
             start_http_server(self.prometheus_port)
 
-        # keeps the process alive
+        # keeps the component execution alive
         while not self.stop_event.is_set():
             pass
         self._stop_run()
