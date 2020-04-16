@@ -10,6 +10,7 @@ from threading import Thread
 from torch.multiprocessing import Process
 from pipert.core.component import BaseComponent
 # from pipert.core.routine import Routine
+from pipert.core.multiprocessing_shared_memory import MpSharedMemoryGenerator
 from pipert.core.message import Message, FramePayload, message_encode, \
     message_decode
 
@@ -18,6 +19,11 @@ class DummyMessage(Message):
 
     def __init__(self, data, stream_address, *args, **kwargs):
         super().__init__(data, stream_address)
+
+
+class DummyGenerator(MpSharedMemoryGenerator):
+    def __init__(self):
+        super().__init__("Dummy_generator")
 
 
 def create_msg():
@@ -74,3 +80,15 @@ def test_get_end_to_end_latency():
     assert latency is not None
     assert not msg.is_empty()
 
+
+def test_message_encode_shared_memory():
+    generator = DummyGenerator()
+    msg = create_msg()
+    encoded_msg = message_encode(msg, generator)
+    assert isinstance(encoded_msg.payload.data, str)
+    decoded_msg = message_decode(encoded_msg)
+    assert msg.id == decoded_msg.id
+    assert msg.source_address == decoded_msg.source_address
+    assert msg.history == decoded_msg.history
+    assert msg.payload == decoded_msg.payload
+    generator.cleanup()
