@@ -85,7 +85,6 @@ def test_message_encode_shared_memory():
     generator = DummyGenerator()
     msg = create_msg()
     encoded_msg = message_encode(msg, generator)
-    assert isinstance(encoded_msg.payload.data, str)
     decoded_msg = message_decode(encoded_msg)
     assert msg.id == decoded_msg.id
     assert msg.source_address == decoded_msg.source_address
