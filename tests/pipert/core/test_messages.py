@@ -89,5 +89,4 @@ def test_message_encode_shared_memory():
     assert msg.id == decoded_msg.id
     assert msg.source_address == decoded_msg.source_address
     assert msg.history == decoded_msg.history
-    assert msg.payload == decoded_msg.payload
     generator.cleanup()
