@@ -21,8 +21,18 @@ API documentation and an overview of the library can be found [here](https://pip
 
 Installation
 ============
+- **Docker**
+
+- **Docker compose**
+
+- **Nvidia docker**: https://github.com/NVIDIA/nvidia-docker
+
+- **nvidia-container-runtime**: https://github.com/NVIDIA/nvidia-container-runtime
+
+Usage
+============
 - Running the pipeline for the first time:
     - docker-compose up -d
 
 - Build the pipeline after changes:
-    - docker-compose up -d --build --force-recreate
+    - docker-compose up -d --build
