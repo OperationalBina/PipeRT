@@ -1,12 +1,14 @@
 import argparse
 from queue import Queue
 from urllib.parse import urlparse
-import os
 # from sys import platform
 from pipert.contrib.detection_demo.models import *  # set ONNX_EXPORT in models.py
 # from detection_demo.utils.datasets import *
 from pipert.contrib.detection_demo.utils import *
+from pipert.contrib.metrics_collectors.prometheus_collector import PrometheusCollector
 from pipert.core.message import PredictionPayload
+from pipert.contrib.metrics_collectors.splunk_collector import SplunkCollector
+from pipert.core.metrics_collector import NullCollector
 from pipert.core.mini_logics import MessageFromRedis, Message2Redis
 from pipert.utils.structures import Instances, Boxes
 from pipert.core import Routine, BaseComponent, QueueHandler
@@ -77,8 +79,6 @@ class YoloV3Logic(Routine):
 
         msg = self.in_queue.non_blocking_get()
         if msg:
-            self.logger.info("Received the following message: %s",
-                             str(msg))
             im0 = msg.get_payload()
             img, *_ = letterbox(im0, new_shape=self.img_size)
 
@@ -126,16 +126,19 @@ class YoloV3Logic(Routine):
 
 class YoloV3(BaseComponent):
 
-    def __init__(self, endpoint, out_key, in_key, redis_url, maxlen, name="YoloV3"):
-        super().__init__(endpoint, name, 8081)
+    def __init__(self, endpoint, out_key, in_key, redis_url, maxlen, metrics_collector, name="YoloV3"):
+        super().__init__(endpoint, name, metrics_collector)
         self.in_queue = Queue(maxsize=1)
         self.out_queue = Queue(maxsize=1)
 
-        t_get = MessageFromRedis(in_key, redis_url, self.in_queue, name="get_frames", component_name=self.name).as_thread()
+        t_get = MessageFromRedis(in_key, redis_url, self.in_queue, name="get_frames", component_name=self.name,
+                                 metrics_collector=self.metrics_collector).as_thread()
         self.register_routine(t_get)
-        t_det = YoloV3Logic(self.in_queue, self.out_queue, name='yolo_logic', component_name=self.name).as_thread()
+        t_det = YoloV3Logic(self.in_queue, self.out_queue, name='yolo_logic', component_name=self.name,
+                            metrics_collector=self.metrics_collector).as_thread()
         self.register_routine(t_det)
-        t_send = Message2Redis(out_key, redis_url, self.out_queue, maxlen, name="upload_redis", component_name=self.name).as_thread()
+        t_send = Message2Redis(out_key, redis_url, self.out_queue, maxlen, name="upload_redis", component_name=self.name,
+                               metrics_collector=self.metrics_collector).as_thread()
         self.register_routine(t_send)
 
 
@@ -149,6 +152,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:2')
     parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
     parser.add_argument('-z', '--zpc', help='zpc port', type=str, default='4243')
+    parser.add_argument('--monitoring', help='Name of the monitoring service', type=str, default='prometheus')
     parser.add_argument('--maxlen', help='Maximum length of output stream', type=int, default=100)
     parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
@@ -160,7 +164,15 @@ if __name__ == '__main__':
     # url = urlparse(opts.url)
     url = os.environ.get('REDIS_URL')
     url = urlparse(url) if url is not None else urlparse(opt.url)
-    zpc = YoloV3(f"tcp://0.0.0.0:{opt.zpc}", opt.output, opt.input, url, opt.maxlen)
+
+    if opt.monitoring == 'prometheus':
+        collector = PrometheusCollector(8081)
+    elif opt.monitoring == 'splunk':
+        collector = SplunkCollector()
+    else:
+        collector = NullCollector()
+
+    zpc = YoloV3(f"tcp://0.0.0.0:{opt.zpc}", opt.output, opt.input, url, opt.maxlen, collector)
     print(f"run {zpc.name}")
     zpc.run()
     print(f"Killed {zpc.name}")

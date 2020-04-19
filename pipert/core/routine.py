@@ -1,24 +1,13 @@
+import time
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from enum import Enum
 import logging
 import threading
 from logging.handlers import TimedRotatingFileHandler
-
 import torch.multiprocessing as mp
-from prometheus_client import Histogram
-from prometheus_client.utils import INF
-
 from .errors import NoRunnerException
-import time
-
-buckets = (0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05,
-           0.1, 0.2, 0.5, 1, 2, 5, INF)
-
-REQUEST_TIME = Histogram('routine_processing_seconds',
-                         'Time spent processing routine',
-                         ['routine', 'component'],
-                         buckets=buckets)
+from .metrics_collector import NullCollector
 
 
 class Events(Enum):
@@ -43,13 +32,13 @@ class State(object):
 
 class Routine(ABC):
 
-    def __init__(self, name="", component_name=""):
+    def __init__(self, name="", component_name="", metrics_collector=NullCollector()):
 
         self.name = name
 
         # name of the component that instantiated the routine
         self.component_name = component_name
-
+        self.metrics_collector = metrics_collector
         self.stop_event: mp.Event = None
         self._event_handlers = defaultdict(list)
         self.state = None
@@ -59,13 +48,13 @@ class Routine(ABC):
         self._setup_logger()
 
     def _setup_logger(self):
-        # setting up the routine's logger
         self.logger = logging.getLogger(self.component_name + "." + self.name)
         self.logger.setLevel(logging.DEBUG)
         self.logger.propagate = False
         log_file = "pipeline.log"
         file_handler = TimedRotatingFileHandler(log_file, when='midnight')
-        file_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+        file_handler.setFormatter(logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(name)s - %(message)s"))
         self.logger.addHandler(file_handler)
 
     def register_events(self, *event_names):
@@ -73,10 +62,10 @@ class Routine(ABC):
         Add events that can be fired.
 
         Registering an event will let the user fire these events at any point.
-        This opens the door to make the :meth:`~ignite.engine.Engine.run` loop
+        This opens the door to make the :meth:`~ignite.routine.Routine.run` loop
         even more configurable.
 
-        By default, the events from :class:`~ignite.engine.Events` are
+        By default, the events from :class:`~ignite.routine.Events` are
         registerd.
 
         Args:
@@ -93,8 +82,8 @@ class Routine(ABC):
                 FOO_EVENT = "foo_event"
                 BAR_EVENT = "bar_event"
 
-            engine = Engine(process_function)
-            engine.register_events(*Custom_Events)
+            routine = Routine(process_function)
+            routine.register_events(*Custom_Events)
 
         """
         for name in event_names:
@@ -108,8 +97,8 @@ class Routine(ABC):
 
         Args:
             event_name: An event to attach the handler to. Valid events are
-            from :class:`~ignite.engine.Events` or any `event_name` added by
-             :meth:`~ignite.engine.Engine.register_events`.
+            from :class:`~ignite.routine.Events` or any `event_name` added by
+             :meth:`~ignite.routine.Routine.register_events`.
             handler (callable): the callable event handler that
             should be invoked
             first: specify 'true' if the event handler should be called first
@@ -119,29 +108,29 @@ class Routine(ABC):
 
         Notes:
               The handler function's first argument will be `self`, the
-              :class:`~ignite.engine.Engine` object it was bound to.
+              :class:`~ignite.routine.Routine` object it was bound to.
 
               Note that other arguments can be passed to the handler in
               addition to the `*args` and  `**kwargs` passed here, for example
-               during :attr:`~ignite.engine.Events.EXCEPTION_RAISED`.
+               during :attr:`~ignite.routine.Events.EXCEPTION_RAISED`.
 
         Example usage:
 
         .. code-block:: python
 
-            engine = Engine(process_function)
+            routine = Routine(process_function)
 
-            def print_epoch(engine):
-                print("Epoch: {}".format(engine.state.epoch))
+            def print_epoch(routine):
+                print("Epoch: {}".format(routine.state.epoch))
 
-            engine.add_event_handler(Events.EPOCH_COMPLETED, print_epoch)
+            routine.add_event_handler(Events.EPOCH_COMPLETED, print_epoch)
 
         """
         if event_name not in self._allowed_events:
             self.logger.error("attempt to add event handler to an invalid "
                               "event %s.", event_name)
             raise ValueError("Event {} is not a valid event for this "
-                             "Engine.".format(event_name))
+                             "Routine.".format(event_name))
 
         if first:
             self._event_handlers[event_name].append((0,
@@ -183,7 +172,7 @@ class Routine(ABC):
     def remove_event_handler(self, handler, event_name):
         """
         Remove event handler `handler` from registered handlers of the
-        engine
+        routine
 
         Args:
             handler (callable): the callable event handler that should
@@ -231,8 +220,8 @@ class Routine(ABC):
 
         Args:
             event_name: An event to attach the handler to. Valid events are
-            from :class:`~ignite.engine.Events` or any `event_name` added by
-             :meth:`~ignite.engine.Engine.register_events`.
+            from :class:`~ignite.routine.Events` or any `event_name` added by
+             :meth:`~ignite.routine.Routine.register_events`.
             *args: argsional args to be passed to `handler`.
             **kwargs: argsional keyword args to be passed to `handler`.
 
@@ -250,13 +239,13 @@ class Routine(ABC):
         `event_name`. Optional positional and keyword arguments can be used to
         pass arguments to **all** handlers added with this event. These
         aguments updates arguments passed using
-        :meth:`~ignite.engine.Engine.add_event_handler`.
+        :meth:`~ignite.routine.Routine.add_event_handler`.
 
         Args:
             event_name: event for which the handlers should be executed. Valid
-                events are from :class:`~ignite.engine.Events` or any
+                events are from :class:`~ignite.routine.Events` or any
                 `event_name` added by
-                 :meth:`~ignite.engine.Engine.register_events`.
+                 :meth:`~ignite.routine.Routine.register_events`.
             *event_args: argsional args to be passed to all handlers.
             **event_kwargs: argsional keyword args to be passed to
             all handlers.
@@ -297,9 +286,7 @@ class Routine(ABC):
             tock = time.time()
 
             if self.state.output:
-                REQUEST_TIME.labels(routine=self.name,
-                                    component=self.component_name)\
-                    .observe(tock - tick)
+                self.metrics_collector.collect_execution_time(tock - tick, self.name, self.component_name)
                 self.state.success += 1
             self._fire_event(Events.AFTER_LOGIC)
 

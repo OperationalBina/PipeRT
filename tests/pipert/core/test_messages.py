@@ -58,3 +58,19 @@ def test_get_latency():
     msg.record_exit("test", logger)
     assert round(msg.get_latency("test")) == 1
 
+
+def test_get_end_to_end_latency():
+    msg = create_msg()
+    logger = logging.getLogger('vidcap')
+    logger.addHandler(logging.NullHandler())
+    msg.record_entry("VideoCapture", logger)
+    assert msg.get_latency("VideoCapture") is None
+    msg.record_exit("VideoCapture", logger)
+    assert msg.get_end_to_end_latency("FlaskVideoDisplay") is None
+    msg.record_entry("FlaskVideoDisplay", logger)
+    msg.record_exit("FlaskVideoDisplay", logger)
+    assert msg.reached_exit
+    latency = msg.get_end_to_end_latency("FlaskVideoDisplay")
+    assert latency is not None
+    assert not msg.is_empty()
+
