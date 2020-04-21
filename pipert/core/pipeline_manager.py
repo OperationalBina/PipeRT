@@ -290,73 +290,67 @@ class PipelineManager:
     def setup_components(self, components):
         """
         vvv Expecting to get vvv
-        [
-            {
-                name: str,
-                queues: [str],
-                routines:
-                    [
-                        {
-                            routine_type_name: str,
-                            ...(routine params)
-                        },
-                        ...
-                    }
-            },
-            ...
-        ]
-        """
-        components_validator = {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string"},
-                    "queues": {"type": "array", "items": {"type": "string"}},
-                    "routines": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "routine_type_name": {"type": "string"}
-                            },
-                            "required": ["routine_type_name"]
 
-                        }
-                    }
+          "components": {
+            "component_name": {
+              "queues": [str],
+              "routines": {
+                "routine_name": {
+                  "routine_type_name": str,
+                  ...(routine params)
                 },
-                "required": ["name", "queues", "routines"]
+                ...(more routines)
+              }
             }
+            ...(more components)
+          }
+        """
+        component_validator = {
+            "type": "object",
+            "properties": {
+                "queues": {"type": "array", "items": {"type": "string"}},
+                "routines": {"type": "object"}
+            },
+            "required": ["queues", "routines"]
         }
-
-        try:
-            validate(instance=components, schema=components_validator)
-        except ValidationError as error:
-            return self._create_response(
-                False,
-                error.message
-            )
 
         # Delete all of the current components
         self.components = {}
         responses = []
         # gc.collect()
-        for component in components:
-            if "component_type_name" in component:
-                responses.append(self.create_premade_component(
-                    component_name=component["name"],
-                    component_type_name=component["component_type_name"]))
-            else:
-                responses.append(self.create_component(component_name=component["name"]))
-            for queue in component["queues"]:
-                responses.append(self.create_queue_to_component(
-                    component_name=component["name"],
-                    queue_name=queue))
-            for routine in component["routines"]:
-                routine_type_name = routine.pop("routine_type_name", "")
-                responses.append(self.add_routine_to_component(
-                    component_name=component["name"],
-                    routine_type_name=routine_type_name, **routine))
+
+        if (type(components) is not dict) and ("components" not in components):
+            return self._create_response(
+                False,
+                f"All of the components must be inside a dictionary with the key 'components'"
+            )
+
+        for component_name, component_parameters in components["components"].items():
+            try:
+                validate(instance=component_parameters, schema=component_validator)
+                if "component_type_name" in component_parameters:
+                    responses.append(self.create_premade_component(
+                        component_name=component_name,
+                        component_type_name=component_parameters["component_type_name"]))
+                else:
+                    responses.append(self.create_component(component_name=component_name))
+
+                for queue in component_parameters["queues"]:
+                    responses.append(self.create_queue_to_component(
+                        component_name=component_name,
+                        queue_name=queue))
+                for routine_name, routine_parameters in component_parameters["routines"].items():
+                    routine_type_name = routine_parameters.pop("routine_type_name", "")
+                    routine_parameters["name"] = routine_name
+                    responses.append(self.add_routine_to_component(
+                        component_name=component_name,
+                        routine_type_name=routine_type_name, **routine_parameters))
+            except ValidationError as error:
+                responses.append(self._create_response(
+                    False,
+                    error.message
+                ))
+
         if all(response["Succeeded"] for response in responses):
             return self._create_response(
                 True,

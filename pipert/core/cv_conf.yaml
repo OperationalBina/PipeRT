@@ -1,25 +1,26 @@
-- name: Stream
-  queues:
-  - video
-  routines:
-  - fps: 23.976023976023978
-    name: capture_frame
-    out_queue: video
-    routine_type_name: ListenToStream
-    stream_address: /home/internet/Desktop/video.mp4
-  - max_stream_length: 10
-    message_queue: video
-    name: upload_redis
-    redis_send_key: camera:0
-    routine_type_name: MessageToRedis
-- name: Display
-  queues:
-  - messages
-  routines:
-  - message_queue: messages
-    name: get_frames
-    redis_read_key: camera:0
-    routine_type_name: MessageFromRedis
-  - frame_queue: messages
-    name: draw_frames
-    routine_type_name: DisplayCv2
+components:
+  Display:
+    queues:
+    - messages
+    routines:
+      draw_frames:
+        frame_queue: messages
+        routine_type_name: DisplayCv2
+      get_frames:
+        message_queue: messages
+        redis_read_key: camera:0
+        routine_type_name: MessageFromRedis
+  Stream:
+    queues:
+    - video
+    routines:
+      capture_frame:
+        fps: 23.976023976023978
+        out_queue: video
+        routine_type_name: ListenToStream
+        stream_address: /home/internet/Desktop/video.mp4
+      upload_redis:
+        max_stream_length: 10
+        message_queue: video
+        redis_send_key: camera:0
+        routine_type_name: MessageToRedis
