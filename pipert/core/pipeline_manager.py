@@ -361,17 +361,17 @@ class PipelineManager:
 
     def _get_routine_class_object_by_type_name(self, routine_name: str) -> Routine:
         path = self.ROUTINES_FOLDER_PATH.replace('/', '.') + "." + \
-               re.sub(r'[A-Z]',
-                      self._add_underscore_before_uppercase,
-                      routine_name)[1:]
+            re.sub(r'[A-Z]',
+                   self._add_underscore_before_uppercase,
+                   routine_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + routine_name
         return self._get_class_object_by_path(absolute_path)
 
     def _get_component_class_object_by_type_name(self, component_type_name):
         path = self.COMPONENTS_FOLDER_PATH.replace('/', '.') + "." + \
-               re.sub(r'[A-Z]',
-                      self._add_underscore_before_uppercase,
-                      component_type_name)[1:]
+            re.sub(r'[A-Z]',
+                   self._add_underscore_before_uppercase,
+                   component_type_name)[1:]
         absolute_path = "pipert." + path[3:] + "." + component_type_name
         return self._get_class_object_by_path(absolute_path)
 
