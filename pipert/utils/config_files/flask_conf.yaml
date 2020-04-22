@@ -39,7 +39,7 @@ components:
         fps: 30
         out_queue: video
         routine_type_name: ListenToStream
-        stream_address: 0
+        stream_address: pipert/contrib/test.mp4
       upload_redis:
         max_stream_length: 10
         message_queue: video
