@@ -1,5 +1,5 @@
 from psycopg2.extensions import register_adapter, AsIs
-from .handler import DBHandler
+from .handler import PSQLDBHandler, format_sqla_error
 import numpy as np
 
 """psycopg2 (and thus SQLAlchemy) doesn't know the numpy numeric types and thus doesn't know how to treat them.

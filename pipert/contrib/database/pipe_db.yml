@@ -1,4 +1,4 @@
-# other parameters may be added freely and used ad hoc, but these must always remain:
+# other parameters may be added and used ad hoc, but these must always remain:
 
 user: 'postgres'      # database server username
 pw: 'Aa123456'        # database server password
