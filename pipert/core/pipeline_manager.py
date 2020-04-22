@@ -1,5 +1,6 @@
 import zerorpc
 import re
+import importlib.util
 from pipert.core.component import BaseComponent
 from pipert.core.errors import QueueDoesNotExist
 from pipert.core.routine import Routine
@@ -40,8 +41,8 @@ class PipelineManager:
         super().__init__()
         self.components = {}
         self.endpoint_port_counter = 4002
-        self.ROUTINES_FOLDER_PATH = "../contrib/routines"
-        self.COMPONENTS_FOLDER_PATH = "../contrib/components"
+        self.ROUTINES_FOLDER_PATH = "pipert/contrib/routines"
+        self.COMPONENTS_FOLDER_PATH = "pipert/contrib/components"
         if open_zerorpc:
             self.zrpc = zerorpc.Server(self)
             self.zrpc.bind(endpoint)
@@ -360,30 +361,26 @@ class PipelineManager:
             return list(filter(lambda response: not response["Succeeded"], responses))
 
     def _get_routine_class_object_by_type_name(self, routine_name: str) -> Routine:
-        path = self.ROUTINES_FOLDER_PATH.replace('/', '.') + "." + \
+        path = self.ROUTINES_FOLDER_PATH + "/" + \
             re.sub(r'[A-Z]',
                    self._add_underscore_before_uppercase,
-                   routine_name)[1:]
-        absolute_path = "pipert." + path[3:] + "." + routine_name
-        return self._get_class_object_by_path(absolute_path)
+                   routine_name)[1:] + ".py"
+        return self._get_class_object_by_path(path, routine_name)
 
     def _get_component_class_object_by_type_name(self, component_type_name):
-        path = self.COMPONENTS_FOLDER_PATH.replace('/', '.') + "." + \
+        path = self.COMPONENTS_FOLDER_PATH + "/" + \
             re.sub(r'[A-Z]',
                    self._add_underscore_before_uppercase,
-                   component_type_name)[1:]
-        absolute_path = "pipert." + path[3:] + "." + component_type_name
-        return self._get_class_object_by_path(absolute_path)
+                   component_type_name)[1:] + ".py"
+        return self._get_class_object_by_path(path, component_type_name)
 
-    def _get_class_object_by_path(self, absolute_path):
-        path = absolute_path.split('.')
-        module = ".".join(path[:-1])
+    def _get_class_object_by_path(self, path, class_name):
+        spec = importlib.util.spec_from_file_location(class_name, path)
+        class_object = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(class_object)
         try:
-            m = __import__(module)
-            for comp in path[1:]:
-                m = getattr(m, comp)
-            return m
-        except ModuleNotFoundError:
+            return getattr(class_object, class_name)
+        except AttributeError:
             return None
 
     def _does_component_exist(self, component_name):
