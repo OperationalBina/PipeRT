@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 from pipert.core.message_handlers import RedisHandler
 from pipert.core.message import message_encode
 from pipert.core.routine import Routine, RoutineTypes
+import os
 
 
 # TODO: add Error handling to connection
@@ -15,8 +16,7 @@ class MessageToRedis(Routine):
     def __init__(self, redis_send_key, message_queue, max_stream_length, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.redis_send_key = redis_send_key
-        # self.url = urlparse(os.environ.get('REDIS_URL'))
-        self.url = urlparse("redis://127.0.0.1:6379")
+        self.url = urlparse(os.environ.get('REDIS_URL', "redis://127.0.0.1:6379"))
         self.message_queue = message_queue
         self.max_stream_length = max_stream_length
         self.msg_handler = None
