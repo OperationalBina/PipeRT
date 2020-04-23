@@ -19,6 +19,16 @@ Documentation
 =============
 API documentation and an overview of the library can be found [here](https://pipert.readthedocs.io/en/latest/).
 
+Submodule Usage
+===============
+- **In order to use the submodules in this project do the following:**:
+    - **When cloning**: `git clone --recurse-submodules https://github.com/ItamarWilf/PipeRT.git`
+    
+      **OR**
+    
+    - **After `git pull`**: `git submodule update --init --recursive`
+
+
 Installation
 ============
 - **Docker**
