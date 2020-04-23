@@ -47,7 +47,7 @@ class BaseComponent:
         Starts running all the component's routines and the zerorpc server.
         """
         self._start()
-        gevent.signal(signal.SIGTERM, self.stop_run)
+        gevent.signal_handler(signal.SIGTERM, self.stop_run)
         self.metrics_collector.setup()
         self.zrpc.run()
         self.zrpc.close()
