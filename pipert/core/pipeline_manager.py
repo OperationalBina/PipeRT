@@ -32,29 +32,19 @@ def component_name_existence_error(need_to_be_exist):
 
 class PipelineManager:
 
-    def __init__(self, endpoint="tcp://0.0.0.0:4001", open_zerorpc=True):
+    def __init__(self):
         """
         Args:
-            endpoint: the endpoint the PipelineManager's
-             zerorpc server will listen in.
         """
         super().__init__()
         self.components = {}
-        self.endpoint_port_counter = 4002
         self.ROUTINES_FOLDER_PATH = "pipert/contrib/routines"
         self.COMPONENTS_FOLDER_PATH = "pipert/contrib/components"
-        if open_zerorpc:
-            self.zrpc = zerorpc.Server(self)
-            self.zrpc.bind(endpoint)
-            self.zrpc.run()
 
     @component_name_existence_error(need_to_be_exist=False)
     def create_component(self, component_name):
         self.components[component_name] = \
-            BaseComponent(name=component_name,
-                          endpoint="tcp://0.0.0.0:{0:0=4d}"
-                          .format(self.endpoint_port_counter))
-        self.endpoint_port_counter += 1
+            BaseComponent(name=component_name)
         return self._create_response(
             True,
             f"Component {component_name} has been created"

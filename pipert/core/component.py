@@ -1,5 +1,3 @@
-import multiprocessing
-import threading
 from torch.multiprocessing import Event, Process
 from pipert.core.routine import Routine
 from threading import Thread
@@ -13,8 +11,8 @@ from queue import Queue
 
 class BaseComponent:
 
-    def __init__(self, endpoint="tcp://0.0.0.0:4242", name="",
-                 metrics_collector=NullCollector(), *args, **kwargs):
+    def __init__(self, name="", metrics_collector=NullCollector(),
+                 *args, **kwargs):
         """
         Args:
             *args: TBD
@@ -25,7 +23,6 @@ class BaseComponent:
         self.metrics_collector = metrics_collector
         self.stop_event = Event()
         self.stop_event.set()
-        self.endpoint = endpoint
         self.queues = {}
         self._routines = []
 
