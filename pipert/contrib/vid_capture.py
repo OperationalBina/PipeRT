@@ -16,7 +16,8 @@ from pipert.contrib.metrics_collectors.splunk_collector import SplunkCollector
 
 class Listen2Stream(Routine):
 
-    def __init__(self, stream_address, queue, fps=30., *args, **kwargs):
+    def __init__(self, stream_address, queue, fps=30., use_memory=False,
+                 *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.stream_address = stream_address
         self.is_file = str(stream_address).endswith("mp4")
@@ -56,9 +57,11 @@ class Listen2Stream(Routine):
             self.change_stream()
             self.updated_config = {}
 
-        grabbed, msg = self.grab_frame()
+        grabbed, frame = self.stream.read()
         if grabbed:
-            frame = msg.get_payload()
+            msg = Message(frame, self.stream_address)
+            msg.record_entry(self.component_name, self.logger)
+
             frame = resize(frame, 640, 480)
             # if the stream is from a webcam, flip the frame
             if self.stream_address == 0:
@@ -78,9 +81,9 @@ class Listen2Stream(Routine):
 
 class VideoCapture(BaseComponent):
 
-    def __init__(self, endpoint, stream_address, out_key, redis_url, metrics_collector, fps=30.0, maxlen=10,
-                 name="VideoCapture"):
-        super().__init__(endpoint, name, metrics_collector)
+    def __init__(self, endpoint, stream_address, out_key, redis_url, metrics_collector, use_memory=False, fps=30.0,
+                 maxlen=10, name="VideoCapture"):
+        super().__init__(endpoint, name, metrics_collector, use_memory=use_memory)
         # TODO: should queue maxsize be configurable?
         self.queue = Queue(maxsize=10)
 
@@ -108,6 +111,7 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--webcam', help='Webcam device number', type=int, default=0)
     parser.add_argument('-v', '--verbose', help='Verbose output', type=bool, default=False)
     parser.add_argument('--monitoring', help='Name of the monitoring service', type=str, default='prometheus')
+    parser.add_argument('-s', '--shared', help='Shared memory', type=bool, default=False)
     parser.add_argument('--count', help='Count of frames to capture', type=int, default=None)
     parser.add_argument('--fmt', help='Frame storage format', type=str, default='.jpg')
     parser.add_argument('--fps', help='Frames per second (webcam)', type=float, default=15.0)
@@ -128,10 +132,12 @@ if __name__ == '__main__':
     # Choose video source
     if opts.infile is None:
         zpc = VideoCapture(endpoint="tcp://0.0.0.0:4242", stream_address=opts.webcam, out_key=opts.output,
-                           redis_url=url, metrics_collector=collector, fps=opts.fps, maxlen=opts.maxlen)
+                           redis_url=url, metrics_collector=collector, fps=opts.fps, maxlen=opts.maxlen,
+                           use_memory=opts.shared)
     else:
         zpc = VideoCapture(endpoint="tcp://0.0.0.0:4242", stream_address=opts.infile, out_key=opts.output,
-                           redis_url=url, metrics_collector=collector, fps=opts.fps, maxlen=opts.maxlen)
+                           redis_url=url, metrics_collector=collector, fps=opts.fps, maxlen=opts.maxlen,
+                           use_memory=opts.shared)
     print(f"run {zpc.name}")
     zpc.run()
     print(f"Killed {zpc.name}")
