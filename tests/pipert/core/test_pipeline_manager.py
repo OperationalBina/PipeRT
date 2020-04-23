@@ -1,11 +1,25 @@
+from unittest.mock import MagicMock
 import pytest
-
+from tests.pipert.core.utils.dummy_routine_with_queue import DummyRoutineWithQueue
+from tests.pipert.core.utils.dummy_routine import DummyRoutine
+from tests.pipert.core.utils.dummy_component import DummyComponent
 from pipert.core.pipeline_manager import PipelineManager
+
+
+def return_routine_class_object_by_name(name):
+    if name == "DummyRoutineWithQueue":
+        return DummyRoutineWithQueue
+    elif name == "DummyRoutine":
+        return DummyRoutine
+    else:
+        return None
 
 
 @pytest.fixture(scope="function")
 def pipeline_manager():
-    pipeline_manager = PipelineManager(open_zerorpc=False)
+    pipeline_manager = PipelineManager()
+    pipeline_manager._get_routine_class_object_by_type_name = MagicMock(side_effect=return_routine_class_object_by_name)
+    pipeline_manager._get_component_class_object_by_type_name = MagicMock(return_value=DummyComponent)
     return pipeline_manager
 
 
@@ -26,13 +40,12 @@ def pipeline_manager_with_component_and_queue(pipeline_manager_with_component):
 
 @pytest.fixture(scope="function")
 def pipeline_manager_with_component_and_queue_and_routine(pipeline_manager_with_component_and_queue):
-    response = pipeline_manager_with_component_and_queue.add_routine_to_component(
-        component_name="comp",
-        routine_type_name="ListenToStream",
-        stream_address="0",
-        out_queue="queue1",
-        fps=30,
-        name="routine1")
+    response = \
+        pipeline_manager_with_component_and_queue.add_routine_to_component(
+            component_name="comp",
+            routine_type_name="DummyRoutineWithQueue",
+            queue="queue1",
+            name="routine1")
     assert response["Succeeded"], response["Message"]
     return pipeline_manager_with_component_and_queue
 
@@ -88,10 +101,8 @@ def test_create_routine(pipeline_manager_with_component_and_queue):
     response = \
         pipeline_manager_with_component_and_queue.add_routine_to_component(
             component_name="comp",
-            routine_type_name="ListenToStream",
-            stream_address="0",
-            out_queue="queue1",
-            fps=30,
+            routine_type_name="DummyRoutineWithQueue",
+            queue="queue1",
             name="capture_frame")
     assert response["Succeeded"], response["Message"]
 
@@ -102,10 +113,8 @@ def test_create_routine_with_same_name(pipeline_manager_with_component_and_queue
     response = pipeline_manager_with_component_and_queue_and_routine. \
         add_routine_to_component(
             component_name="comp",
-            routine_type_name="ListenToStream",
-            stream_address="0",
-            out_queue="queue1",
-            fps=30,
+            routine_type_name="DummyRoutineWithQueue",
+            queue="queue1",
             name="routine1")
     assert not response["Succeeded"], response["Message"]
 
@@ -137,122 +146,75 @@ def test_run_and_stop_component(pipeline_manager_with_component_and_queue_and_ro
 
 
 def test_create_components_using_structure(pipeline_manager):
-    response = pipeline_manager.setup_components([
+    response = pipeline_manager.setup_components(
         {
-            "name": "Stream",
-            "queues": ["video"],
-            "routines":
-                [
-                    {
-                        "routine_type_name": "ListenToStream",
-                        "stream_address":
-                            "0",
-                        "out_queue": "video",
-                        "fps": 30,
-                        "name": "capture_frame"
-                    },
-                    {
-                        "routine_type_name": "MessageToRedis",
-                        "redis_send_key": "cam",
-                        "message_queue": "video",
-                        "max_stream_length": 10,
-                        "name": "upload_redis"
+            "components": {
+                "comp1": {
+                    "queues": [
+                        "que1",
+                    ],
+                    "routines": {
+                        "rout1": {
+                            "queue": "que1",
+                            "routine_type_name": "DummyRoutineWithQueue"
+                        },
+                        "rout2": {
+                            "routine_type_name": "DummyRoutine"
+                        }
                     }
-                ]
-        },
-        {
-            "name": "Display",
-            "queues": ["messages"],
-            "routines":
-                [
-                    {
-                        "routine_type_name": "MessageFromRedis",
-                        "redis_read_key": "cam",
-                        "message_queue": "messages",
-                        "name": "get_frames"
-                    },
-                    {
-                        "routine_type_name": "DisplayCv2",
-                        "frame_queue": "messages",
-                        "name": "draw_frames"
+                },
+                "comp2": {
+                    "component_type_name": "DummyComponent",
+                    "queues": [
+                        "que1"
+                    ],
+                    "routines": {
+                        "rout1": {
+                            "routine_type_name": "DummyRoutine"
+                        }
                     }
-                ]
-        },
-    ])
-    assert response["Succeeded"], response["Message"]
+                }
+            }
+        })
+    assert type(response) is not list, '\n'.join([res["Message"] for res in response])
 
 
 def test_create_components_using_bad_structures(pipeline_manager):
-    response = pipeline_manager.setup_components([
+    response = pipeline_manager.setup_components(
         {
-            "name": "Stream",
-            "queues": ["video"],
-            "routiness":
-                [
-                    {
-                        "routine_type_name": "ListenToStream",
-                        "stream_address":
-                            "0",
-                        "out_queue": "video",
-                        "fps": 30,
-                        "name": "capture_frame"
+            "components": {
+                "comp1": {
+                    "queues": [
+                        "que1",
+                    ],
+                    "routiness": {
+                        "rout1": {
+                            "queue": "que1",
+                            "routine_type_name": "DummyRoutineWithQueue"
+                        },
+                        "rout2": {
+                            "routine_type_name": "DummyRoutine"
+                        }
                     }
-                ]
-        },
-    ])
-    assert not response["Succeeded"], response["Message"]
+                }
+            }
+        })
+    assert type(response) is list, '\n'.join([res["Message"] for res in response])
 
-    response = pipeline_manager.setup_components([
+    response = pipeline_manager.setup_components(
         {
-            "name": "Stream",
-            "routines":
-                [
-                    {
-                        "routine_type_name": "ListenToStream",
-                        "stream_address":
-                            "0",
-                        "out_queue": "video",
-                        "fps": 30,
-                        "name": "capture_frame"
+            "components": {
+                "comp1": {
+                    "routines": {
+                        "rout1": {
+                            "queue": "que1",
+                            "routine_type_name": "DummyRoutineWithQueue"
+                        },
+                        "rout2": {
+                            "routine_type_name": "DummyRoutine"
+                        }
                     }
-                ]
-        },
-    ])
-    assert not response["Succeeded"], response["Message"]
-
-    response = pipeline_manager.setup_components([
-        {
-            "queues": ["video"],
-            "routines":
-                [
-                    {
-                        "routine_type_name": "ListenToStream",
-                        "stream_address":
-                            "0",
-                        "out_queue": "video",
-                        "fps": 30,
-                        "name": "capture_frame"
-                    }
-                ]
-        },
-    ])
-    assert not response["Succeeded"], response["Message"]
-
-    response = pipeline_manager.setup_components([
-        {
-            "name": [],
-            "queues": ["video"],
-            "routines":
-                [
-                    {
-                        "routine_type_name": "ListenToStream",
-                        "stream_address":
-                            "0",
-                        "out_queue": "video",
-                        "fps": 30,
-                        "name": "capture_frame"
-                    }
-                ]
-        },
-    ])
-    assert not response["Succeeded"], response["Message"]
+                }
+            }
+        })
+    assert type(response) is list, '\n'.join([res["Message"] for res in response])
