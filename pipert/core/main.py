@@ -26,15 +26,11 @@ class CliConnection(object):
         return True
 
 
-# # use_user_interface = os.environ.get("UI").lower() == 'true'
-use_user_interface = input("Do you want to use the UI ? (y/n): ").lower() == 'y'
-endpoint = os.environ.get("endpoint", "tcp://0.0.0.0:4001")
+pipeline_manager = PipelineManager()
 
-pipeline_manager = PipelineManager(endpoint=endpoint, open_zerorpc=False)
-
-if not use_user_interface:
+if not os.environ.get("UI", "").lower() == 'true':
     cli_server = zerorpc.Server(CliConnection(pipeline_manager))
-    cli_server.bind(endpoint)
+    cli_server.bind("tcp://0.0.0.0:" + os.environ.get("CLI_ENDPOINT", "4001"))
     cli_server.run()
 else:
     app = Flask(__name__)
@@ -42,15 +38,15 @@ else:
     def return_response(res_object):
         return Response(res_object["Message"], 200 if res_object["Succeeded"] else 400)
 
-    @app.route("/routines")
+    @app.route("/routines", methods=['GET'])
     def get_routines():
         return jsonify(pipeline_manager.get_all_routine_types())
 
-    @app.route("/routineParams/<routine_name>")
+    @app.route("/routineParams/<routine_name>", methods=['GET'])
     def get_routine_params(routine_name):
         return jsonify(pipeline_manager.get_routine_parameters(routine_name))
 
-    @app.route("/component")
+    @app.route("/component", methods=['GET'])
     def get_component():
         return "TBD"
 
@@ -84,4 +80,4 @@ else:
     def start_components():
         return_response(pipeline_manager.run_all_components())
 
-    app.run(port=5005)
+    app.run(port=os.environ.get("UI_PORT", 5005), host='0.0.0.0')
