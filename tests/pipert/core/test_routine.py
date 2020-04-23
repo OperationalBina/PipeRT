@@ -3,28 +3,7 @@ import time
 from torch.multiprocessing import Event
 from pipert.core.routine import Routine, Events, State
 from pipert.core.errors import NoRunnerException
-
-
-class DummyRoutine(Routine):
-    @staticmethod
-    def get_constructor_parameters():
-        pass
-
-    def does_routine_use_queue(self, queue):
-        pass
-
-    def __init__(self, name=""):
-        super().__init__(name)
-
-    def main_logic(self, *args, **kwargs):
-        self.metrics_collector.collect_latency(0.1, self.component_name)
-        return True
-
-    def setup(self, *args, **kwargs):
-        pass
-
-    def cleanup(self, *args, **kwargs):
-        pass
+from tests.pipert.core.utils.dummy_routine import DummyRoutine
 
 
 class DummySleepRoutine(Routine):

@@ -1,23 +1,8 @@
-import pytest
-
 import time
-# import signal
-# import os
 from threading import Thread
 from torch.multiprocessing import Process
-from pipert.core.component import BaseComponent
-# from pipert.core.routine import Routine
-from tests.pipert.core.test_routine import DummyRoutine
-
-
-class DummyComponent(BaseComponent):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    @staticmethod
-    def add(a, b):
-        return a + b
+from tests.pipert.core.utils.dummy_routine import DummyRoutine
+from tests.pipert.core.utils.dummy_component import DummyComponent
 
 
 def test_register_routine():
