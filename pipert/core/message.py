@@ -1,6 +1,8 @@
 import collections
 from abc import ABC, abstractmethod
 
+from pipert.core.multiprocessing_shared_memory import get_shared_memory_object
+
 import numpy as np
 import time
 import pickle
@@ -19,7 +21,7 @@ class Payload(ABC):
         pass
 
     @abstractmethod
-    def encode(self):
+    def encode(self, generator):
         pass
 
     @abstractmethod
@@ -33,18 +35,36 @@ class FramePayload(Payload):
         super().__init__(data)
 
     def decode(self):
-        decoded_img = cv2.imdecode(np.fromstring(self.data, dtype=np.uint8),
-                                   cv2.IMREAD_COLOR)
+        if isinstance(self.data, str):
+            decoded_img = self._get_frame()
+        else:
+            decoded_img = cv2.imdecode(np.fromstring(self.data,
+                                                     dtype=np.uint8),
+                                       cv2.IMREAD_COLOR)
         self.data = decoded_img
         self.encoded = False
 
-    def encode(self):
+    def encode(self, generator):
         buf = cv2.imencode('.jpeg', self.data)[1].tobytes()
-        self.data = buf
+        if generator is None:
+            self.data = buf
+        else:
+            memory = generator.get_next_shared_memory(size=len(buf))
+            memory.buf[:] = bytes(buf)
+            self.data = memory.name
         self.encoded = True
 
     def is_empty(self):
         return self.data is None
+
+    def _get_frame(self):
+        memory = get_shared_memory_object(self.data)
+        if memory:
+            data = bytes(memory.buf)
+            memory.close()
+            frame = np.fromstring(data, dtype=np.uint8)
+            return cv2.imdecode(frame, cv2.IMREAD_COLOR)
+        return None
 
 
 class PredictionPayload(Payload):
@@ -54,7 +74,7 @@ class PredictionPayload(Payload):
     def decode(self):
         pass
 
-    def encode(self):
+    def encode(self, generator):
         pass
 
     def is_empty(self):
@@ -160,7 +180,10 @@ class Message:
             output_component: the name of the pipeline's output component.
         """
         if output_component in self.history and self.reached_exit:
-            return self.history[output_component]['exit'] - self.history['VideoCapture']['entry']
+            try:
+                return self.history[output_component]['exit'] - self.history['VideoCapture']['entry']
+            except KeyError:
+                return None
         else:
             return None
 
@@ -176,7 +199,7 @@ class Message:
                f"history: {self.history} \n"
 
 
-def message_encode(msg):
+def message_encode(msg, generator=None):
     """
     Encodes the message object.
 
@@ -185,8 +208,9 @@ def message_encode(msg):
 
     Args:
         msg: the message to encode.
+        generator: generator necessary for shared memory usage.
     """
-    msg.payload.encode()
+    msg.payload.encode(generator)
     return pickle.dumps(msg)
 
 

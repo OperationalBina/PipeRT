@@ -7,12 +7,14 @@ import gevent
 import zerorpc
 from .errors import RegisteredException
 from .metrics_collector import NullCollector
+from .multiprocessing_shared_memory import MpSharedMemoryGenerator
 
 
 class BaseComponent:
 
     def __init__(self, endpoint="tcp://0.0.0.0:4242", name="",
-                 metrics_collector=NullCollector(), *args, **kwargs):
+                 metrics_collector=NullCollector(), use_memory=False,
+                 *args, **kwargs):
         """
         Args:
             endpoint: the endpoint the component's zerorpc server will listen
@@ -28,6 +30,9 @@ class BaseComponent:
         self._routines = []  # TODO: Maybe make this something smarter than a list? Like a dictionary (key=routine_name)
         self.zrpc = zerorpc.Server(self)
         self.zrpc.bind(endpoint)
+        self.use_memory = use_memory
+        if use_memory:
+            self.generator = MpSharedMemoryGenerator(self.name)
 
     def _start(self):
         """
@@ -42,7 +47,7 @@ class BaseComponent:
         Starts running all the component's routines and the zerorpc server.
         """
         self._start()
-        gevent.signal(signal.SIGTERM, self.stop_run)
+        gevent.signal_handler(signal.SIGTERM, self.stop_run)
         self.metrics_collector.setup()
         self.zrpc.run()
         self.zrpc.close()
@@ -57,6 +62,9 @@ class BaseComponent:
         if isinstance(routine, Routine):
             if routine.stop_event is None:
                 routine.stop_event = self.stop_event
+                if self.use_memory:
+                    routine.use_memory = self.use_memory
+                    routine.generator = self.generator
             else:
                 raise RegisteredException("routine is already registered")
         self._routines.append(routine)
@@ -78,6 +86,8 @@ class BaseComponent:
             self.zrpc.stop()
             self.stop_event.set()
             self._teardown_callback()
+            if self.use_memory:
+                self.generator.cleanup()
             for routine in self._routines:
                 if isinstance(routine, Routine):
                     routine.runner.join()

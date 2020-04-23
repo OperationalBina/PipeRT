@@ -39,6 +39,8 @@ class Routine(ABC):
         # name of the component that instantiated the routine
         self.component_name = component_name
         self.metrics_collector = metrics_collector
+        self.use_memory = False
+        self.generator = None
         self.stop_event: mp.Event = None
         self._event_handlers = defaultdict(list)
         self.state = None
