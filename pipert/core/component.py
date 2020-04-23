@@ -2,8 +2,6 @@ from torch.multiprocessing import Event, Process
 from pipert.core.routine import Routine
 from threading import Thread
 from typing import Union
-import signal
-import gevent
 from .metrics_collector import NullCollector
 from .errors import RegisteredException, QueueDoesNotExist
 from queue import Queue
@@ -43,7 +41,6 @@ class BaseComponent:
         """
         self.stop_event.clear()
         self._start()
-        gevent.signal(signal.SIGTERM, self.stop_run)
         self.metrics_collector.setup()
 
     def register_routine(self, routine: Union[Routine, Process, Thread]):
