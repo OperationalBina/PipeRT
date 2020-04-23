@@ -3,5 +3,7 @@ FROM pipert_base-pipert
 # Copy all necessary files for PipeRT
 COPY . .
 
-EXPOSE 5000
-ENTRYPOINT ["/demo_run"]
+ENV PYTHONPATH='/'
+ENV PYTHONUNBUFFERED=1
+
+ENTRYPOINT ["python", "pipert/core/main.py"]
