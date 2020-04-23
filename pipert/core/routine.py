@@ -64,10 +64,10 @@ class Routine(ABC):
         Add events that can be fired.
 
         Registering an event will let the user fire these events at any point.
-        This opens the door to make the :meth:`~ignite.engine.Engine.run` loop
+        This opens the door to make the :meth:`~ignite.routine.Routine.run` loop
         even more configurable.
 
-        By default, the events from :class:`~ignite.engine.Events` are
+        By default, the events from :class:`~ignite.routine.Events` are
         registerd.
 
         Args:
@@ -84,8 +84,8 @@ class Routine(ABC):
                 FOO_EVENT = "foo_event"
                 BAR_EVENT = "bar_event"
 
-            engine = Engine(process_function)
-            engine.register_events(*Custom_Events)
+            routine = Routine(process_function)
+            routine.register_events(*Custom_Events)
 
         """
         for name in event_names:
@@ -99,8 +99,8 @@ class Routine(ABC):
 
         Args:
             event_name: An event to attach the handler to. Valid events are
-            from :class:`~ignite.engine.Events` or any `event_name` added by
-             :meth:`~ignite.engine.Engine.register_events`.
+            from :class:`~ignite.routine.Events` or any `event_name` added by
+             :meth:`~ignite.routine.Routine.register_events`.
             handler (callable): the callable event handler that
             should be invoked
             first: specify 'true' if the event handler should be called first
@@ -110,29 +110,29 @@ class Routine(ABC):
 
         Notes:
               The handler function's first argument will be `self`, the
-              :class:`~ignite.engine.Engine` object it was bound to.
+              :class:`~ignite.routine.Routine` object it was bound to.
 
               Note that other arguments can be passed to the handler in
               addition to the `*args` and  `**kwargs` passed here, for example
-               during :attr:`~ignite.engine.Events.EXCEPTION_RAISED`.
+               during :attr:`~ignite.routine.Events.EXCEPTION_RAISED`.
 
         Example usage:
 
         .. code-block:: python
 
-            engine = Engine(process_function)
+            routine = Routine(process_function)
 
-            def print_epoch(engine):
-                print("Epoch: {}".format(engine.state.epoch))
+            def print_epoch(routine):
+                print("Epoch: {}".format(routine.state.epoch))
 
-            engine.add_event_handler(Events.EPOCH_COMPLETED, print_epoch)
+            routine.add_event_handler(Events.EPOCH_COMPLETED, print_epoch)
 
         """
         if event_name not in self._allowed_events:
             self.logger.error("attempt to add event handler to an invalid "
                               "event %s.", event_name)
             raise ValueError("Event {} is not a valid event for this "
-                             "Engine.".format(event_name))
+                             "Routine.".format(event_name))
 
         if first:
             self._event_handlers[event_name].append((0,
@@ -174,7 +174,7 @@ class Routine(ABC):
     def remove_event_handler(self, handler, event_name):
         """
         Remove event handler `handler` from registered handlers of the
-        engine
+        routine
 
         Args:
             handler (callable): the callable event handler that should
@@ -222,8 +222,8 @@ class Routine(ABC):
 
         Args:
             event_name: An event to attach the handler to. Valid events are
-            from :class:`~ignite.engine.Events` or any `event_name` added by
-             :meth:`~ignite.engine.Engine.register_events`.
+            from :class:`~ignite.routine.Events` or any `event_name` added by
+             :meth:`~ignite.routine.Routine.register_events`.
             *args: argsional args to be passed to `handler`.
             **kwargs: argsional keyword args to be passed to `handler`.
 
@@ -241,13 +241,13 @@ class Routine(ABC):
         `event_name`. Optional positional and keyword arguments can be used to
         pass arguments to **all** handlers added with this event. These
         aguments updates arguments passed using
-        :meth:`~ignite.engine.Engine.add_event_handler`.
+        :meth:`~ignite.routine.Routine.add_event_handler`.
 
         Args:
             event_name: event for which the handlers should be executed. Valid
-                events are from :class:`~ignite.engine.Events` or any
+                events are from :class:`~ignite.routine.Events` or any
                 `event_name` added by
-                 :meth:`~ignite.engine.Engine.register_events`.
+                 :meth:`~ignite.routine.Routine.register_events`.
             *event_args: argsional args to be passed to all handlers.
             **event_kwargs: argsional keyword args to be passed to
             all handlers.
