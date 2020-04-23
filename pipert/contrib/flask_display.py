@@ -120,7 +120,8 @@ class VisLogic(Routine):
         if pred_msg is not None and not pred_msg.reached_exit:
             pred_msg.record_exit(self.component_name, self.logger)
             latency = pred_msg.get_end_to_end_latency(self.component_name)
-            self.metrics_collector.collect_latency(latency, self.component_name)
+            if latency is not None:
+                self.metrics_collector.collect_latency(latency, self.component_name)
         success = self.out_queue.deque_non_blocking_put(frame)
         return success
 
