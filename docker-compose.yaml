@@ -77,10 +77,6 @@ services:
     container_name: pipert
     build:
       context: .
-      args:
-        UI: ${UI:-false}
-        UI_PORT: ${UI_PORT:-5005}
-        CLI_ENDPOINT: ${CLI_ENDPOINT:-4001}
     networks:
       default:
         aliases:
