@@ -25,3 +25,4 @@ prometheus-client
 SQLAlchemy
 flask-sqlalchemy
 psycopg2-binary
+jsonschema

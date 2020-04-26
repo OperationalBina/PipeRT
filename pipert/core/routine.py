@@ -30,7 +30,18 @@ class State(object):
         self.output = None
 
 
+class RoutineTypes(Enum):
+    """
+    Every routine will have a type
+    """
+    NO_TYPE = -1
+    INPUT = 0
+    PROCESSING = 1
+    OUTPUT = 2
+
+
 class Routine(ABC):
+    routine_type = RoutineTypes.NO_TYPE
 
     def __init__(self, name="", component_name="", metrics_collector=NullCollector()):
 
@@ -47,6 +58,8 @@ class Routine(ABC):
         self._allowed_events = []
         self.register_events(*Events)
         self.runner = None
+        self.runner_creator = None
+        self.runner_creator_kwargs = {}
         self._setup_logger()
 
     def _setup_logger(self):
@@ -263,9 +276,11 @@ class Routine(ABC):
     def main_logic(self, *args, **kwargs):
         raise NotImplementedError
 
+    @abstractmethod
     def setup(self, *args, **kwargs):
         raise NotImplementedError
 
+    @abstractmethod
     def cleanup(self, *args, **kwargs):
         raise NotImplementedError
 
@@ -295,15 +310,52 @@ class Routine(ABC):
         self.cleanup()
 
     def as_thread(self):
-        self.runner = threading.Thread(target=self._extended_run)
+        self.runner_creator = threading.Thread
+        self.runner_creator_kwargs = {"target": self._extended_run}
         return self
 
     def as_process(self):
-        self.runner = mp.Process(target=self._extended_run)
+        self.runner_creator = mp.Process
+        self.runner_creator_kwargs = {"target": self._extended_run}
         return self
 
     def start(self):
-        if self.runner is None:
+        if self.runner_creator is None:
             # TODO - create better errors
             raise NoRunnerException("Runner not configured for routine")
+        self.runner = self.runner_creator(**self.runner_creator_kwargs)
         self.runner.start()
+
+    @staticmethod
+    @abstractmethod
+    def get_constructor_parameters():
+        """
+           Returns a dictionary of the constructor's
+           parameters built as key for name and value
+           for type name
+        """
+        return {
+            "name": "String"
+        }
+
+    @abstractmethod
+    def does_routine_use_queue(self, queue_name):
+        """
+           Returns True whether the routine uses the given
+           queue_name.
+           Args:
+               queue_name: the name of the queue
+        """
+        raise NotImplementedError
+
+    def get_creation_dictionary(self):
+        """
+           Returns a dictionary containing the routine parameters name as keys
+           and their values as values. The method return queue objects instead
+           of queue names when encountering them.
+        """
+        parameters_dictionary_with_routine_params = self.get_constructor_parameters()
+        parameters_dictionary_with_all_params = self.__dict__
+        for key in parameters_dictionary_with_routine_params.keys():
+            parameters_dictionary_with_routine_params[key] = parameters_dictionary_with_all_params[key]
+        return parameters_dictionary_with_routine_params
