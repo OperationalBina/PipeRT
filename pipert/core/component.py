@@ -27,7 +27,7 @@ class BaseComponent:
         self.metrics_collector = metrics_collector
         self.stop_event = Event()
         self.endpoint = endpoint
-        self._routines = []
+        self._routines = []  # TODO: Maybe make this something smarter than a list? Like a dictionary (key=routine_name)
         self.zrpc = zerorpc.Server(self)
         self.zrpc.bind(endpoint)
         self.use_memory = use_memory
