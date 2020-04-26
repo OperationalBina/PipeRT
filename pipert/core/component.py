@@ -2,7 +2,10 @@ from torch.multiprocessing import Event, Process
 from pipert.core.routine import Routine
 from threading import Thread
 from typing import Union
+import signal
+import gevent
 from .metrics_collector import NullCollector
+from .multiprocessing_shared_memory import MpSharedMemoryGenerator
 from .errors import RegisteredException, QueueDoesNotExist
 from queue import Queue
 
@@ -10,7 +13,7 @@ from queue import Queue
 class BaseComponent:
 
     def __init__(self, name="", metrics_collector=NullCollector(),
-                 *args, **kwargs):
+                 use_memory=False, *args, **kwargs):
         """
         Args:
             *args: TBD
@@ -23,6 +26,9 @@ class BaseComponent:
         self.stop_event.set()
         self.queues = {}
         self._routines = []
+        self.use_memory = use_memory
+        if use_memory:
+            self.generator = MpSharedMemoryGenerator(self.name)
 
     def _start(self):
         """
@@ -41,6 +47,7 @@ class BaseComponent:
         """
         self.stop_event.clear()
         self._start()
+        gevent.signal_handler(signal.SIGTERM, self.stop_run)
         self.metrics_collector.setup()
 
     def register_routine(self, routine: Union[Routine, Process, Thread]):
@@ -53,6 +60,9 @@ class BaseComponent:
         if isinstance(routine, Routine):
             if routine.stop_event is None:
                 routine.stop_event = self.stop_event
+                if self.use_memory:
+                    routine.use_memory = self.use_memory
+                    routine.generator = self.generator
             else:
                 raise RegisteredException("routine is already registered")
         self._routines.append(routine)
@@ -72,6 +82,8 @@ class BaseComponent:
         try:
             self.stop_event.set()
             self._teardown_callback()
+            if self.use_memory:
+                self.generator.cleanup()
             for routine in self._routines:
                 if isinstance(routine, Routine):
                     routine.runner.join()
