@@ -118,8 +118,8 @@ class Routine(ABC):
             should be invoked
             first: specify 'true' if the event handler should be called first
             last: specify 'true' if the event handler should be called last
-            *args: argsional args to be passed to `handler`.
-            **kwargs: argsional keyword args to be passed to `handler`.
+            *args: additional args to be passed to `handler`.
+            **kwargs: additional keyword args to be passed to `handler`.
 
         Notes:
               The handler function's first argument will be `self`, the
@@ -237,8 +237,8 @@ class Routine(ABC):
             event_name: An event to attach the handler to. Valid events are
             from :class:`~ignite.routine.Events` or any `event_name` added by
              :meth:`~ignite.routine.Routine.register_events`.
-            *args: argsional args to be passed to `handler`.
-            **kwargs: argsional keyword args to be passed to `handler`.
+            *args: additional args to be passed to `handler`.
+            **kwargs: additional keyword args to be passed to `handler`.
 
         """
         def decorator(f):
@@ -261,8 +261,8 @@ class Routine(ABC):
                 events are from :class:`~ignite.routine.Events` or any
                 `event_name` added by
                  :meth:`~ignite.routine.Routine.register_events`.
-            *event_args: argsional args to be passed to all handlers.
-            **event_kwargs: argsional keyword args to be passed to
+            *event_args: additional args to be passed to all handlers.
+            **event_kwargs: additional keyword args to be passed to
             all handlers.
 
         """

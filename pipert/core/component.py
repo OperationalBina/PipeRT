@@ -25,7 +25,7 @@ class BaseComponent:
         self.stop_event = Event()
         self.stop_event.set()
         self.queues = {}
-        self._routines = []
+        self._routines = []  # TODO: Maybe make this something smarter than a list? Like a dictionary (key=routine_name)
         self.use_memory = use_memory
         if use_memory:
             self.generator = MpSharedMemoryGenerator(self.name)
