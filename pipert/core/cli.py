@@ -2,7 +2,6 @@ import os
 from pprint import pprint
 import yaml
 import zerorpc
-from yaml.parser import ParserError
 from yaml.scanner import ScannerError
 from yaml.parser import ParserError
 import sys
