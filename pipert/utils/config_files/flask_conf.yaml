@@ -1,0 +1,47 @@
+components:
+  FaceDet:
+    queues:
+    - frames
+    - preds
+    routines:
+      create_preds:
+        in_queue: frames
+        out_queue: preds
+        routine_type_name: FaceDetection
+      from_redis:
+        message_queue: frames
+        redis_read_key: cam
+        routine_type_name: MessageFromRedis
+      upload_redis:
+        max_stream_length: 10
+        message_queue: preds
+        redis_send_key: camera:1
+        routine_type_name: MessageToRedis
+  FlaskDisplay:
+    component_type_name: FlaskVideoDisplay
+    queues:
+    - messages
+    routines:
+      create_image:
+        in_queue: messages
+        out_queue: flask_display
+        routine_type_name: VisLogic
+      get_frames_and_pred:
+        image_meta_queue: messages
+        redis_read_image_key: cam
+        redis_read_meta_key: camera:1
+        routine_type_name: MetaAndFrameFromRedis
+  Stream:
+    queues:
+    - video
+    routines:
+      capture_frame:
+        fps: 30
+        out_queue: video
+        routine_type_name: ListenToStream
+        stream_address: pipert/contrib/test.mp4
+      upload_redis:
+        max_stream_length: 10
+        message_queue: video
+        redis_send_key: cam
+        routine_type_name: MessageToRedis

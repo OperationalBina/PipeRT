@@ -1,0 +1,3 @@
+[submodule "PipeRTManager"]
+	path = PipeRTManager
+	url = https://github.com/DorTruzman/PipeRTManager.git

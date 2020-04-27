@@ -1,4 +1,4 @@
-version: '2.3'
+version: '3.7'
 services:
   redis:
     container_name: redis
@@ -89,9 +89,14 @@ services:
       GRAFANA_URL: grafana://grafana:3000/0
       PROMETHEUS_URL: prometheus://prometheus:9000/0
       NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: all
+      UI: ${UI:-false}
+      UI_PORT: ${UI_PORT:-5005}
+      CLI_ENDPOINT: ${CLI_ENDPOINT:-4001}
     ports:
+      - ${CLI_ENDPOINT:-4001}:${CLI_ENDPOINT:-4001}
       - 5000:5000
-    devices:
-      - /dev/video0:/dev/video0
+      - ${UI_PORT:-5005}:${UI_PORT:-5OO5}
+    command: nvidia-smi
 volumes:
   grafana_data: {}

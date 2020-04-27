@@ -4,7 +4,7 @@ notifications:
   slack: pipert:PAJOavVnxv8Bk6BDvrPiXmgG
 
 python:
-  - "3.6"
+  - "3.8"
 
 stages:
   - Lint check
@@ -15,17 +15,16 @@ stages:
 jobs:
   include:
     - stage: Lint check
-      python: "3.6"
+      python: "3.8"
       install: pip install flake8
       script: flake8 pipert/core/
 
     - stage: Test
-      python: "3.6"
+      python: "3.8"
       services:
         - redis-server
       install:
-        - pip install -r pipe-base/requirements1.txt
-        - pip install -r pipe-base/requirements2.txt
+        - pip install -r pipe-base/requirements.txt
         - pip install -r tests/requirements.txt
         - pip install codecov
         - echo "Running unit tests…"

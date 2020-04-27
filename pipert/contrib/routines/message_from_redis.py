@@ -14,8 +14,7 @@ class MessageFromRedis(Routine):
     def __init__(self, redis_read_key, message_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.redis_read_key = redis_read_key
-        # self.url = urlparse(os.environ.get('REDIS_URL'))
-        self.url = urlparse("redis://127.0.0.1:6379")
+        self.url = urlparse(os.environ.get('REDIS_URL', "redis://127.0.0.1:6379"))
         self.message_queue = message_queue
         self.msg_handler = None
         self.flip = False
@@ -43,7 +42,6 @@ class MessageFromRedis(Routine):
 
     def setup(self, *args, **kwargs):
         self.msg_handler = RedisHandler(self.url)
-        self.msg_handler.connect()
 
     def cleanup(self, *args, **kwargs):
         self.msg_handler.close()

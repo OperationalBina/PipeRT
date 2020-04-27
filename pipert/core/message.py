@@ -1,6 +1,8 @@
 import collections
 from abc import ABC, abstractmethod
 
+from pipert.core.multiprocessing_shared_memory import get_shared_memory_object
+
 import numpy as np
 import time
 import pickle
@@ -19,7 +21,7 @@ class Payload(ABC):
         pass
 
     @abstractmethod
-    def encode(self):
+    def encode(self, generator):
         pass
 
     @abstractmethod
@@ -33,18 +35,36 @@ class FramePayload(Payload):
         super().__init__(data)
 
     def decode(self):
-        decoded_img = cv2.imdecode(np.fromstring(self.data, dtype=np.uint8),
-                                   cv2.IMREAD_COLOR)
+        if isinstance(self.data, str):
+            decoded_img = self._get_frame()
+        else:
+            decoded_img = cv2.imdecode(np.fromstring(self.data,
+                                                     dtype=np.uint8),
+                                       cv2.IMREAD_COLOR)
         self.data = decoded_img
         self.encoded = False
 
-    def encode(self):
+    def encode(self, generator):
         buf = cv2.imencode('.jpeg', self.data)[1].tobytes()
-        self.data = buf
+        if generator is None:
+            self.data = buf
+        else:
+            memory = generator.get_next_shared_memory(size=len(buf))
+            memory.buf[:] = bytes(buf)
+            self.data = memory.name
         self.encoded = True
 
     def is_empty(self):
-        return not self.data
+        return self.data is None
+
+    def _get_frame(self):
+        memory = get_shared_memory_object(self.data)
+        if memory:
+            data = bytes(memory.buf)
+            memory.close()
+            frame = np.fromstring(data, dtype=np.uint8)
+            return cv2.imdecode(frame, cv2.IMREAD_COLOR)
+        return None
 
 
 class PredictionPayload(Payload):
@@ -54,7 +74,7 @@ class PredictionPayload(Payload):
     def decode(self):
         pass
 
-    def encode(self):
+    def encode(self, generator):
         pass
 
     def is_empty(self):
@@ -73,7 +93,8 @@ class Message:
         else:
             self.payload = PredictionPayload(data)
         self.source_address = source_address
-        self.history = collections.defaultdict(dict)
+        self.history = collections.defaultdict(dict)  # TODO: Maybe use OrderedDict?
+        self.reached_exit = False
         self.id = f"{self.source_address}_{Message.counter}"
         Message.counter += 1
 
@@ -100,7 +121,7 @@ class Message:
             logger: the logger object of the component's input routine.
         """
         self.history[component_name]["entry"] = time.time()
-        logger.info("Received the following message: %s", str(self))
+        logger.debug("Received the following message: %s", str(self))
 
     def record_custom(self, component_name, section):
         """
@@ -117,13 +138,20 @@ class Message:
     def record_exit(self, component_name, logger):
         """
         Records the timestamp of the message's exit out of a component.
+        Additionally, it enables a flag called 'reached_exit' if the message is exiting
+        the pipeline's "output component".
 
         Args:
             component_name: the name of the component that the message exited.
             logger: the logger object of the component's output routine.
         """
-        self.history[component_name]["exit"] = time.time()
-        logger.info("Sending the following message: %s", str(self))
+        if "exit" not in self.history[component_name]:
+            self.history[component_name]["exit"] = time.time()
+            if component_name == "FlaskVideoDisplay" or component_name == "VideoWriter":
+                logger.debug("The following message has reached the exit: %s", str(self))
+                self.reached_exit = True
+            else:
+                logger.debug("Sending the following message: %s", str(self))
 
     def get_latency(self, component_name):
         """
@@ -144,6 +172,21 @@ class Message:
         else:
             return None
 
+    def get_end_to_end_latency(self, output_component):
+        """
+        Returns the time it took for a message to pass through the pipeline.
+
+        Args:
+            output_component: the name of the pipeline's output component.
+        """
+        if output_component in self.history and self.reached_exit:
+            try:
+                return self.history[output_component]['exit'] - self.history['VideoCapture']['entry']
+            except KeyError:
+                return None
+        else:
+            return None
+
     def __str__(self):
         return f"{{msg id: {self.id}, " \
                f"payload type: {type(self.payload)}, " \
@@ -156,7 +199,7 @@ class Message:
                f"history: {self.history} \n"
 
 
-def message_encode(msg):
+def message_encode(msg, generator=None):
     """
     Encodes the message object.
 
@@ -165,8 +208,9 @@ def message_encode(msg):
 
     Args:
         msg: the message to encode.
+        generator: generator necessary for shared memory usage.
     """
-    msg.payload.encode()
+    msg.payload.encode(generator)
     return pickle.dumps(msg)
 
 

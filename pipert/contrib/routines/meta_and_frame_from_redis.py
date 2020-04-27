@@ -1,3 +1,4 @@
+import os
 from urllib.parse import urlparse
 
 from pipert.core.routine import Routine, RoutineTypes
@@ -15,8 +16,7 @@ class MetaAndFrameFromRedis(Routine):
         super().__init__(*args, **kwargs)
         self.redis_read_meta_key = redis_read_meta_key
         self.redis_read_image_key = redis_read_image_key
-        # self.url = urlparse(os.environ.get('REDIS_URL'))
-        self.url = urlparse("redis://127.0.0.1:6379")
+        self.url = urlparse(os.environ.get('REDIS_URL', "redis://127.0.0.1:6379"))
         self.image_meta_queue = image_meta_queue
         self.msg_handler = None
         self.flip = False

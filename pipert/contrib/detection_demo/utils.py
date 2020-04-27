@@ -473,7 +473,6 @@ def non_max_suppression(prediction, conf_thres=0.5, nms_thres=0.5):
             continue
 
         # Select predicted classes
-        class_conf = class_conf[i]
         class_pred = class_pred[i].unsqueeze(1).float()
 
         # Box (center x, center y, width, height) to (x1, y1, x2, y2)
@@ -481,7 +480,7 @@ def non_max_suppression(prediction, conf_thres=0.5, nms_thres=0.5):
         # pred[:, 4] *= class_conf  # improves mAP from 0.549 to 0.551
 
         # Detections ordered as (x1y1x2y2, obj_conf, class_conf, class_pred)
-        pred = torch.cat((pred[:, :5], class_conf.unsqueeze(1), class_pred), 1)
+        pred = torch.cat((pred, class_pred), 1)
 
         # Get detections sorted by decreasing confidence scores
         pred = pred[(-pred[:, 4]).argsort()]

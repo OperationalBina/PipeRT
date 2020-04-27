@@ -22,3 +22,7 @@ ml2rt
 pytest
 torchvision
 prometheus-client
+SQLAlchemy
+flask-sqlalchemy
+psycopg2-binary
+jsonschema

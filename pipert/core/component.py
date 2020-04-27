@@ -6,14 +6,16 @@ from threading import Thread
 from typing import Union
 import signal
 import gevent
+from .metrics_collector import NullCollector
+from .multiprocessing_shared_memory import MpSharedMemoryGenerator
 from .errors import RegisteredException, QueueDoesNotExist
 from queue import Queue
 
 
 class BaseComponent:
 
-    def __init__(self, endpoint="tcp://0.0.0.0:4001", name="",
-                 prometheus_port=None, *args, **kwargs):
+    def __init__(self, name="", metrics_collector=NullCollector(),
+                 use_memory=False, *args, **kwargs):
         """
         Args:
             *args: TBD
@@ -21,12 +23,14 @@ class BaseComponent:
         """
         super().__init__()
         self.name = name
-        self.prometheus_port = prometheus_port
+        self.metrics_collector = metrics_collector
         self.stop_event = Event()
         self.stop_event.set()
-        self.endpoint = endpoint
         self.queues = {}
-        self._routines = []
+        self._routines = []  # TODO: Maybe make this something smarter than a list? Like a dictionary (key=routine_name)
+        self.use_memory = use_memory
+        if use_memory:
+            self.generator = MpSharedMemoryGenerator(self.name)
         self.component_runner = None
         self.runner_creator = None
         self.runner_creator_kwargs = {}
@@ -50,9 +54,8 @@ class BaseComponent:
         """
         self.stop_event.clear()
         self._start()
-        gevent.signal(signal.SIGTERM, self.stop_run)
-        if self.prometheus_port:
-            start_http_server(self.prometheus_port)
+        gevent.signal_handler(signal.SIGTERM, self.stop_run)
+        self.metrics_collector.setup()
 
         # keeps the component execution alive
         while not self.stop_event.is_set():
@@ -69,6 +72,9 @@ class BaseComponent:
         if isinstance(routine, Routine):
             if routine.stop_event is None:
                 routine.stop_event = self.stop_event
+                if self.use_memory:
+                    routine.use_memory = self.use_memory
+                    routine.generator = self.generator
             else:
                 raise RegisteredException("routine is already registered")
         self._routines.append(routine)
@@ -91,35 +97,68 @@ class BaseComponent:
         """
         try:
             self._teardown_callback()
+            if self.use_memory:
+                self.generator.cleanup()
             for routine in self._routines:
                 if isinstance(routine, Routine):
                     routine.runner.join()
                 elif isinstance(routine, (Process, Thread)):
                     routine.join()
-            # self.component_runner.join()
             return 0
         except RuntimeError:
             return 1
 
     def create_queue(self, queue_name, queue_size=1):
+        """
+           Create a new queue for the component.
+           Returns True if created or False otherwise
+           Args:
+               queue_name: the name of the queue, must be unique
+               queue_size: the size of the queue
+        """
         if queue_name in self.queues:
-            print("Queue name " + queue_name + " already exist")
             return False
         self.queues[queue_name] = Queue(maxsize=queue_size)
+        return True
 
     def get_queue(self, queue_name):
+        """
+           Returns the queue object by its name
+           Args:
+               queue_name: the name of the queue
+           Raises:
+               KeyError - if no queue has the name
+        """
         try:
             return self.queues[queue_name]
         except KeyError:
             raise QueueDoesNotExist(queue_name)
 
     def get_all_queue_names(self):
-        return self.queues.keys()
+        """
+           Returns the list of names of queues that
+           the component expose.
+        """
+        return list(self.queues.keys())
 
     def does_queue_exist(self, queue_name):
+        """
+           Returns True the component has a queue named
+           queue_name or False otherwise
+           Args:
+               queue_name: the name of the queue to check
+        """
         return queue_name in self.queues
 
     def delete_queue(self, queue_name):
+        """
+           Deletes a queue with the name queue_name.
+           Returns True if succeeded.
+           Args:
+               queue_name: the name of the queue to delete
+           Raises:
+               KeyError - if no queue has the name queue_name
+        """
         try:
             del self.queues[queue_name]
             return True

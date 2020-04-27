@@ -1,5 +1,6 @@
 import zerorpc
 import re
+import importlib.util
 from pipert.core.component import BaseComponent
 from pipert.core.errors import QueueDoesNotExist
 from pipert.core.routine import Routine
@@ -31,29 +32,19 @@ def component_name_existence_error(need_to_be_exist):
 
 class PipelineManager:
 
-    def __init__(self, endpoint="tcp://0.0.0.0:4001", open_zerorpc=True):
+    def __init__(self):
         """
         Args:
-            endpoint: the endpoint the PipelineManager's
-             zerorpc server will listen in.
         """
         super().__init__()
         self.components = {}
-        self.endpoint_port_counter = 4002
-        self.ROUTINES_FOLDER_PATH = "../contrib/routines"
-        self.COMPONENTS_FOLDER_PATH = "../contrib/components"
-        if open_zerorpc:
-            self.zrpc = zerorpc.Server(self)
-            self.zrpc.bind(endpoint)
-            self.zrpc.run()
+        self.ROUTINES_FOLDER_PATH = "pipert/contrib/routines"
+        self.COMPONENTS_FOLDER_PATH = "pipert/contrib/components"
 
     @component_name_existence_error(need_to_be_exist=False)
     def create_component(self, component_name):
         self.components[component_name] = \
-            BaseComponent(name=component_name,
-                          endpoint="tcp://0.0.0.0:{0:0=4d}"
-                          .format(self.endpoint_port_counter))
-        self.endpoint_port_counter += 1
+            BaseComponent(name=component_name)
         return self._create_response(
             True,
             f"Component {component_name} has been created"
@@ -304,77 +295,70 @@ class PipelineManager:
     def setup_components(self, components):
         """
         vvv Expecting to get vvv
-        [
-            {
-                name: str,
-                queues: [str],
-                routines:
-                    [
-                        {
-                            routine_type_name: str,
-                            ...(routine params)
-                        },
-                        ...
-                    }
-            },
-            ...
-        ]
-        """
-        components_validator = {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string"},
-                    "queues": {"type": "array", "items": {"type": "string"}},
-                    "routines": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "routine_type_name": {"type": "string"}
-                            },
-                            "required": ["routine_type_name"]
 
-                        }
-                    }
+          "components": {
+            "component_name": {
+              "queues": [str],
+              "routines": {
+                "routine_name": {
+                  "routine_type_name": str,
+                  ...(routine params)
                 },
-                "required": ["name", "queues", "routines"]
+                ...(more routines)
+              }
             }
+            ...(more components)
+          }
+        """
+        component_validator = {
+            "type": "object",
+            "properties": {
+                "queues": {"type": "array", "items": {"type": "string"}},
+                "routines": {"type": "object"}
+            },
+            "required": ["queues", "routines"]
         }
-
-        try:
-            validate(instance=components, schema=components_validator)
-        except ValidationError as error:
-            return self._create_response(
-                False,
-                error.message
-            )
 
         # Delete all of the current components
         self.components = {}
         responses = []
         # gc.collect()
-        for component in components:
-            if "component_type_name" in component:
-                responses.append(self.create_premade_component(
-                    component_name=component["name"],
-                    component_type_name=component["component_type_name"]))
-            else:
-                responses.append(self.create_component(component_name=component["name"]))
-            if "execution_mode" in component:
-                responses.append(self.change_component_execution_mode(
-                    component_name=component["name"],
-                    execution_mode=component["execution_mode"]))
-            for queue in component["queues"]:
-                responses.append(self.create_queue_to_component(
-                    component_name=component["name"],
-                    queue_name=queue))
-            for routine in component["routines"]:
-                routine_type_name = routine.pop("routine_type_name", "")
-                responses.append(self.add_routine_to_component(
-                    component_name=component["name"],
-                    routine_type_name=routine_type_name, **routine))
+
+        if (type(components) is not dict) and ("components" not in components):
+            return self._create_response(
+                False,
+                f"All of the components must be inside a dictionary with the key 'components'"
+            )
+
+        for component_name, component_parameters in components["components"].items():
+            try:
+                validate(instance=component_parameters, schema=component_validator)
+                if "component_type_name" in component_parameters:
+                    responses.append(self.create_premade_component(
+                        component_name=component_name,
+                        component_type_name=component_parameters["component_type_name"]))
+                else:
+                    responses.append(self.create_component(component_name=component_name))
+                if "execution_mode" in component_parameters:
+                    responses.append(self.change_component_execution_mode(
+                        component_name=component_name,
+                        execution_mode=component_parameters["execution_mode"]))
+                for queue in component_parameters["queues"]:
+                    responses.append(self.create_queue_to_component(
+                        component_name=component_name,
+                        queue_name=queue))
+                for routine_name, routine_parameters in component_parameters["routines"].items():
+                    routine_type_name = routine_parameters.pop("routine_type_name", "")
+                    routine_parameters["name"] = routine_name
+                    responses.append(self.add_routine_to_component(
+                        component_name=component_name,
+                        routine_type_name=routine_type_name, **routine_parameters))
+            except ValidationError as error:
+                responses.append(self._create_response(
+                    False,
+                    error.message
+                ))
+
         if all(response["Succeeded"] for response in responses):
             return self._create_response(
                 True,
@@ -384,30 +368,26 @@ class PipelineManager:
             return list(filter(lambda response: not response["Succeeded"], responses))
 
     def _get_routine_class_object_by_type_name(self, routine_name: str) -> Routine:
-        path = self.ROUTINES_FOLDER_PATH.replace('/', '.') + "." + \
+        path = self.ROUTINES_FOLDER_PATH + "/" + \
             re.sub(r'[A-Z]',
                    self._add_underscore_before_uppercase,
-                   routine_name)[1:]
-        absolute_path = "pipert." + path[3:] + "." + routine_name
-        return self._get_class_object_by_path(absolute_path)
+                   routine_name)[1:] + ".py"
+        return self._get_class_object_by_path(path, routine_name)
 
     def _get_component_class_object_by_type_name(self, component_type_name):
-        path = self.COMPONENTS_FOLDER_PATH.replace('/', '.') + "." + \
+        path = self.COMPONENTS_FOLDER_PATH + "/" + \
             re.sub(r'[A-Z]',
                    self._add_underscore_before_uppercase,
-                   component_type_name)[1:]
-        absolute_path = "pipert." + path[3:] + "." + component_type_name
-        return self._get_class_object_by_path(absolute_path)
+                   component_type_name)[1:] + ".py"
+        return self._get_class_object_by_path(path, component_type_name)
 
-    def _get_class_object_by_path(self, absolute_path):
-        path = absolute_path.split('.')
-        module = ".".join(path[:-1])
+    def _get_class_object_by_path(self, path, class_name):
+        spec = importlib.util.spec_from_file_location(class_name, path)
+        class_object = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(class_object)
         try:
-            m = __import__(module)
-            for comp in path[1:]:
-                m = getattr(m, comp)
-            return m
-        except ModuleNotFoundError:
+            return getattr(class_object, class_name)
+        except AttributeError:
             return None
 
     def _does_component_exist(self, component_name):
@@ -425,25 +405,30 @@ class PipelineManager:
         }
 
     def get_pipeline_creation(self):
-        pipeline = []
+        components = {}
         for component_name in self.components.keys():
-            pipeline.append(self._get_component_creation(component_name))
+            components[component_name] = self._get_component_creation(component_name)
 
-        return pipeline
+        return {"components": components}
 
     def _get_component_creation(self, component_name):
-        component_dict = {"name": component_name,
-                          "queues":
-                              list(self.components[component_name].
-                                   get_all_queue_names()),
-                          "routines": []
-                          }
+
+        component_dict = {
+            "queues":
+                list(self.components[component_name].
+                     get_all_queue_names()),
+            "routines": {}
+        }
+
         if type(self.components[component_name]).__name__ != BaseComponent.__name__:
             component_dict["component_type_name"] = type(self.components[component_name]).__name__
         for current_routine_object in self.components[component_name]._routines:
-            component_dict["routines"]. \
-                append(self._get_routine_creation(component_name,
-                                                  current_routine_object))
+            routine_creation_object = self._get_routine_creation(
+                component_name, current_routine_object)
+            routine_name = routine_creation_object.pop("name")
+            component_dict["routines"][routine_name] = \
+                routine_creation_object
+
         return component_dict
 
     def _get_routine_creation(self, component_name, routine):
