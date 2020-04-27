@@ -89,7 +89,11 @@ class BaseComponent:
 
     def stop_run(self):
         self.stop_event.set()
-        self.component_runner.join()
+        try:
+            self.component_runner.join()
+            return 0
+        except RuntimeError:
+            return 1
 
     def _stop_run(self):
         """
