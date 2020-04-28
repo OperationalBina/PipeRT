@@ -93,6 +93,7 @@ class BaseComponent:
             self.component_runner.join()
             return 0
         except RuntimeError:
+            print(f"Wasn't able to stop the component {self.name}")
             return 1
 
     def _stop_run(self):
