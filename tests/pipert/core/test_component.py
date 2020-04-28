@@ -10,7 +10,7 @@ def test_register_routine():
     rout = DummyRoutine().as_thread()
     comp.register_routine(rout)
 
-    assert rout in comp._routines
+    assert rout in comp._routines.values()
     assert rout.stop_event == comp.stop_event
 
 

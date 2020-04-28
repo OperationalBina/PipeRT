@@ -163,7 +163,7 @@ class BaseComponent:
             return False
 
     def does_routines_use_queue(self, queue_name):
-        for routine in self._routines:
+        for routine in self._routines.values():
             if routine.does_routine_use_queue(self.queues[queue_name]):
                 return True
         return False
