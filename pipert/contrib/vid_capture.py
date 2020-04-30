@@ -99,7 +99,7 @@ class VideoCapture(BaseComponent):
         self.register_routine(t_upload)
 
     def change_stream(self, stream_address, fps=30.0):
-        self._routines[0].updated_config = {"stream_address": stream_address, "FPS": fps}
+        self._routines["capture_frame"].updated_config = {"stream_address": stream_address, "FPS": fps}
 
 
 if __name__ == '__main__':
