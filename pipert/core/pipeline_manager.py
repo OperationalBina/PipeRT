@@ -1,9 +1,9 @@
-import zerorpc
 import re
 import importlib.util
 from pipert.core.component import BaseComponent
 from pipert.core.errors import QueueDoesNotExist
 from pipert.core.routine import Routine
+from typing import Optional
 from os import listdir
 from os.path import isfile, join
 from jsonschema import validate, ValidationError
@@ -117,8 +117,7 @@ class PipelineManager:
             routine_parameters_kwargs["component_name"] = component_name
 
             self.components[component_name] \
-                .register_routine(routine_class_object(**routine_parameters_kwargs)
-                                  .as_thread())
+                .register_routine(routine_class_object(**routine_parameters_kwargs))
             return self._create_response(
                 True,
                 f"The routine {routine_parameters_kwargs['name']} has been added"
@@ -278,6 +277,28 @@ class PipelineManager:
                 f"Cannot find execution mode '{execution_mode}'"
             )
 
+    @component_name_existence_error(need_to_be_exist=True)
+    def change_routine_execution_mode(self, component_name, routine_name, execution_mode):
+        if not self.components[component_name]. \
+                does_routine_name_exist(routine_name):
+            return self._create_response(
+                False,
+                f"Routine named '{routine_name}' doesn't exist inside "
+                f"the component {component_name}"
+            )
+
+        try:
+            getattr(self.components[component_name]._routines[routine_name], "as_" + execution_mode.lower())()
+            return self._create_response(
+                True,
+                f"The component {component_name} changed execution mode to {execution_mode}"
+            )
+        except AttributeError:
+            return self._create_response(
+                False,
+                f"Cannot find execution mode '{execution_mode}'"
+            )
+
     # helping method for changing the file name to class name
     @staticmethod
     def _remove_string_with_underscore(match):
@@ -354,11 +375,18 @@ class PipelineManager:
                         component_name=component_name,
                         queue_name=queue))
                 for routine_name, routine_parameters in component_parameters["routines"].items():
-                    routine_type_name = routine_parameters.pop("routine_type_name", "")
+                    routine_type_name = routine_parameters.pop("routine_type_name", None)
+                    routine_execution_mode = routine_parameters.pop("execution_mode", None)
                     routine_parameters["name"] = routine_name
                     responses.append(self.add_routine_to_component(
                         component_name=component_name,
                         routine_type_name=routine_type_name, **routine_parameters))
+                    if routine_execution_mode:
+                        responses.append(self.change_routine_execution_mode(
+                            component_name=component_name,
+                            routine_name=routine_name,
+                            execution_mode=routine_execution_mode))
+
             except ValidationError as error:
                 responses.append(self._create_response(
                     False,
@@ -373,14 +401,18 @@ class PipelineManager:
         else:
             return list(filter(lambda response: not response["Succeeded"], responses))
 
-    def _get_routine_class_object_by_type_name(self, routine_name: str) -> Routine:
+    def _get_routine_class_object_by_type_name(self, routine_name: Optional[str]) -> Optional[Routine]:
+        if not routine_name:
+            return None
         path = self.ROUTINES_FOLDER_PATH + "/" + \
             re.sub(r'[A-Z]',
                    self._add_underscore_before_uppercase,
                    routine_name)[1:] + ".py"
         return self._get_class_object_by_path(path, routine_name)
 
-    def _get_component_class_object_by_type_name(self, component_type_name):
+    def _get_component_class_object_by_type_name(self, component_type_name: Optional[str]):
+        if not component_type_name:
+            return None
         path = self.COMPONENTS_FOLDER_PATH + "/" + \
             re.sub(r'[A-Z]',
                    self._add_underscore_before_uppercase,
