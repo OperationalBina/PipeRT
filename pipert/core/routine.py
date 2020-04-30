@@ -61,6 +61,7 @@ class Routine(ABC):
         self.runner_creator = None
         self.runner_creator_kwargs = {}
         self._setup_logger()
+        self.as_thread()
 
     def _setup_logger(self):
         self.logger = logging.getLogger(self.component_name + "." + self.name)
