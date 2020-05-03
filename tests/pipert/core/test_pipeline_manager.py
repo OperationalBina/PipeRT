@@ -129,6 +129,12 @@ def test_remove_routine(pipeline_manager_with_component_and_queue_and_routine):
             components["comp"]._routines) == 0
 
 
+def test_remove_routine_does_not_exist(pipeline_manager_with_component_and_queue_and_routine):
+    response = pipeline_manager_with_component_and_queue_and_routine. \
+        remove_routine_from_component(component_name="comp", routine_name="not_exist")
+    assert not response["Succeeded"], response["Message"]
+
+
 def test_run_and_stop_component(pipeline_manager_with_component_and_queue_and_routine):
     assert pipeline_manager_with_component_and_queue_and_routine. \
         components["comp"].stop_event.is_set()

@@ -28,7 +28,7 @@ class OutputLogger(BaseComponent):
 
 		:return: None
 		"""
-		return self._routines[1].toggle()
+		return self._routines["save_preds_to_db"].toggle()
 
 
 class MarsDBHandler(PSQLDBHandler):

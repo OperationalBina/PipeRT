@@ -27,7 +27,7 @@ class BaseComponent:
         self.stop_event = Event()
         self.stop_event.set()
         self.queues = {}
-        self._routines = []  # TODO: Maybe make this something smarter than a list? Like a dictionary (key=routine_name)
+        self._routines = {}
         self.use_memory = use_memory
         if use_memory:
             self.generator = MpSharedMemoryGenerator(self.name)
@@ -41,7 +41,7 @@ class BaseComponent:
         Goes over the component's routines registered in self.routines and
         starts running them.
         """
-        for routine in self._routines:
+        for routine in self._routines.values():
             routine.start()
 
     def run(self):
@@ -77,7 +77,9 @@ class BaseComponent:
                     routine.generator = self.generator
             else:
                 raise RegisteredException("routine is already registered")
-        self._routines.append(routine)
+            self._routines[routine.name] = routine
+        else:
+            self._routines[routine.__str__()] = routine
 
     def _teardown_callback(self, *args, **kwargs):
         """
@@ -104,7 +106,7 @@ class BaseComponent:
             self._teardown_callback()
             if self.use_memory:
                 self.generator.cleanup()
-            for routine in self._routines:
+            for routine in self._routines.values():
                 if isinstance(routine, Routine):
                     routine.runner.join()
                 elif isinstance(routine, (Process, Thread)):
@@ -171,18 +173,17 @@ class BaseComponent:
             raise QueueDoesNotExist(queue_name)
 
     def does_routine_name_exist(self, routine_name):
-        for routine in self._routines:
-            if routine.name == routine_name:
-                return True
-        return False
+        return routine_name in self._routines
 
     def remove_routine(self, routine_name):
-        self._routines = [routine for routine in self._routines
-                          if isinstance(routine, Routine)
-                          and routine.name != routine_name]
+        if self.does_routine_name_exist(routine_name):
+            del self._routines[routine_name]
+            return True
+        else:
+            return False
 
     def does_routines_use_queue(self, queue_name):
-        for routine in self._routines:
+        for routine in self._routines.values():
             if routine.does_routine_use_queue(self.queues[queue_name]):
                 return True
         return False
