@@ -153,6 +153,7 @@ def test_create_components_using_structure(pipeline_manager):
                     "queues": [
                         "que1",
                     ],
+                    "execution_mode": "process",
                     "routines": {
                         "rout1": {
                             "queue": "que1",
@@ -218,3 +219,43 @@ def test_create_components_using_bad_structures(pipeline_manager):
             }
         })
     assert type(response) is list, '\n'.join([res["Message"] for res in response])
+
+    response = pipeline_manager.setup_components(
+        {
+            "components": {
+                "comp1": {
+                    "queues": [
+                        "que1",
+                    ],
+                    "execution_mode": "proces",
+                    "routines": {
+                        "rout1": {
+                            "queue": "que1",
+                            "routine_type_name": "DummyRoutineWithQueue"
+                        },
+                        "rout2": {
+                            "routine_type_name": "DummyRoutine"
+                        }
+                    }
+                }
+            }
+        })
+    assert type(response) is list, '\n'.join([res["Message"] for res in response])
+
+
+def test_change_component_execution_mode_method(pipeline_manager_with_component):
+    response = pipeline_manager_with_component.\
+        change_component_execution_mode(component_name="comp", execution_mode="thread")
+    assert response["Succeeded"], response["Message"]
+    runner_after_first_change = pipeline_manager_with_component.components["comp"].runner_creator
+    response = pipeline_manager_with_component. \
+        change_component_execution_mode(component_name="comp", execution_mode="process")
+    assert response["Succeeded"], response["Message"]
+    runner_after_second_change = pipeline_manager_with_component.components["comp"].runner_creator
+    assert runner_after_first_change != runner_after_second_change
+
+
+def test_change_component_execution_mode_method_with_wrong_mode(pipeline_manager_with_component):
+    response = pipeline_manager_with_component. \
+        change_component_execution_mode(component_name="comp", execution_mode="nothing")
+    assert not response["Succeeded"], response["Message"]

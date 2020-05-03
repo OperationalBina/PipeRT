@@ -1,3 +1,5 @@
+import threading
+from prometheus_client import start_http_server
 from torch.multiprocessing import Event, Process
 from pipert.core.routine import Routine
 from threading import Thread
@@ -29,6 +31,10 @@ class BaseComponent:
         self.use_memory = use_memory
         if use_memory:
             self.generator = MpSharedMemoryGenerator(self.name)
+        self.component_runner = None
+        self.runner_creator = None
+        self.runner_creator_kwargs = {}
+        self.as_thread()
 
     def _start(self):
         """
@@ -39,7 +45,8 @@ class BaseComponent:
             routine.start()
 
     def run(self):
-        self._run()
+        self.component_runner = self.runner_creator(**self.runner_creator_kwargs)
+        self.component_runner.start()
 
     def _run(self):
         """
@@ -49,6 +56,11 @@ class BaseComponent:
         self._start()
         gevent.signal_handler(signal.SIGTERM, self.stop_run)
         self.metrics_collector.setup()
+
+        # keeps the component execution alive
+        while not self.stop_event.is_set():
+            pass
+        self._stop_run()
 
     def register_routine(self, routine: Union[Routine, Process, Thread]):
         """
@@ -78,11 +90,19 @@ class BaseComponent:
         pass
 
     def stop_run(self):
+        self.stop_event.set()
+        try:
+            self.component_runner.join()
+            return 0
+        except RuntimeError:
+            print(f"Wasn't able to stop the component {self.name}")
+            return 1
+
+    def _stop_run(self):
         """
         Signals all the component's routines to stop.
         """
         try:
-            self.stop_event.set()
             self._teardown_callback()
             if self.use_memory:
                 self.generator.cleanup()
@@ -167,3 +187,13 @@ class BaseComponent:
             if routine.does_routine_use_queue(self.queues[queue_name]):
                 return True
         return False
+
+    def as_thread(self):
+        self.runner_creator = threading.Thread
+        self.runner_creator_kwargs = {"target": self._run}
+        return self
+
+    def as_process(self):
+        self.runner_creator = Process
+        self.runner_creator_kwargs = {"target": self._run}
+        return self

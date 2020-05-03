@@ -32,6 +32,7 @@ components:
         redis_read_meta_key: camera:1
         routine_type_name: MetaAndFrameFromRedis
   Stream:
+    execution_mode: process
     queues:
     - video
     routines:
