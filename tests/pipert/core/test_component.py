@@ -30,3 +30,12 @@ def test_safe_stop():
     comp.run()
     time.sleep(0.1)
     assert comp.stop_run() == 0
+
+
+def test_change_runner():
+    comp = DummyComponent()
+    comp.as_thread()
+    thread_runner = comp.runner_creator
+    comp.as_process()
+    process_runner = comp.runner_creator
+    assert thread_runner != process_runner
