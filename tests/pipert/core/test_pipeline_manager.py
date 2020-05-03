@@ -153,6 +153,7 @@ def test_create_components_using_structure(pipeline_manager):
                     "queues": [
                         "que1",
                     ],
+                    "execution_mode": "process",
                     "routines": {
                         "rout1": {
                             "queue": "que1",
@@ -205,6 +206,28 @@ def test_create_components_using_bad_structures(pipeline_manager):
         {
             "components": {
                 "comp1": {
+                    "routines": {
+                        "rout1": {
+                            "queue": "que1",
+                            "routine_type_name": "DummyRoutineWithQueue"
+                        },
+                        "rout2": {
+                            "routine_type_name": "DummyRoutine"
+                        }
+                    }
+                }
+            }
+        })
+    assert type(response) is list, '\n'.join([res["Message"] for res in response])
+
+    response = pipeline_manager.setup_components(
+        {
+            "components": {
+                "comp1": {
+                    "queues": [
+                        "que1",
+                    ],
+                    "execution_mode": "proces",
                     "routines": {
                         "rout1": {
                             "queue": "que1",
