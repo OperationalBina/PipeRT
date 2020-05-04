@@ -34,7 +34,7 @@ class BaseComponent:
         self.component_runner = None
         self.runner_creator = None
         self.runner_creator_kwargs = {}
-        self.as_thread()
+        self.as_process()
 
     def _start(self):
         """
