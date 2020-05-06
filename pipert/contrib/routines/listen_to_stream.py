@@ -87,7 +87,7 @@ class ListenToStream(Routine):
         dicts = Routine.get_constructor_parameters()
         dicts.update({
             "stream_address": "String",
-            "out_queue": "Queue",
+            "out_queue": "QueueOut",
             "fps": "Integer"
         })
         return dicts
