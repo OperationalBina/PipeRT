@@ -33,7 +33,7 @@ class DisplayCv2(Routine):
     def get_constructor_parameters():
         dicts = Routine.get_constructor_parameters()
         dicts.update({
-            "frame_queue": "Queue"
+            "frame_queue": "QueueIn"
         })
         return dicts
 

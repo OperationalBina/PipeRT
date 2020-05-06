@@ -66,7 +66,7 @@ class MetaAndFrameFromRedis(Routine):
         dicts.update({
             "redis_read_meta_key": "String",
             "redis_read_image_key": "String",
-            "image_meta_queue": "Queue",
+            "image_meta_queue": "QueueOut",
         })
         return dicts
 

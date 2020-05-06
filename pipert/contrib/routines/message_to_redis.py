@@ -45,7 +45,7 @@ class MessageToRedis(Routine):
         dicts = Routine.get_constructor_parameters()
         dicts.update({
             "redis_send_key": "String",
-            "message_queue": "Queue",
+            "message_queue": "QueueIn",
             "max_stream_length": "Integer"
         })
         return dicts
