@@ -1,5 +1,6 @@
 import os
 from flask import Flask, jsonify, request, Response
+from flask_cors import CORS
 from pipert.core.pipeline_manager import PipelineManager
 import inspect
 import zerorpc
@@ -34,6 +35,12 @@ if not os.environ.get("UI", "").lower() == 'true':
     cli_server.run()
 else:
     app = Flask(__name__)
+    CORS(app)
+    cors = CORS(app, resources={
+        r"/*": {
+            "origins": "*"
+        }
+    })
 
     def return_response(res_object):
         return Response(res_object["Message"], 200 if res_object["Succeeded"] else 400)
