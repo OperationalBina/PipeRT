@@ -66,5 +66,5 @@ Lines 16-29: create a new component and reapiting itself
 
 Additional notes:
 
-- To make a premade component you need to add to the component object a new field called component_type_name, for exapmle: `component_type_name: FlaskVideoDisplay`
-- You can make a component to use a shared_memory by adding a field called shared_memory, for example: `shared_memory: True`
+- To make a premade component you need to add to the component object a new field called component_type_name, for exapmle: `component_type_name: FlaskVideoDisplay`.
+- You can make a component to use a shared_memory by adding a field called shared_memory, for example: `shared_memory: True`.
