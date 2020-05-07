@@ -11,13 +11,15 @@ from pipert.contrib.metrics_collectors.splunk_collector import SplunkCollector
 from pipert.core.metrics_collector import NullCollector
 from pipert.core.mini_logics import MessageFromRedis, Message2Redis
 from pipert.utils.structures import Instances, Boxes
-from pipert.core import Routine, BaseComponent, QueueHandler
+from pipert.core import Routine, BaseComponent, QueueHandler, RoutineTypes
+from pipert.contrib.routines import BatchMsgFromRedis, BatchMsgToRedis
 
 
-def letterbox(img, new_shape=416, color=(128, 128, 128), mode='auto'):
-    # Resize a rectangular image to a 32 pixel multiple rectangle
+def letterbox(imgs, new_shape=416, color=(128, 128, 128), mode='auto'):
+    # imgs.shape = (NxWxHxC)
+    # Resize a rectangular images to a 32 pixel multiple rectangles
     # https://github.com/ultralytics/yolov3/issues/232
-    shape = img.shape[:2]  # current shape [height, width]
+    shape = imgs.shape[1:3]  # current shape [height, width]
 
     if isinstance(new_shape, int):
         ratio = float(new_shape) / max(shape)
@@ -43,15 +45,21 @@ def letterbox(img, new_shape=416, color=(128, 128, 128), mode='auto'):
     else:
         raise ValueError(f"Unrecognized padding mode {mode}")
 
-    if shape[::-1] != new_unpad:  # resize
-        img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_AREA)  # INTER_AREA is better, INTER_LINEAR is faster
     top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
     left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
-    img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
-    return img, ratiow, ratioh, dw, dh
+
+    reshaped = []
+    for img in imgs:
+        if shape[::-1] != new_unpad:  # resize
+            img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_AREA)  # INTER_AREA is better, INTER_LINEAR is faster
+        img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
+        reshaped.append(img)
+
+    return np.array(reshaped), ratiow, ratioh, dw, dh
 
 
 class YoloV3Logic(Routine):
+    routine_type = RoutineTypes.PROCESSING
 
     def __init__(self, in_queue, out_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,41 +85,58 @@ class YoloV3Logic(Routine):
 
     def main_logic(self, *args, **kwargs):
 
-        msg = self.in_queue.non_blocking_get()
-        if msg:
-            im0 = msg.get_payload()
-            img, *_ = letterbox(im0, new_shape=self.img_size)
+        batch = self.in_queue.non_blocking_get()
+        if batch:
+            out_keys = []
+            images = []
+            for msg in batch:
+                out_keys.append(msg.out_key)
+                images.append(msg.get_payload())
+
+            im0shape = images[0].shape
+            images, *_ = letterbox(np.array(images), new_shape=self.img_size)
 
             # Normalize RGB
-            img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB
-            img = np.ascontiguousarray(img, dtype=np.float16 if self.half else np.float32)  # uint8 to fp16/fp32
-            img /= 255.0
-            img = torch.from_numpy(img).to(self.device)
-            # print(f"yolo {self.device}")
-            if img.ndimension() == 3:
-                img = img.unsqueeze(0)
-            with torch.no_grad():
-                pred, _ = self.model(img)
-            det = non_max_suppression(pred,  opt.conf_thres, opt.nms_thres)[0]
-            if det is not None and len(det):
-                # Rescale boxes from img_size to im0 size
-                det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
-                # print(det.shape)
-                # print(det)
-                # for *xyxy, conf, _, cls in det:
-                #     label = '%s %.2f' % (self.classes[int(cls)], conf)
-                #     plot_one_box(xyxy, im0, label=label, color=self.colors[int(cls)])
-                res = Instances(im0.shape)
-                res.set("pred_boxes", Boxes(det[:, :4]))
-                res.set("scores", det[:, 4])
-                res.set("class_scores", det[:, 5:-1].unsqueeze(1))
-                res.set("pred_classes", det[:, -1].round().int())
-            else:
-                res = Instances(im0.shape)
-                res.set("pred_boxes", [])
+            images = images[:, :, :, ::-1].transpose(0, 3, 1, 2)  # BGR to RGB and switch to NxCxWxH
+            images = np.ascontiguousarray(images, dtype=np.float16 if self.half else np.float32)  # uint8 to fp16/fp32
+            images /= 255.0
+            images = torch.from_numpy(images).to(self.device)
 
-            msg.payload = PredictionPayload(res.to("cpu"))
-            success = self.out_queue.deque_non_blocking_put(msg)
+            with torch.no_grad():
+                preds, _ = self.model(images)
+
+            dets = non_max_suppression(preds,  opt.conf_thres, opt.nms_thres)
+
+            results = []
+            for det in dets:
+                if det is not None and len(det):
+                    # Rescale boxes from img_size to im0 size
+                    det[:, :4] = scale_coords(im0shape[2:], det[:, :4], im0shape).round()
+                    # print(det.shape)
+                    # print(det)
+                    # for *xyxy, conf, _, cls in det:
+                    #     label = '%s %.2f' % (self.classes[int(cls)], conf)
+                    #     plot_one_box(xyxy, im0, label=label, color=self.colors[int(cls)])
+                    res = Instances(im0shape)
+                    res.set("pred_boxes", Boxes(det[:, :4]))
+                    res.set("scores", det[:, 4])
+                    res.set("class_scores", det[:, 5:-1].unsqueeze(1))
+                    res.set("pred_classes", det[:, -1].round().int())
+                else:
+                    res = Instances(im0shape)
+                    res.set("pred_boxes", [])
+                results.append(res)
+
+            if len(batch) != len(results):
+                self.logger.debug(f"Detections missing!! Got a batch of size {len(batch)} "
+                                  f"but only have {len(results)} results!")
+
+            snd_batch = {}
+            for msg, res in zip(batch, results):
+                msg.payload = PredictionPayload(res.to("cpu"))
+                snd_batch[msg.out_key] = msg
+
+            success = self.out_queue.deque_non_blocking_put(snd_batch)
             return success
 
         else:
@@ -126,20 +151,22 @@ class YoloV3Logic(Routine):
 
 class YoloV3(BaseComponent):
 
-    def __init__(self, endpoint, out_key, in_key, redis_url, maxlen, metrics_collector, name="YoloV3"):
+    def __init__(self, endpoint, src_dst_keys, maxlen, metrics_collector, name="YoloV3"):
         super().__init__(endpoint, name, metrics_collector)
         self.in_queue = Queue(maxsize=1)
         self.out_queue = Queue(maxsize=1)
 
-        t_get = MessageFromRedis(in_key, redis_url, self.in_queue, name="get_frames", component_name=self.name,
-                                 metrics_collector=self.metrics_collector).as_thread()
-        self.register_routine(t_get)
+        t_get_batch = BatchMsgFromRedis(src_dst_keys, self.in_queue, name="get_frames", component_name=self.name,
+                                        metrics_collector=self.metrics_collector).as_thread()
+        self.register_routine(t_get_batch)
+
         t_det = YoloV3Logic(self.in_queue, self.out_queue, name='yolo_logic', component_name=self.name,
                             metrics_collector=self.metrics_collector).as_thread()
         self.register_routine(t_det)
-        t_send = Message2Redis(out_key, redis_url, self.out_queue, maxlen, name="upload_redis", component_name=self.name,
+
+        t_send_batch = BatchMsgToRedis(src_dst_keys, self.out_queue, maxlen, name="upload_redis", component_name=self.name,
                                metrics_collector=self.metrics_collector).as_thread()
-        self.register_routine(t_send)
+        self.register_routine(t_send_batch)
 
 
 if __name__ == '__main__':
@@ -172,7 +199,9 @@ if __name__ == '__main__':
     else:
         collector = NullCollector()
 
-    zpc = YoloV3(f"tcp://0.0.0.0:{opt.zpc}", opt.output, opt.input, url, opt.maxlen, collector)
+    src_dst_keys =
+
+    zpc = YoloV3(f"tcp://0.0.0.0:{opt.zpc}", src_dst_keys, opt.maxlen, collector)
     print(f"run {zpc.name}")
     zpc.run()
     print(f"Killed {zpc.name}")
