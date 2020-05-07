@@ -335,7 +335,8 @@ class Routine(ABC):
            for type name
         """
         return {
-            "name": "String"
+            "name": "String",
+            "out_key": "str"
         }
 
     @abstractmethod

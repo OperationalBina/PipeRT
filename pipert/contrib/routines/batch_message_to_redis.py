@@ -21,7 +21,7 @@ class BatchMessageToRedis(Routine, BatchMechanism):
 		for idx, (in_key, out_key) in enumerate(src_dst_keys):
 			p_args = [out_key, Queue(maxsize=internal_que_size), maxlen]
 			kw_args = {'name': '_'.join(['slave', self.name, str(idx)]), 'component_name': self.component_name,
-			           'metrics_collector': self.metrics_collector, 'out_key': out_key}
+			           'metrics_collector': self.metrics_collector}
 			slave_args.append((p_args, kw_args))
 
 		BatchMechanism.__init__(self, MessageToRedis, tuple(slave_args), 'out_key', blocking, timeout)
