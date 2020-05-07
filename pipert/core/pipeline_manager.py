@@ -1,4 +1,5 @@
 import zerorpc
+import traceback
 import re
 import importlib.util
 from pipert.core.component import BaseComponent
@@ -131,7 +132,7 @@ class PipelineManager:
         except TypeError as error:
             return self._create_response(
                 False,
-                str(error)
+                traceback.format_exc()
             )
 
     @component_name_existence_error(need_to_be_exist=True)
@@ -362,7 +363,7 @@ class PipelineManager:
             except ValidationError as error:
                 responses.append(self._create_response(
                     False,
-                    error.message
+                    traceback.format_exc()
                 ))
 
         if all(response["Succeeded"] for response in responses):
