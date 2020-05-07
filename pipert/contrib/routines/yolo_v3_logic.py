@@ -47,6 +47,7 @@ class YoloV3Logic(Routine):
 
 			im0shape = images[0].shape
 			images, *_ = self.letterbox(np.array(images), new_shape=self.img_size)
+			imshape = images[0].shape
 
 			# Normalize RGB
 			images = images[:, :, :, ::-1].transpose(0, 3, 1, 2)  # BGR to RGB and switch to NxCxWxH
@@ -63,7 +64,7 @@ class YoloV3Logic(Routine):
 			for det in dets:
 				if det is not None and len(det):
 					# Rescale boxes from img_size to im0 size
-					det[:, :4] = scale_coords(im0shape[2:], det[:, :4], im0shape).round()
+					det[:, :4] = scale_coords(imshape, det[:, :4], im0shape).round()
 					# print(det.shape)
 					# print(det)
 					# for *xyxy, conf, _, cls in det:
