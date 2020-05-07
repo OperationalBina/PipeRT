@@ -19,7 +19,7 @@ components:
       from_redis:
         out_que: frames
         src_dst_keys:
-        - (cam, camera:1)
+        - !!python/tuple [cam, camera:1]
         internal_que_size: 1
         blocking: False
         timeout: 0
@@ -29,7 +29,7 @@ components:
         max_stream_length: 10
         in_que: preds
         src_dst_keys:
-        - (cam, camera:1)
+        - !!python/tuple [cam, camera:1]
         maxlen: 100
         internal_que_size: 1
         blocking: False
