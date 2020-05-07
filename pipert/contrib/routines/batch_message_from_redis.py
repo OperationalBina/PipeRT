@@ -7,7 +7,7 @@ from pipert.core import QueueHandler, Routine, BatchMechanism, RoutineTypes
 class BatchMessageFromRedis(Routine, BatchMechanism):
 	routine_type = RoutineTypes.INPUT
 
-	def __init__(self, src_dst_keys, out_que, internal_que_size: int = 1, blocking: bool = False, timeout: float = 0.0,
+	def __init__(self, src_dst_keys, out_queue, internal_que_size: int = 1, blocking: bool = False, timeout: float = 0.0,
 	             *args, **kwargs):
 		"""
 
@@ -15,7 +15,7 @@ class BatchMessageFromRedis(Routine, BatchMechanism):
 			src_dst_keys: iterable (which?), each entry has 2 items: src (in) and dst (out)
 		"""
 		Routine.__init__(self, *args, **kwargs)
-		self.out_queue = QueueHandler(out_que)
+		self.out_queue = QueueHandler(out_queue)
 		self._inside_collection = {}
 		slave_args = []
 		for idx, (in_key, out_key) in enumerate(src_dst_keys):

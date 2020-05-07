@@ -17,7 +17,7 @@ components:
         routine_type_name: YoloV3Logic
 
       from_redis:
-        out_que: frames
+        out_queue: frames
         src_dst_keys:
         - !!python/tuple [cam, camera:1]
         internal_que_size: 1
@@ -26,7 +26,7 @@ components:
         routine_type_name: BatchMessageFromRedis
 
       upload_redis:
-        in_que: preds
+        in_queue: preds
         src_dst_keys:
         - !!python/tuple [cam, camera:1]
         maxlen: 100
