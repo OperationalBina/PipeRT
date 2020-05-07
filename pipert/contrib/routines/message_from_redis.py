@@ -11,7 +11,7 @@ from pipert.core.routine import Routine, RoutineTypes
 class MessageFromRedis(Routine):
     routine_type = RoutineTypes.INPUT
 
-    def __init__(self, redis_read_key, message_queue, *args, **kwargs):
+    def __init__(self, redis_read_key, message_queue, out_key='', *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.redis_read_key = redis_read_key
         self.url = urlparse(os.environ.get('REDIS_URL', "redis://127.0.0.1:6379"))
@@ -19,6 +19,7 @@ class MessageFromRedis(Routine):
         self.msg_handler = None
         self.flip = False
         self.negative = False
+        self.out_key = out_key
 
     def main_logic(self, *args, **kwargs):
         encoded_msg = self.msg_handler.read_most_recent_msg(self.redis_read_key)
