@@ -86,6 +86,7 @@ class YoloV3Logic(Routine):
 
 			snd_batch = {}
 			for msg, res in zip(batch, results):
+				print("YOLO: " + str(res))
 				msg.payload = PredictionPayload(res.to("cpu"))
 				snd_batch[msg.out_key] = msg
 
