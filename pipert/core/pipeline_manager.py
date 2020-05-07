@@ -42,16 +42,16 @@ class PipelineManager:
         self.COMPONENTS_FOLDER_PATH = "pipert/contrib/components"
 
     @component_name_existence_error(need_to_be_exist=False)
-    def create_component(self, component_name):
+    def create_component(self, component_name, use_shared_memory=False):
         self.components[component_name] = \
-            BaseComponent(name=component_name)
+            BaseComponent(name=component_name, use_memory=use_shared_memory)
         return self._create_response(
             True,
             f"Component {component_name} has been created"
         )
 
     @component_name_existence_error(need_to_be_exist=False)
-    def create_premade_component(self, component_name, component_type_name):
+    def create_premade_component(self, component_name, component_type_name, use_shared_memory=False):
         component_class = \
             self._get_component_class_object_by_type_name(component_type_name)
         if component_class is None:
@@ -60,7 +60,7 @@ class PipelineManager:
                 f"The component type {component_type_name} doesn't exist"
             )
         self.components[component_name] = \
-            component_class(name=component_name)
+            component_class(name=component_name, use_memory=use_shared_memory)
         return self._create_response(
             True,
             f"Component {component_name} has been created"
@@ -339,12 +339,15 @@ class PipelineManager:
         for component_name, component_parameters in components["components"].items():
             try:
                 validate(instance=component_parameters, schema=component_validator)
+                to_use_shared_memory = component_parameters.get("shared_memory", False)
                 if "component_type_name" in component_parameters:
                     responses.append(self.create_premade_component(
                         component_name=component_name,
-                        component_type_name=component_parameters["component_type_name"]))
+                        component_type_name=component_parameters["component_type_name"],
+                        use_shared_memory=to_use_shared_memory))
                 else:
-                    responses.append(self.create_component(component_name=component_name))
+                    responses.append(self.create_component(component_name=component_name,
+                                                           use_shared_memory=to_use_shared_memory))
                 if "execution_mode" in component_parameters:
                     responses.append(self.change_component_execution_mode(
                         component_name=component_name,
