@@ -26,7 +26,6 @@ components:
         routine_type_name: BatchMessageFromRedis
 
       upload_redis:
-        max_stream_length: 10
         in_que: preds
         src_dst_keys:
         - !!python/tuple [cam, camera:1]

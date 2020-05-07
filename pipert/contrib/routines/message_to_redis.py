@@ -46,7 +46,8 @@ class MessageToRedis(Routine):
         dicts.update({
             "redis_send_key": "String",
             "message_queue": "Queue",
-            "max_stream_length": "Integer"
+            "max_stream_length": "Integer",
+            "out_key": "str"
         })
         return dicts
 
