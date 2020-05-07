@@ -265,3 +265,10 @@ def test_change_component_execution_mode_method_with_wrong_mode(pipeline_manager
     response = pipeline_manager_with_component. \
         change_component_execution_mode(component_name="comp", execution_mode="nothing")
     assert not response["Succeeded"], response["Message"]
+
+
+def test_create_component_with_shared_memory(pipeline_manager):
+    response = pipeline_manager.create_component(component_name="comp",
+                                                 use_shared_memory=True)
+    assert response["Succeeded"], response["Message"]
+    assert pipeline_manager.components["comp"].use_memory
