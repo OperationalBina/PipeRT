@@ -24,7 +24,7 @@ class BatchMessageToRedis(Routine, BatchMechanism):
 			           'metrics_collector': self.metrics_collector}
 			slave_args.append((p_args, kw_args))
 
-		BatchMechanism.__init__(self, MessageToRedis, tuple(slave_args), 'out_key', blocking, timeout)
+		BatchMechanism.__init__(self, MessageToRedis, tuple(slave_args), 'redis_send_key', blocking, timeout)
 
 	def main_logic(self, *args, **kwargs):
 		msg = self.in_queue.non_blocking_get()
