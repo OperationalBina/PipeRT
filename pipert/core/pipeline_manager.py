@@ -245,7 +245,7 @@ class PipelineManager:
     def get_all_routine_types(self):
         routine_file_names = [f for f in
                               listdir(self.ROUTINES_FOLDER_PATH)
-                              if isfile(join(self.ROUTINES_FOLDER_PATH, f))]
+                              if isfile(join(self.ROUTINES_FOLDER_PATH, f) and "__init__" not in f)]
 
         routine_file_names = [file_name[:-3] for
                               file_name in routine_file_names]
@@ -387,7 +387,8 @@ class PipelineManager:
                    component_type_name)[1:] + ".py"
         return self._get_class_object_by_path(path, component_type_name)
 
-    def _get_class_object_by_path(self, path, class_name):
+    @staticmethod
+    def _get_class_object_by_path(path, class_name):
         spec = importlib.util.spec_from_file_location(class_name, path)
         class_object = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(class_object)

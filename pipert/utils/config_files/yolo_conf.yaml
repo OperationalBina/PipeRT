@@ -1,0 +1,67 @@
+components:
+  YoloV3:
+    queues:
+    - frames
+    - preds
+    routines:
+      create_preds:
+        in_queue: frames
+        out_queue: preds
+        cfg: pipert/contrib/YoloResources/yolov3.cfg
+        names: pipert/contrib/YoloResources/coco.names
+        weights: pipert/contrib/YoloResources/yolov3.weights
+        img_size: 416
+        conf_thresh: 0.3
+        nms_thresh: 0.5
+        half: True
+        routine_type_name: YoloV3Logic
+
+      from_redis:
+        out_que: frames
+        src_dst_keys:
+        - (cam, camera:1)
+        internal_que_size: 1
+        blocking: False
+        timeout: 0
+        routine_type_name: BatchMessageFromRedis
+
+      upload_redis:
+        max_stream_length: 10
+        in_que: preds
+        src_dst_keys:
+        - (cam, camera:1)
+        maxlen: 100
+        internal_que_size: 1
+        blocking: False
+        timeout: 0
+        routine_type_name: BatchMessageToRedis
+
+  FlaskDisplay:
+    component_type_name: FlaskVideoDisplay
+    queues:
+    - messages
+    routines:
+      create_image:
+        in_queue: messages
+        out_queue: flask_display
+        routine_type_name: VisLogic
+      get_frames_and_pred:
+        image_meta_queue: messages
+        redis_read_image_key: cam
+        redis_read_meta_key: camera:1
+        routine_type_name: MetaAndFrameFromRedis
+  Stream:
+    execution_mode: process
+    queues:
+    - video
+    routines:
+      capture_frame:
+        fps: 30
+        out_queue: video
+        routine_type_name: ListenToStream
+        stream_address: pipert/contrib/test.mp4
+      upload_redis:
+        max_stream_length: 10
+        message_queue: video
+        redis_send_key: cam
+        routine_type_name: MessageToRedis

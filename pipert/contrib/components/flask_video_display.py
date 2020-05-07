@@ -9,7 +9,6 @@ import time
 import requests
 
 
-# Not working for some reason, the flask_display queue is empty forever ????????
 class FlaskVideoDisplay(BaseComponent):
 
     def __init__(self, name="FlaskVideoDisplay"):
