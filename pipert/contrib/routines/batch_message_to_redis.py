@@ -29,6 +29,7 @@ class BatchMessageToRedis(Routine, BatchMechanism):
 	def main_logic(self, *args, **kwargs):
 		msg = self.in_queue.non_blocking_get()
 		if msg:
+			print(f"BatchMsgTo - got: {msg}")
 			self._inside_collection = msg
 
 			if self.blocking:
@@ -42,7 +43,7 @@ class BatchMessageToRedis(Routine, BatchMechanism):
 	def _batched_operation(self):
 		to_delete = []
 		for out_key, data in self._inside_collection.items():
-			print("trying to put: "+data)
+			print(f"trying to put: {data}")
 			if self.batch[out_key]['queue'].non_blocking_put(data):
 				to_delete.append(out_key)  # mark this key for deletion to avoid sending again
 			else:
