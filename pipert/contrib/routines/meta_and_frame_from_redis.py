@@ -24,6 +24,7 @@ class MetaAndFrameFromRedis(Routine):
 
     def receive_msg(self, in_key):
         encoded_msg = self.msg_handler.read_most_recent_msg(in_key)
+        print(f"MetaFrame - key: {in_key} - msg: {encoded_msg}")
         if not encoded_msg:
             return None
         msg = message_decode(encoded_msg)

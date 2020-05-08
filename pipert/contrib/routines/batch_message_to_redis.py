@@ -38,19 +38,16 @@ class BatchMessageToRedis(Routine, BatchMechanism):
 			else:
 				self.timeout_batched_operation()
 
-			# self._inside_collection.clear()
+			self._inside_collection.clear()
 
 	def _batched_operation(self):
-		sent = []
+		to_delete = []
 		for out_key, data in self._inside_collection.items():
-			print(f"trying to put: {data}")
-			if out_key not in sent:
-				if self.batch[out_key]['queue'].non_blocking_put(data):
-					sent.append(out_key)  # mark this key for deletion to avoid sending again
-			else:
-				print("failed")
+			if self.batch[out_key]['queue'].non_blocking_put(data):
+				to_delete.append(out_key)  # mark this key for deletion to avoid sending again
+
 		# delete all keys marked for deletion
-		# [self._inside_collection.pop(key) for key in to_delete]
+		[self._inside_collection.pop(key) for key in to_delete]
 
 	def blocking_batched_operation(self, *args, **kwargs):
 		while self._inside_collection.keys():
