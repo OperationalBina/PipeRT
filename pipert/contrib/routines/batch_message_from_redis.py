@@ -7,8 +7,8 @@ from pipert.core import QueueHandler, Routine, BatchMechanism, RoutineTypes
 class BatchMessageFromRedis(Routine, BatchMechanism):
 	routine_type = RoutineTypes.INPUT
 
-	def __init__(self, src_dst_keys, out_queue, internal_que_size: int = 1, blocking: bool = False, timeout: float = 0.0,
-	             *args, **kwargs):
+	def __init__(self, src_dst_keys, out_queue, internal_que_size: int = 1, blocking: bool = False,
+	             timeout: float = 0.0, *args, **kwargs):
 		"""
 
 		Args:

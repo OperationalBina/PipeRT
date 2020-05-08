@@ -16,7 +16,6 @@ class YoloV3Logic(Routine):
 		self.out_queue = QueueHandler(out_queue)
 
 		self.img_size = (320, 192) if ONNX_EXPORT else img_size  # (320, 192) or (416, 256) or (608, 352)
-		weights, half = weights, half
 		device = torch_utils.select_device(force_cpu=ONNX_EXPORT)
 		self.model = Darknet(cfg, self.img_size)
 		if weights.endswith('.pt'):  # pytorch format
@@ -36,7 +35,6 @@ class YoloV3Logic(Routine):
 		self.device = device
 
 	def main_logic(self, *args, **kwargs):
-
 		batch = self.in_queue.non_blocking_get()
 		if batch:
 			out_keys = []
@@ -65,11 +63,7 @@ class YoloV3Logic(Routine):
 				if det is not None and len(det):
 					# Rescale boxes from img_size to im0 size
 					det[:, :4] = scale_coords(imshape, det[:, :4], im0shape).round()
-					# print(det.shape)
-					# print(det)
-					# for *xyxy, conf, _, cls in det:
-					#     label = '%s %.2f' % (self.classes[int(cls)], conf)
-					#     plot_one_box(xyxy, im0, label=label, color=self.colors[int(cls)])
+
 					res = Instances(im0shape)
 					res.set("pred_boxes", Boxes(det[:, :4]))
 					res.set("scores", det[:, 4])
@@ -157,8 +151,8 @@ class YoloV3Logic(Routine):
 		reshaped = []
 		for img in imgs:
 			if shape[::-1] != new_unpad:  # resize
-				img = cv2.resize(img, new_unpad,
-				                 interpolation=cv2.INTER_AREA)  # INTER_AREA is better, INTER_LINEAR is faster
+				# INTER_AREA is better, INTER_LINEAR is faster
+				img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_AREA)
 			img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
 			reshaped.append(img)
 

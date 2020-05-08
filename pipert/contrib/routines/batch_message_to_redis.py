@@ -29,7 +29,6 @@ class BatchMessageToRedis(Routine, BatchMechanism):
 	def main_logic(self, *args, **kwargs):
 		msg = self.in_queue.non_blocking_get()
 		if msg:
-			print(f"BatchMsgTo - got: {msg}")
 			self._inside_collection = msg
 
 			if self.blocking:

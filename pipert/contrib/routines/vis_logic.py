@@ -1,12 +1,10 @@
 from pipert.core.routine import Routine, RoutineTypes
 from pipert.core import QueueHandler
-from queue import Empty, Full
 from pipert.utils.visualizer import VideoVisualizer
 from detectron2.data import MetadataCatalog
 from typing import Optional
 from pipert.core.message import Message
 import cv2
-import time
 
 
 class VisLogic(Routine):

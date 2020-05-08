@@ -2,10 +2,6 @@ from threading import Thread
 
 from flask import Flask, Response, request
 from pipert.core.component import BaseComponent
-from queue import Empty
-from multiprocessing import Process
-import cv2
-import time
 from pipert.core import QueueHandler
 import requests
 

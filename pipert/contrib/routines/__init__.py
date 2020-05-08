@@ -7,3 +7,4 @@ from .display_cv2 import DisplayCv2
 from .vis_logic import VisLogic
 from .batch_message_from_redis import BatchMessageFromRedis
 from .batch_message_to_redis import BatchMessageToRedis
+from .yolo_v3_logic import YoloV3Logic

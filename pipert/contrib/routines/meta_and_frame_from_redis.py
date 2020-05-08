@@ -35,11 +35,9 @@ class MetaAndFrameFromRedis(Routine):
     def main_logic(self, *args, **kwargs):
         pred_msg = self.receive_msg(self.redis_read_meta_key, most_recent=True)
         frame_msg = self.receive_msg(self.redis_read_image_key, most_recent=False)
-        print(f"Meta&Frame GOT:\nFrame: {frame_msg}\nMeta: {pred_msg}")
-        if frame_msg:
 
+        if frame_msg:
             self.image_meta_queue.deque_non_blocking_put((frame_msg, pred_msg))
-            print(f"Meta&Frame PUT:\nFrame: {frame_msg}\nMeta: {pred_msg}")
             return True
 
         else:
