@@ -6,6 +6,7 @@ from queue import Empty
 from multiprocessing import Process
 import cv2
 import time
+from pipert.core import QueueHandler
 import requests
 
 
@@ -53,22 +54,17 @@ class FlaskVideoDisplay(BaseComponent):
             return 1
 
     def _gen(self):
-        q = self.get_queue("flask_display")
+        q = QueueHandler(self.get_queue("flask_display"))
         while not self.stop_event.is_set():
-            try:
-                msg = q.get(block=False)
-                image = msg.get_payload()
-                ret, frame = cv2.imencode('.jpg', image)
-                frame = frame.tobytes()
+            encoded_frame = q.non_blocking_get()
+            if encoded_frame:
                 yield (b'--frame\r\n'
                        b'Pragma-directive: no-cache\r\n'
                        b'Cache-directive: no-cache\r\n'
                        b'Cache-control: no-cache\r\n'
                        b'Pragma: no-cache\r\n'
                        b'Expires: 0\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-            except Empty:
-                time.sleep(0)
+                       b'Content-Type: image/jpeg\r\n\r\n' + encoded_frame + b'\r\n\r\n')
 
     def _teardown_callback(self, *args, **kwargs):
         # self.server.terminate()
