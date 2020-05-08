@@ -24,16 +24,17 @@ class MetaAndFrameFromRedis(Routine):
 
     def receive_msg(self, in_key):
         encoded_msg = self.msg_handler.read_most_recent_msg(in_key)
-        print(f"MetaFrame - key: {in_key} - msg: {encoded_msg}")
         if not encoded_msg:
             return None
         msg = message_decode(encoded_msg)
         msg.record_entry(self.component_name, self.logger)
+       # print(f"MetaFrame - key: {in_key} - msg: {msg}")
         return msg
 
     def main_logic(self, *args, **kwargs):
         pred_msg = self.receive_msg(self.redis_read_meta_key)
         frame_msg = self.receive_msg(self.redis_read_image_key)
+        print(f"Meta&Frame GOT:\nFrame: {frame_msg}\nMeta: {pred_msg}")
         if frame_msg:
             arr = frame_msg.get_payload()
 
@@ -49,6 +50,7 @@ class MetaAndFrameFromRedis(Routine):
                 pass
             frame_msg.update_payload(arr)
             self.image_meta_queue.put((frame_msg, pred_msg))
+            print(f"Meta&Frame PUT:\nFrame: {frame_msg}\nMeta: {pred_msg}")
             return True
 
         else:
