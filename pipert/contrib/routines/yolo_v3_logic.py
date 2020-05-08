@@ -136,16 +136,16 @@ class YoloV3Logic(Routine):
 		new_unpad = (int(round(shape[1] * ratio)), int(round(shape[0] * ratio)))
 
 		# Compute padding https://github.com/ultralytics/yolov3/issues/232
-		if mode is 'auto':  # minimum rectangle
+		if mode == 'auto':  # minimum rectangle
 			dw = np.mod(new_shape - new_unpad[0], 32) / 2  # width padding
 			dh = np.mod(new_shape - new_unpad[1], 32) / 2  # height padding
-		elif mode is 'square':  # square
+		elif mode == 'square':  # square
 			dw = (new_shape - new_unpad[0]) / 2  # width padding
 			dh = (new_shape - new_unpad[1]) / 2  # height padding
-		elif mode is 'rect':  # square
+		elif mode == 'rect':  # square
 			dw = (new_shape[1] - new_unpad[0]) / 2  # width padding
 			dh = (new_shape[0] - new_unpad[1]) / 2  # height padding
-		elif mode is 'scaleFill':
+		elif mode == 'scaleFill':
 			dw, dh = 0.0, 0.0
 			new_unpad = (new_shape, new_shape)
 			ratiow, ratioh = new_shape / shape[1], new_shape / shape[0]
