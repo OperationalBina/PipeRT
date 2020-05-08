@@ -52,7 +52,7 @@ class MessageFromRedis(Routine):
         dicts = Routine.get_constructor_parameters()
         dicts.update({
             "redis_read_key": "String",
-            "message_queue": "Queue",
+            "message_queue": "QueueOut"
             "out_key": "str"
         })
         return dicts

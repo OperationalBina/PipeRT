@@ -67,8 +67,8 @@ class FaceDetection(Routine):
     def get_constructor_parameters():
         dicts = Routine.get_constructor_parameters()
         dicts.update({
-            "in_queue": "Queue",
-            "out_queue": "Queue",
+            "in_queue": "QueueIn",
+            "out_queue": "QueueOut",
         })
         return dicts
 

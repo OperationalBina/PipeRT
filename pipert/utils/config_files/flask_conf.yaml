@@ -1,5 +1,7 @@
 components:
   FaceDet:
+    execution_mode: process
+    shared_memory: True
     queues:
     - frames
     - preds
@@ -18,6 +20,8 @@ components:
         redis_send_key: camera:1
         routine_type_name: MessageToRedis
   FlaskDisplay:
+    execution_mode: process
+    shared_memory: False
     component_type_name: FlaskVideoDisplay
     queues:
     - messages
@@ -33,6 +37,7 @@ components:
         routine_type_name: MetaAndFrameFromRedis
   Stream:
     execution_mode: process
+    shared_memory: True
     queues:
     - video
     routines:
