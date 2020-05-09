@@ -84,7 +84,10 @@ class YoloV3Logic(Routine):
 			snd_batch = {}
 			for msg, res in zip(msgs, results):
 				msg.payload = PredictionPayload(res.to("cpu"))
-				snd_batch[msg.out_key] = msg
+				try:
+					snd_batch[msg.out_key] = msg
+				except AttributeError:
+					pass
 
 			success = self.out_queue.deque_non_blocking_put(snd_batch if self.batch else msgs[0])
 			return success
