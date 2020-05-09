@@ -9,12 +9,12 @@ from pipert.core import Routine, QueueHandler, RoutineTypes
 class YoloV3Logic(Routine):
 	routine_type = RoutineTypes.PROCESSING
 
-	def __init__(self, in_queue, out_queue, cfg, names, weights, img_size, conf_thresh, nms_thresh, half, *args,
-	             **kwargs):
+	def __init__(self, in_queue, out_queue, cfg, names, weights, img_size, conf_thresh, nms_thresh, half, batch,
+	             *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.in_queue = QueueHandler(in_queue)
 		self.out_queue = QueueHandler(out_queue)
-
+		self.batch = batch
 		self.img_size = (320, 192) if ONNX_EXPORT else img_size  # (320, 192) or (416, 256) or (608, 352)
 		device = torch_utils.select_device(force_cpu=ONNX_EXPORT)
 		self.model = Darknet(cfg, self.img_size)
@@ -35,11 +35,14 @@ class YoloV3Logic(Routine):
 		self.device = device
 
 	def main_logic(self, *args, **kwargs):
-		batch = self.in_queue.non_blocking_get()
-		if batch:
+		msgs = self.in_queue.non_blocking_get()
+		if msgs:
+			if not self.batch:
+				msgs = [msgs]
+
 			out_keys = []
 			images = []
-			for msg in batch:
+			for msg in msgs:
 				out_keys.append(msg.out_key)
 				images.append(msg.get_payload())
 
@@ -74,16 +77,16 @@ class YoloV3Logic(Routine):
 					res.set("pred_boxes", [])
 				results.append(res)
 
-			if len(batch) != len(results):
-				self.logger.debug(f"Detections missing!! Got a batch of size {len(batch)} "
+			if len(msgs) != len(results):
+				self.logger.debug(f"Detections missing!! Got a batch of size {len(msgs)} "
 				                  f"but only have {len(results)} results!")
 
 			snd_batch = {}
-			for msg, res in zip(batch, results):
+			for msg, res in zip(msgs, results):
 				msg.payload = PredictionPayload(res.to("cpu"))
 				snd_batch[msg.out_key] = msg
 
-			success = self.out_queue.deque_non_blocking_put(snd_batch)
+			success = self.out_queue.deque_non_blocking_put(snd_batch if self.batch else msgs[0])
 			return success
 
 		else:
@@ -107,7 +110,8 @@ class YoloV3Logic(Routine):
 			"img_size": "int",
 			"conf_thresh": "float",
 			"nms_thresh": "float",
-			"half": "bool"
+			"half": "bool",
+			"batch": "bool"
 		})
 		return dicts
 
