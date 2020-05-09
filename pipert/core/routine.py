@@ -64,12 +64,15 @@ class Routine(ABC):
 
     def _setup_logger(self):
         self.logger = logging.getLogger(self.component_name + "." + self.name)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.INFO)
         self.logger.propagate = False
         log_file = "pipeline.log"
+        logs_format = logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(name)s - %(message)s")
         file_handler = TimedRotatingFileHandler(log_file, when='midnight')
-        file_handler.setFormatter(logging.Formatter(
-            "%(asctime)s - %(levelname)s - %(name)s - %(message)s"))
+        file_handler.setFormatter(logs_format)
+        stdout_handler = logging.StreamHandler()
+        stdout_handler.setFormatter(logs_format)
         self.logger.addHandler(file_handler)
 
     def register_events(self, *event_names):
