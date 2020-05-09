@@ -1,5 +1,6 @@
 components:
   YoloV3:
+    execution_mode: process
     queues:
     - frames
     - preds
@@ -29,6 +30,7 @@ components:
         routine_type_name: MessageToRedis
 
   FlaskVideoDisplay:
+    execution_mode: process
     component_type_name: FlaskVideoDisplay
     queues:
     - messages
