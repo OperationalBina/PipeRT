@@ -43,8 +43,9 @@ class YoloV3Logic(Routine):
 			out_keys = []
 			images = []
 			for msg in msgs:
-				out_keys.append(msg.out_key)
 				images.append(msg.get_payload())
+				if self.batch:
+					out_keys.append(msg.out_key)
 
 			im0shape = images[0].shape
 			images, *_ = self.letterbox(np.array(images), new_shape=self.img_size)
@@ -84,10 +85,8 @@ class YoloV3Logic(Routine):
 			snd_batch = {}
 			for msg, res in zip(msgs, results):
 				msg.payload = PredictionPayload(res.to("cpu"))
-				try:
+				if self.batch:
 					snd_batch[msg.out_key] = msg
-				except AttributeError:
-					pass
 
 			success = self.out_queue.deque_non_blocking_put(snd_batch if self.batch else msgs[0])
 			return success
