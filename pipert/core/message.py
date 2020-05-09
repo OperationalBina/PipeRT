@@ -192,11 +192,11 @@ class Message:
         if "exit" not in self.history[component_name]:
             self.history[component_name]["exit"] = time.time()
             if component_name == "FlaskVideoDisplay" or component_name == "VideoWriter":
+                self.reached_exit = True
                 # logger.debug("The following message has reached the exit: %s", str(self))
                 logger.info(" - ".join([f"{comp_name}: {self.get_latency(comp_name)}" for comp_name in
                                         self.history.keys()] +
                                        [f"Total: {self.get_end_to_end_latency('FlaskVideoDisplay')}"]))
-                self.reached_exit = True
             else:
                 logger.debug("Sending the following message: %s", str(self))
 
