@@ -16,23 +16,15 @@ class YoloV3Logic(Routine):
 		self.out_queue = QueueHandler(out_queue)
 		self.batch = batch
 		self.img_size = (320, 192) if ONNX_EXPORT else img_size  # (320, 192) or (416, 256) or (608, 352)
-		device = torch_utils.select_device(force_cpu=ONNX_EXPORT)
-		self.model = Darknet(cfg, self.img_size)
-		if weights.endswith('.pt'):  # pytorch format
-			self.model.load_state_dict(torch.load(weights, map_location=device)['model'])
-		else:  # darknet format
-			_ = load_darknet_weights(self.model, weights)
-		self.model.fuse()
-		self.model.to(device).eval()
-		# Half precision
-		self.half = half and device.type != 'cpu'  # half precision only supported on CUDA
-		if half:
-			self.model.half()
+		self.half = half
+		self.cfg = cfg
+		self.weights = weights
 		self.classes = load_classes(names)
 		self.colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(self.classes))]
 		self.conf_thresh = conf_thresh
 		self.nms_thresh = nms_thresh
-		self.device = device
+		self.model = None
+		self.device = None
 
 	def main_logic(self, *args, **kwargs):
 		msgs = self.in_queue.non_blocking_get()
@@ -96,6 +88,19 @@ class YoloV3Logic(Routine):
 
 	def setup(self, *args, **kwargs):
 		self.state.dropped = 0
+		self.device = torch_utils.select_device(force_cpu=ONNX_EXPORT)
+		self.model = Darknet(self.cfg, self.img_size)
+		if self.weights.endswith('.pt'):  # pytorch format
+			self.model.load_state_dict(torch.load(self.weights, map_location=self.device)['model'])
+		else:  # darknet format
+			_ = load_darknet_weights(self.model, self.weights)
+		self.model.fuse()
+		self.model.to(self.device).eval()
+		# Half precision
+		self.half = self.half and self.device.type != 'cpu'  # half precision only supported on CUDA
+
+		if self.half:
+			self.model.half()
 
 	def cleanup(self, *args, **kwargs):
 		del self.model, self.device, self.classes, self.colors
