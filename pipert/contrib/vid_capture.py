@@ -1,101 +1,29 @@
-import cv2
-from imutils import resize
-from pipert import BaseComponent, Routine
+from pipert import BaseComponent
 from queue import Queue
 import argparse
 from urllib.parse import urlparse
 import os
 
 from pipert.contrib.metrics_collectors.prometheus_collector import PrometheusCollector
-from pipert.core.message import Message
+from pipert.contrib.routines import ListenToStream, MessageToRedis
 from pipert.core.metrics_collector import NullCollector
-from pipert.core.mini_logics import Message2Redis
-from pipert.core import QueueHandler
 from pipert.contrib.metrics_collectors.splunk_collector import SplunkCollector
-
-
-class Listen2Stream(Routine):
-
-    def __init__(self, stream_address, queue, fps=30., use_memory=False,
-                 *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.stream_address = stream_address
-        self.is_file = str(stream_address).endswith("mp4")
-        self.stream = None
-        # self.stream = cv2.VideoCapture(self.stream_address)
-        self.q_handler = QueueHandler(queue)
-        self.fps = fps
-        self.updated_config = {}
-
-    def begin_capture(self):
-        self.stream = cv2.VideoCapture(self.stream_address)
-        if self.is_file:
-            self.fps = self.stream.get(cv2.CAP_PROP_FPS)
-            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-        _, _ = self.grab_frame()
-        self.logger.info("Starting video capture on %s", self.stream_address)
-
-    def change_stream(self):
-        if self.stream_address == self.updated_config['stream_address']:
-            return
-        self.stream_address = self.updated_config['stream_address']
-        self.fps = self.updated_config['FPS']
-        self.is_file = str(self.stream_address).endswith("mp4")
-        self.logger.info("Changing source stream address to %s",
-                         self.updated_config['stream_address'])
-        self.begin_capture()
-
-    def grab_frame(self):
-        grabbed, frame = self.stream.read()
-        msg = Message(frame, self.stream_address)
-        msg.record_entry(self.component_name, self.logger)
-        return grabbed, msg
-
-    def main_logic(self, *args, **kwargs):
-        if self.updated_config:
-            self.change_stream()
-            self.updated_config = {}
-
-        grabbed, frame = self.stream.read()
-        if grabbed:
-            msg = Message(frame, self.stream_address)
-            msg.record_entry(self.component_name, self.logger)
-
-            frame = resize(frame, 640, 480)
-            # if the stream is from a webcam, flip the frame
-            if self.stream_address == 0:
-                frame = cv2.flip(frame, 1)
-            msg.update_payload(frame)
-
-            success = self.q_handler.deque_non_blocking_put(msg)
-            return success
-
-    def setup(self, *args, **kwargs):
-        self.begin_capture()
-
-    def cleanup(self, *args, **kwargs):
-        self.stream.release()
-        del self.stream
 
 
 class VideoCapture(BaseComponent):
 
-    def __init__(self, endpoint, stream_address, out_key, redis_url, metrics_collector, use_memory=False, fps=30.0,
+    def __init__(self, stream_address, out_key, metrics_collector, use_memory=False, fps=30.0,
                  maxlen=10, name="VideoCapture"):
-        super().__init__(endpoint, name, metrics_collector, use_memory=use_memory)
+        super().__init__(name, metrics_collector, use_memory=use_memory)
         # TODO: should queue maxsize be configurable?
-        self.queue = Queue(maxsize=10)
+        self.queue = Queue(maxsize=1)
 
-        t_stream = Listen2Stream(stream_address, self.queue, fps, name="capture_frame", component_name=self.name,
-                                 metrics_collector=self.metrics_collector) \
-            .as_thread()
-        t_stream.pace(fps)
+        t_stream = ListenToStream(stream_address, self.queue, fps, name="capture_frame", component_name=self.name,
+                                  metrics_collector=self.metrics_collector).as_thread()
         self.register_routine(t_stream)
 
-        t_upload = Message2Redis(out_key, redis_url, self.queue, maxlen, name="upload_redis", component_name=self.name,
-                                 metrics_collector=self.metrics_collector) \
-            .as_thread()
+        t_upload = MessageToRedis(out_key, self.queue, maxlen, name="upload_redis", component_name=self.name,
+                                  metrics_collector=self.metrics_collector).as_thread()
         self.register_routine(t_upload)
 
     def change_stream(self, stream_address, fps=30.0):
@@ -131,12 +59,12 @@ if __name__ == '__main__':
 
     # Choose video source
     if opts.infile is None:
-        zpc = VideoCapture(endpoint="tcp://0.0.0.0:4242", stream_address=opts.webcam, out_key=opts.output,
-                           redis_url=url, metrics_collector=collector, fps=opts.fps, maxlen=opts.maxlen,
+        zpc = VideoCapture(stream_address=opts.webcam, out_key=opts.output,
+                           metrics_collector=collector, fps=opts.fps, maxlen=opts.maxlen,
                            use_memory=opts.shared)
     else:
-        zpc = VideoCapture(endpoint="tcp://0.0.0.0:4242", stream_address=opts.infile, out_key=opts.output,
-                           redis_url=url, metrics_collector=collector, fps=opts.fps, maxlen=opts.maxlen,
+        zpc = VideoCapture(stream_address=opts.infile, out_key=opts.output,
+                           metrics_collector=collector, fps=opts.fps, maxlen=opts.maxlen,
                            use_memory=opts.shared)
     print(f"run {zpc.name}")
     zpc.run()

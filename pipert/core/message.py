@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from pipert.core.multiprocessing_shared_memory import get_shared_memory_object
 
 import numpy as np
-import time
+import time, timeit
 import pickle
 import cv2
 
@@ -164,7 +164,7 @@ class Message:
             component_name: the name of the component that the message entered.
             logger: the logger object of the component's input routine.
         """
-        self.history[component_name]["entry"] = time.time()
+        self.history[component_name]["entry"] = timeit.default_timer()
         # logger.debug("Received the following message: %s", str(self))
 
     def record_custom(self, component_name, section):
@@ -177,7 +177,7 @@ class Message:
             section: the name of the section within the component that the
             message entered.
         """
-        self.history[component_name][section] = time.time()
+        self.history[component_name][section] = timeit.default_timer()
 
     def record_exit(self, component_name, logger):
         """
@@ -190,13 +190,13 @@ class Message:
             logger: the logger object of the component's output routine.
         """
         if "exit" not in self.history[component_name]:
-            self.history[component_name]["exit"] = time.time()
+            self.history[component_name]["exit"] = timeit.default_timer()
             if component_name == "FlaskVideoDisplay" or component_name == "VideoWriter":
                 self.reached_exit = True
                 # logger.debug("The following message has reached the exit: %s", str(self))
-                logger.info(" - ".join([f"{comp_name}: {self.get_latency(comp_name)}" for comp_name in
+                logger.info(" - ".join([f"{comp_name}: {self.get_latency(comp_name):.{5}f}" for comp_name in
                                         self.history.keys()] +
-                                       [f"Total: {self.get_end_to_end_latency('FlaskVideoDisplay')}"]))
+                                       [f"Total: {self.get_end_to_end_latency('FlaskVideoDisplay'):.{5}f}"]))
             else:
                 logger.debug("Sending the following message: %s", str(self))
 

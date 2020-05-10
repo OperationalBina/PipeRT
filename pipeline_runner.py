@@ -1,38 +1,32 @@
-from parser import ParserError
-from pprint import pprint
+import os
+import subprocess
+from urllib.parse import urlparse
+import redis
+import time
+import torch
 
-from yaml.scanner import ScannerError
+url = urlparse(os.environ.get('REDIS_URL', "redis://127.0.0.1:6379"))
+conn = redis.Redis(host=url.hostname, port=url.port)
+conn.flushall()
 
-from pipert.core.pipeline_manager import PipelineManager
-import yaml
+display = subprocess.Popen(["python", "-m", "pipert.contrib.flask_display", "-u", "$REDIS_URL", "-i",
+                  "camera:0", "-m", "camera:2", "-z", "4246"])
 
+yolov3 = subprocess.Popen(["python", "-m", "pipert.contrib.yolov3", "-u", "$REDIS_URL", "-i",
+                  "camera:0", "-o", "camera:2", "-z", "4243"])
 
-def load_config_file(file_path):
-    """
-    Loading a configuration file of the pipeline to be configured
-    """
-    try:
-        with open(file_path) as config_file:
-            components = yaml.load(config_file, Loader=yaml.FullLoader)
-        return components
-    except FileNotFoundError as error:
-        print(error.args[1], "'{}'".format(file_path))
-    except IsADirectoryError as error:
-        print("'{}' is a directory not a file".format(file_path))
-    except (ScannerError, ParserError):
-        print("Expecting yaml file, can't parse the file '{}'".format(file_path))
+time.sleep(8)
 
+vid_cap = subprocess.Popen(["python", "-m", "pipert.contrib.vid_capture", "-u", "$REDIS_URL", "-i",
+                  "pipert/contrib/test.mp4"])
 
-pm = PipelineManager()
-pipeline_cfg = load_config_file("pipert/utils/config_files/single_yolo_conf.yaml")
-if pipeline_cfg:
-    pprint(pipeline_cfg, indent=2)
-    pm.setup_components(pipeline_cfg)
-    input("Press enter to show the pipeline config")
-    print("Current pipeline configuration: \n")
-    print(pm.get_pipeline_creation())
-    input("Press enter to start running the pipeline")
-    pm.run_all_components()
-    input("Press enter to shut down the pipeline")
-    pm.stop_all_components()
+input("Press enter to shut down the pipeline")
+
+vid_cap.kill()
+yolov3.kill()
+display.kill()
+
+time.sleep(1)
+
+conn.flushall()
 

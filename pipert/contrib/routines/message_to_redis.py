@@ -1,9 +1,8 @@
-import time
-from queue import Empty
 from urllib.parse import urlparse
 
+from pipert.core import QueueHandler
 from pipert.core.message_handlers import RedisHandler
-from pipert.core.message import message_encode
+from pipert.core.message import message_encode, FramePayload
 from pipert.core.routine import Routine, RoutineTypes
 import os
 
@@ -13,28 +12,30 @@ import os
 class MessageToRedis(Routine):
     routine_type = RoutineTypes.OUTPUT
 
-    def __init__(self, redis_send_key, message_queue, max_stream_length, *args, **kwargs):
+    def __init__(self, out_key, queue, maxlen, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.redis_send_key = redis_send_key
+        self.out_key = out_key
         self.url = urlparse(os.environ.get('REDIS_URL', "redis://127.0.0.1:6379"))
-        self.message_queue = message_queue
-        self.max_stream_length = max_stream_length
+        self.q_handler = QueueHandler(queue)
+        self.maxlen = maxlen
         self.msg_handler = None
 
     def main_logic(self, *args, **kwargs):
-        try:
-            msg = self.message_queue.get(block=False)
+        msg = self.q_handler.non_blocking_get()
+        if msg:
             msg.record_exit(self.component_name, self.logger)
-            encoded_msg = message_encode(msg)
-            self.msg_handler.send(self.redis_send_key, encoded_msg)
-            time.sleep(0)
+            if self.use_memory and isinstance(msg.payload, FramePayload):
+                encoded_msg = message_encode(msg,
+                                             generator=self.generator)
+            else:
+                encoded_msg = message_encode(msg)
+            self.msg_handler.send(self.out_key, encoded_msg)
             return True
-        except Empty:
-            time.sleep(0)  # yield the control of the thread
+        else:
             return False
 
     def setup(self, *args, **kwargs):
-        self.msg_handler = RedisHandler(self.url, self.max_stream_length)
+        self.msg_handler = RedisHandler(self.url, self.maxlen)
         self.msg_handler.connect()
 
     def cleanup(self, *args, **kwargs):
@@ -51,4 +52,4 @@ class MessageToRedis(Routine):
         return dicts
 
     def does_routine_use_queue(self, queue):
-        return self.message_queue == queue
+        return self.q_handler.q == queue

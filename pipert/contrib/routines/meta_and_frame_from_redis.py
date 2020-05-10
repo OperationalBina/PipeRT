@@ -61,4 +61,4 @@ class MetaAndFrameFromRedis(Routine):
         return dicts
 
     def does_routine_use_queue(self, queue):
-        return self.image_meta_queue == queue
+        return self.image_meta_queue.q == queue

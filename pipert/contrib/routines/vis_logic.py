@@ -42,7 +42,7 @@ class VisLogic(Routine):
         image = frame_msg.get_payload()
         _, frame = cv2.imencode('.jpg', image)
         frame = frame.tobytes()
-        frame_msg.record_exit(self.component_name, self.logger)
+        # frame_msg.record_exit(self.component_name, self.logger)
         if pred_msg is not None and not pred_msg.reached_exit:
             pred_msg.record_exit(self.component_name, self.logger)
             latency = pred_msg.get_end_to_end_latency(self.component_name)

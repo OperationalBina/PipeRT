@@ -74,7 +74,7 @@ class Routine(ABC):
         stdout_handler = logging.StreamHandler()
         stdout_handler.setFormatter(logs_format)
         self.logger.addHandler(file_handler)
-        self.logger.addHandler(stdout_handler)
+        # self.logger.addHandler(stdout_handler)
 
     def register_events(self, *event_names):
         """

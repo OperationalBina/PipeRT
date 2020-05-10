@@ -31,10 +31,6 @@ class BaseComponent:
         self.use_memory = use_memory
         if use_memory:
             self.generator = MpSharedMemoryGenerator(self.name)
-        self.component_runner = None
-        self.runner_creator = None
-        self.runner_creator_kwargs = {}
-        self.as_thread()
 
     def _start(self):
         """
@@ -45,8 +41,7 @@ class BaseComponent:
             routine.start()
 
     def run(self):
-        self.component_runner = self.runner_creator(**self.runner_creator_kwargs)
-        self.component_runner.start()
+        self._run()
 
     def _run(self):
         """
@@ -91,12 +86,7 @@ class BaseComponent:
 
     def stop_run(self):
         self.stop_event.set()
-        try:
-            self.component_runner.join()
-            return 0
-        except RuntimeError:
-            print(f"Wasn't able to stop the component {self.name}")
-            return 1
+        self._stop_run()
 
     def _stop_run(self):
         """
