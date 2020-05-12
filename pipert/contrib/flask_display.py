@@ -43,7 +43,7 @@ class MetaAndFrameFromRedis(Routine):
         self.flip = False
         self.negative = False
 
-    def receive_msg(self, in_key, most_recent=True):
+    def receive_msg(self, in_key, most_recent=False):
         if most_recent:
             encoded_msg = self.msg_handler.read_most_recent_msg(in_key)
         else:

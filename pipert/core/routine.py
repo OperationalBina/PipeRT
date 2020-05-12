@@ -67,7 +67,7 @@ class Routine(ABC):
         file_handler = TimedRotatingFileHandler(log_file, when='midnight')
         file_handler.setFormatter(logging.Formatter(
             "%(asctime)s — %(name)s — %(levelname)s — %(message)s"))
-        self.logger.addHandler(file_handler)
+        self.logger.addHandler(logging.NullHandler())
 
     def register_events(self, *event_names):
         """

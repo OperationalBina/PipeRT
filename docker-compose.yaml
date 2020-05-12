@@ -1,4 +1,4 @@
-version: '2.3'
+version: '3.7'
 services:
   redis:
     container_name: redis
@@ -12,7 +12,6 @@ services:
     restart: always
     ports:
       - 6379:6379
-
   grafana:
     container_name: grafana
     image: grafana/grafana:latest
@@ -32,7 +31,6 @@ services:
       GF_INSTALL_PLUGINS: grafana-piechart-panel
     ports:
       - 3000:3000
-
   prometheus:
     container_name: prometheus
     image: prom/prometheus:latest
@@ -90,8 +88,7 @@ services:
       PROMETHEUS_URL: prometheus://prometheus:9000/0
       NVIDIA_VISIBLE_DEVICES: all
     ports:
-      - 5000:5000
-    devices:
-      - /dev/video0:/dev/video0
+      - "5000:5000"
+      - "2222:22"
 volumes:
   grafana_data: {}
