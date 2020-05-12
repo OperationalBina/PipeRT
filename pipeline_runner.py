@@ -5,7 +5,7 @@ import redis
 import time
 import torch
 
-url = urlparse(os.environ.get('REDIS_URL', "redis://127.0.0.1:6379"))
+url = urlparse(os.environ.get('REDIS_URL', "redis://vlad_redis:6379"))
 conn = redis.Redis(host=url.hostname, port=url.port)
 conn.flushall()
 
@@ -18,7 +18,7 @@ yolov3 = subprocess.Popen(["python", "-m", "pipert.contrib.yolov3", "-u", "$REDI
 time.sleep(8)
 
 vid_cap = subprocess.Popen(["python", "-m", "pipert.contrib.vid_capture", "-u", "$REDIS_URL", "-i",
-                  "pipert/contrib/test.mp4"])
+                  "pipert/test.mp4"])
 
 input("Press enter to shut down the pipeline")
 

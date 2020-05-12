@@ -7,7 +7,7 @@ from typing import Union
 import signal
 import gevent
 from .metrics_collector import NullCollector
-from .multiprocessing_shared_memory import MpSharedMemoryGenerator
+# from .multiprocessing_shared_memory import MpSharedMemoryGenerator
 from .errors import RegisteredException, QueueDoesNotExist
 from queue import Queue
 
@@ -30,7 +30,7 @@ class BaseComponent:
         self._routines = {}
         self.use_memory = use_memory
         if use_memory:
-            self.generator = MpSharedMemoryGenerator(self.name)
+            self.generator = None  # MpSharedMemoryGenerator(self.name)
 
     def _start(self):
         """

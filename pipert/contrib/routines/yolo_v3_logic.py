@@ -84,10 +84,10 @@ class YoloV3Logic(Routine):
                 if self.batch:
                     snd_batch[msg.out_key] = msg
             end_packaging = time.time()
-            print("preprocess: {}, funny_business: {}, model: {}, post_process: {}, packaging: {}".
+            print("preprocess: {:.6f}, funny_business: {:.6f}, model: {:.6f}, post_process: {:.6f}, packaging: {:.6f}, Total: {:.6f}".
                   format(end_preprocess - start_preprocess, end_funny_business - end_preprocess,
                          end_model - end_funny_business, end_post_process - end_model,
-                         end_packaging - end_post_process))
+                         end_packaging - end_post_process, end_post_process - start_preprocess))
             success = self.out_queue.deque_non_blocking_put(snd_batch if self.batch else msgs[0])
             return success
 

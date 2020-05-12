@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from abc import ABC, abstractmethod
 
-from pipert.core.multiprocessing_shared_memory import get_shared_memory_object
+# from pipert.core.multiprocessing_shared_memory import get_shared_memory_object
 
 import numpy as np
 import time, timeit
@@ -79,12 +79,7 @@ class FramePayload(Payload):
         super().__init__(data)
 
     def decode(self):
-        if isinstance(self.data, str):
-            decoded_img = self._get_frame()
-        else:
-            decoded_img = cv2.imdecode(np.fromstring(self.data,
-                                                     dtype=np.uint8),
-                                       cv2.IMREAD_COLOR)
+        decoded_img = cv2.imdecode(np.fromstring(self.data, dtype=np.uint8), cv2.IMREAD_COLOR)
         self.data = decoded_img
         self.encoded = False
 
@@ -101,14 +96,14 @@ class FramePayload(Payload):
     def is_empty(self):
         return self.data is None
 
-    def _get_frame(self):
-        memory = get_shared_memory_object(self.data)
-        if memory:
-            data = bytes(memory.buf)
-            memory.close()
-            frame = np.fromstring(data, dtype=np.uint8)
-            return cv2.imdecode(frame, cv2.IMREAD_COLOR)
-        return None
+    # def _get_frame(self):
+    #     memory = get_shared_memory_object(self.data)
+    #     if memory:
+    #         data = bytes(memory.buf)
+    #         memory.close()
+    #         frame = np.fromstring(data, dtype=np.uint8)
+    #         return cv2.imdecode(frame, cv2.IMREAD_COLOR)
+    #     return None
 
 
 class PredictionPayload(Payload):
