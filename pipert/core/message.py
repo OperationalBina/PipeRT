@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 # from pipert.core.multiprocessing_shared_memory import get_shared_memory_object
 
 import numpy as np
-import time, timeit
+import time
 import pickle
 import cv2
 
@@ -159,7 +159,7 @@ class Message:
             component_name: the name of the component that the message entered.
             logger: the logger object of the component's input routine.
         """
-        self.history[component_name]["entry"] = timeit.default_timer()
+        self.history[component_name]["entry"] = time.time()
         # logger.debug("Received the following message: %s", str(self))
 
     def record_custom(self, component_name, section):
@@ -172,7 +172,7 @@ class Message:
             section: the name of the section within the component that the
             message entered.
         """
-        self.history[component_name][section] = timeit.default_timer()
+        self.history[component_name][section] = time.time()
 
     def record_exit(self, component_name, logger):
         """
@@ -185,13 +185,20 @@ class Message:
             logger: the logger object of the component's output routine.
         """
         if "exit" not in self.history[component_name]:
-            self.history[component_name]["exit"] = timeit.default_timer()
+            self.history[component_name]["exit"] = time.time()
             if component_name == "FlaskVideoDisplay" or component_name == "VideoWriter":
                 self.reached_exit = True
                 # logger.debug("The following message has reached the exit: %s", str(self))
-                logger.info(" - ".join([f"{comp_name}: {self.get_latency(comp_name):.{5}f}" for comp_name in
-                                        self.history.keys()] +
-                                       [f"Total: {self.get_end_to_end_latency('FlaskVideoDisplay'):.{5}f}"]))
+                try:
+                    end2end = self.get_end_to_end_latency('FlaskVideoDisplay')
+                    sum_ = sum([self.get_latency(comp_name) for comp_name in self.history.keys()])
+
+                    logger.info(" - ".join([f"{comp_name}: {self.get_latency(comp_name):.{5}f}" for comp_name in
+                                            self.history.keys()] +
+                                           [f"Redis: {end2end - sum_:.{5}f}"] +
+                                           [f"Total: {end2end:.{5}f}"]))
+                except TypeError:
+                    logger.debug("Had trouble calculating latency")
             else:
                 logger.debug("Sending the following message: %s", str(self))
 
@@ -223,7 +230,7 @@ class Message:
         """
         if output_component in self.history and self.reached_exit:
             try:
-                return self.history[output_component]['exit'] - self.history['VideoCapture']['entry']
+                return self.history[output_component]['exit'] - self.history[list(self.history.keys())[0]]['entry']
             except KeyError:
                 return None
         else:

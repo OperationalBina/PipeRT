@@ -138,14 +138,16 @@ class VideoVisualizer:
 
         labels = _create_text_labels(classes, scores, self.metadata.get("thing_classes", None), ids)
 
-        if self._instance_mode == ColorMode.IMAGE_BW:
-            # any() returns uint8 tensor
-            frame_visualizer.output.img = frame_visualizer._create_grayscale_image(
-                (masks.any(dim=0) > 0).numpy() if masks is not None else None
-            )
-            alpha = 0.3
-        else:
-            alpha = 0.5
+        # if self._instance_mode == ColorMode.IMAGE_BW:
+        #     # any() returns uint8 tensor
+        #     frame_visualizer.output.img = frame_visualizer._create_grayscale_image(
+        #         (masks.any(dim=0) > 0).numpy() if masks is not None else None
+        #     )
+        #     alpha = 0.7
+        # else:
+        #     alpha = 0.7
+
+
 
         frame_visualizer.overlay_instances(
             boxes=None if masks is not None else boxes,  # boxes are a bit distracting
@@ -153,7 +155,7 @@ class VideoVisualizer:
             labels=labels,
             keypoints=keypoints,
             assigned_colors=colors,
-            alpha=alpha,
+            alpha=1,
         )
 
         return frame_visualizer.output

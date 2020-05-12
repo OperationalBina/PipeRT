@@ -1,3 +1,7 @@
+import time
+
+import numpy as np
+
 from pipert.core.routine import Routine, RoutineTypes
 from pipert.core import QueueHandler
 from pipert.utils.visualizer import VideoVisualizer
@@ -15,15 +19,12 @@ class VisLogic(Routine):
         self.in_queue = QueueHandler(in_queue)
         self.out_queue = QueueHandler(out_queue)
         self.vis = VideoVisualizer(MetadataCatalog.get("coco_2017_train"))
-        self.latest_pred_msg = None
+        self.latest_drawing = None
 
     def main_logic(self, *args, **kwargs):
         messages = self.in_queue.non_blocking_get()
         if messages:
             frame_msg, pred_msg = messages
-            if pred_msg is not None:
-                self.latest_pred_msg = pred_msg
-            pred_msg = self.latest_pred_msg
             self.draw_preds_on_frame(frame_msg, pred_msg)
             self.pass_frame_to_flask(frame_msg, pred_msg)
             return True
@@ -31,12 +32,15 @@ class VisLogic(Routine):
             return None
 
     def draw_preds_on_frame(self, frame_msg, pred_msg: Optional[Message]):
+        frame = frame_msg.get_payload()
         if pred_msg is not None and not pred_msg.is_empty():
-            frame = frame_msg.get_payload()
             pred = pred_msg.get_payload()
-            image = self.vis.draw_instance_predictions(frame, pred) \
-                .get_image()
-            frame_msg.update_payload(image)
+            self.latest_drawing = self.vis.draw_instance_predictions(np.zeros_like(frame),
+                                                                     pred).get_image().astype(np.uint16)
+
+        pred_canvas = self.latest_drawing if self.latest_drawing is not None else np.zeros_like(frame)
+        drawing = np.clip(frame + pred_canvas, 0, 255)
+        frame_msg.update_payload(drawing)
 
     def pass_frame_to_flask(self, frame_msg, pred_msg: Optional[Message]):
         image = frame_msg.get_payload()

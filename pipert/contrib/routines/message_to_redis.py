@@ -12,9 +12,9 @@ import os
 class MessageToRedis(Routine):
     routine_type = RoutineTypes.OUTPUT
 
-    def __init__(self, out_key, queue, maxlen, *args, **kwargs):
+    def __init__(self, redis_send_key, queue, maxlen, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.out_key = out_key
+        self.redis_send_key = redis_send_key
         self.url = urlparse(os.environ.get('REDIS_URL', "redis://127.0.0.1:6379"))
         self.q_handler = QueueHandler(queue)
         self.maxlen = maxlen
@@ -28,7 +28,7 @@ class MessageToRedis(Routine):
                 encoded_msg = message_encode(msg)
             else:
                 encoded_msg = message_encode(msg)
-            self.msg_handler.send(self.out_key, encoded_msg)
+            self.msg_handler.send(self.redis_send_key, encoded_msg)
             return True
         else:
             return False

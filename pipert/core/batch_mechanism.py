@@ -14,7 +14,7 @@ class BatchMechanism(ABC):
 		self.batch = {}
 		for p_args, kw_args in args:
 			slave = batch_class(*p_args, **kw_args).as_thread()
-			self.batch[slave.__getattribute__(batch_key)] = {'queue': QueueHandler(slave.message_queue), 'slave': slave}
+			self.batch[slave.__getattribute__(batch_key)] = {'queue': slave.q_handler, 'slave': slave}
 
 		timeout = max(timeout, 0)
 		if blocking and timeout > 0:
