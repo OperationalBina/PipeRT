@@ -17,7 +17,7 @@ class YoloV3Logic(Routine):
         self.in_queue = QueueHandler(in_queue)
         self.out_queue = QueueHandler(out_queue)
         self.batch = batch
-        self.img_size = (320, 192) if ONNX_EXPORT else img_size  # (320, 192) or (416, 256) or (608, 352)
+        self.img_size = img_size
         self.half = half
         self.cfg = cfg
         self.weights = weights
@@ -31,7 +31,7 @@ class YoloV3Logic(Routine):
     def main_logic(self, *args, **kwargs):
         msgs = self.in_queue.non_blocking_get()
         if msgs:
-            start_preprocess = time.time()
+            # start_preprocess = time.time()
             if not self.batch:
                 msgs = [msgs]
 
@@ -48,15 +48,16 @@ class YoloV3Logic(Routine):
 
             # Normalize RGB
             images = images[:, :, :, ::-1].transpose(0, 3, 1, 2)  # BGR to RGB and switch to NxCxWxH
-            end_preprocess = time.time()
+            # end_preprocess = time.time()
             images = np.ascontiguousarray(images, dtype=np.float16 if self.half else np.float32)  # uint8 to fp16/fp32
             images /= 255.0
             images = torch.from_numpy(images).to(self.device)
-            end_funny_business = time.time()
+            # end_funny_business = time.time()
             with torch.no_grad():
                 preds, _ = self.model(images)
-            end_model = time.time()
-            dets = non_max_suppression(preds, self.conf_thresh, self.nms_thresh)
+            # end_model = time.time()
+
+            dets = non_max_suppression(preds, self.conf_thresh, self.nms_thresh, method='vision')
 
             results = []
             for det in dets:
@@ -73,7 +74,7 @@ class YoloV3Logic(Routine):
                     res = Instances(im0shape)
                     res.set("pred_boxes", [])
                 results.append(res)
-            end_post_process = time.time()
+            # end_post_process = time.time()
             if len(msgs) != len(results):
                 self.logger.debug(f"Detections missing!! Got a batch of size {len(msgs)} "
                                   f"but only have {len(results)} results!")
@@ -83,11 +84,11 @@ class YoloV3Logic(Routine):
                 msg.payload = PredictionPayload(res.to("cpu"))
                 if self.batch:
                     snd_batch[msg.out_key] = msg
-            end_packaging = time.time()
-            print("preprocess: {:.6f}, funny_business: {:.6f}, model: {:.6f}, post_process: {:.6f}, packaging: {:.6f}, Total: {:.6f}".
-                  format(end_preprocess - start_preprocess, end_funny_business - end_preprocess,
-                         end_model - end_funny_business, end_post_process - end_model,
-                         end_packaging - end_post_process, end_post_process - start_preprocess))
+            # end_packaging = time.time()
+            # print("preprocess: {:.6f}, funny_business: {:.6f}, model: {:.6f}, post_process: {:.6f}, packaging: {:.6f},
+            # Total: {:.6f}".format(end_preprocess - start_preprocess, end_funny_business - end_preprocess,
+            #                       end_model - end_funny_business, end_post_process - end_model,
+            #                       end_packaging - end_post_process, end_post_process - start_preprocess))
             success = self.out_queue.deque_non_blocking_put(snd_batch if self.batch else msgs[0])
             return success
 
@@ -96,7 +97,7 @@ class YoloV3Logic(Routine):
 
     def setup(self, *args, **kwargs):
         self.state.dropped = 0
-        self.device = torch_utils.select_device(force_cpu=ONNX_EXPORT)
+        self.device = torch_utils.select_device('0')
         self.model = Darknet(self.cfg, self.img_size)
         if self.weights.endswith('.pt'):  # pytorch format
             self.model.load_state_dict(torch.load(self.weights, map_location=self.device)['model'])
@@ -132,6 +133,11 @@ class YoloV3Logic(Routine):
 
     def does_routine_use_queue(self, queue_name):
         return (self.in_queue == queue_name) or (self.out_queue == queue_name)
+
+    @staticmethod
+    def pad_img(im0, pad_to_mod=32):
+        n, w, h, c = im0.shape
+        return np.pad(im0, ((0, 0), (0, w % pad_to_mod), (0, h % pad_to_mod), (0, 0)), constant_values=114)
 
     @staticmethod
     def letterbox(imgs, new_shape=416, color=(128, 128, 128), mode='auto'):
