@@ -14,6 +14,8 @@ from pipert.core import Routine, BaseComponent, QueueHandler, RoutineTypes
 from pipert.contrib.routines import BatchMessageFromRedis, BatchMessageToRedis, YoloV3Logic, MessageFromRedis, \
     MessageToRedis
 
+# import torch.multiprocessing as mp
+
 
 class YoloV3(BaseComponent):
 
@@ -25,7 +27,7 @@ class YoloV3(BaseComponent):
                                  metrics_collector=self.metrics_collector).as_thread()
         self.register_routine(t_get)
         t_det = YoloV3Logic(self.in_queue, self.out_queue, opt.cfg, opt.names, opt.weights, opt.img_size,
-                            opt.conf_thres, opt.nms_thres, opt.half, False, name='yolo_logic',
+                            opt.conf_thres, opt.nms_thres, opt.half, batch=False, name='yolo_logic',
                             component_name=self.name, metrics_collector=self.metrics_collector).as_thread()
         self.register_routine(t_det)
         t_send = MessageToRedis(out_key, self.out_queue, maxlen, name="upload_redis", component_name=self.name,
@@ -41,11 +43,11 @@ class YoloV3Batch(BaseComponent):
         self.out_queue = Queue(maxsize=1)
 
         t_get_batch = BatchMessageFromRedis(src_dst_keys, self.in_queue, name="get_frames", component_name=self.name,
-                                            metrics_collector=self.metrics_collector).as_thread()
+                                            metrics_collector=self.metrics_collector, blocking=False, timeout=0.03).as_thread()
         self.register_routine(t_get_batch)
 
         t_det = YoloV3Logic(self.in_queue, self.out_queue, opt.cfg, opt.names, opt.weights, opt.img_size,
-                            opt.conf_thres, opt.nms_thres, opt.half, True, name='yolo_logic',
+                            opt.conf_thres, opt.nms_thres, opt.half, batch=True, name='yolo_logic',
                             component_name=self.name, metrics_collector=self.metrics_collector).as_thread()
         self.register_routine(t_det)
 
@@ -67,8 +69,8 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:2')
     parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
     parser.add_argument('-z', '--zpc', help='zpc port', type=str, default='4243')
-    parser.add_argument('-b', '--batch', help='batching mechanism', type=bool, default=False)
-    parser.add_argument('--monitoring', help='Name of the monitoring service', type=str, default='prometheus')
+    parser.add_argument('-b', '--batch', help='batching size', type=int, default=1)
+    parser.add_argument('--monitoring', help='Name of the monitoring service', type=str, default='')
     parser.add_argument('--maxlen', help='Maximum length of output stream', type=int, default=100)
     parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
@@ -77,6 +79,7 @@ if __name__ == '__main__':
     parser.add_argument('--half', action='store_true', help='half precision FP16 inference')
     opt = parser.parse_args()
 
+    # mp.set_start_method('spawn')
     # url = urlparse(opts.url)
     url = os.environ.get('REDIS_URL')
     url = urlparse(url) if url is not None else urlparse(opt.url)
@@ -88,11 +91,14 @@ if __name__ == '__main__':
     else:
         collector = NullCollector()
 
-    if not opt.batch:
-        zpc = YoloV3(opt.input, opt.output, opt.maxlen, collector)
+    src_dst_keys = [(f"camera:{i}", f"camera:y{i}") for i in range(opt.batch)]
+
+    if opt.batch == 1:
+        zpc = YoloV3(src_dst_keys[0][0], src_dst_keys[0][1], opt.maxlen, collector)
     else:
-        src_dst_keys = [(opt.input, opt.output)]
+        print(src_dst_keys)
         zpc = YoloV3Batch(src_dst_keys, opt.maxlen, collector)
+
     print(f"run {zpc.name}")
     zpc.run()
     print(f"Killed {zpc.name}")

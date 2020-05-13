@@ -34,11 +34,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--infile', help='Input file (leave empty to use webcam)', nargs='?', type=str,
                         default=None)
-    parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='camera:0')
+    parser.add_argument('-o', '--output', help='Output stream key name', type=str, default='')
     parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
     parser.add_argument('-w', '--webcam', help='Webcam device number', type=int, default=0)
     parser.add_argument('-v', '--verbose', help='Verbose output', type=bool, default=False)
-    parser.add_argument('--monitoring', help='Name of the monitoring service', type=str, default='prometheus')
+    parser.add_argument('--monitoring', help='Name of the monitoring service', type=str, default='')
     parser.add_argument('-s', '--shared', help='Shared memory', type=bool, default=False)
     parser.add_argument('--count', help='Count of frames to capture', type=int, default=None)
     parser.add_argument('--fmt', help='Frame storage format', type=str, default='.jpg')
@@ -50,6 +50,7 @@ if __name__ == '__main__':
     url = os.environ.get('REDIS_URL')
     url = urlparse(url) if url is not None else urlparse(opts.url)
 
+    name = "VideoCapture" + opts.output.split(':')[-1]
     if opts.monitoring == 'prometheus':
         collector = PrometheusCollector(8080)
     elif opts.monitoring == 'splunk':
@@ -65,7 +66,7 @@ if __name__ == '__main__':
     else:
         zpc = VideoCapture(stream_address=opts.infile, out_key=opts.output,
                            metrics_collector=collector, fps=opts.fps, maxlen=opts.maxlen,
-                           use_memory=opts.shared)
+                           use_memory=opts.shared, name=name)
     print(f"run {zpc.name}")
     zpc.run()
     print(f"Killed {zpc.name}")

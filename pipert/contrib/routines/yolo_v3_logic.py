@@ -1,11 +1,12 @@
 import time
-
 from pipert.contrib.detection_demo.models import *  # set ONNX_EXPORT in models.py
 # from detection_demo.utils.datasets import *
 from pipert.contrib.detection_demo.utils import *
-from pipert.core.message import PredictionPayload
+from pipert.core.message import PredictionPayload, DefaultOrderedDict
 from pipert.utils.structures import Instances, Boxes
 from pipert.core import Routine, QueueHandler, RoutineTypes
+from collections import defaultdict
+import torch.multiprocessing as mp
 
 
 class YoloV3Logic(Routine):
@@ -25,13 +26,18 @@ class YoloV3Logic(Routine):
         self.colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(self.classes))]
         self.conf_thresh = conf_thresh
         self.nms_thresh = nms_thresh
+        self.timer = DefaultOrderedDict(list)
+        self.single_times = {'preprocess': 0.005013, 'load_gpu': 0.001664, 'model': 0.049875, 'post_process': 0.012147,
+                             'packaging': 0.000877, 'End_to_end': 0.069576}
         self.model = None
         self.device = None
 
     def main_logic(self, *args, **kwargs):
         msgs = self.in_queue.non_blocking_get()
         if msgs:
-            # start_preprocess = time.time()
+            if len(self.timer['batch']) and len(self.timer['batch']) % 1000 == 0:
+                self.latency_analysis()
+            start_preprocess = time.time()
             if not self.batch:
                 msgs = [msgs]
 
@@ -48,14 +54,19 @@ class YoloV3Logic(Routine):
 
             # Normalize RGB
             images = images[:, :, :, ::-1].transpose(0, 3, 1, 2)  # BGR to RGB and switch to NxCxWxH
-            # end_preprocess = time.time()
+            end_preprocess = time.time()
             images = np.ascontiguousarray(images, dtype=np.float16 if self.half else np.float32)  # uint8 to fp16/fp32
             images /= 255.0
             images = torch.from_numpy(images).to(self.device)
-            # end_funny_business = time.time()
+
+            end_funny_business = time.time()
             with torch.no_grad():
                 preds, _ = self.model(images)
-            # end_model = time.time()
+            end_model = time.time()
+
+            # with mp.Pool(processes=len(preds)) as pool:
+            #     dets = pool.map(non_max_suppression, [preds[[i]] for i in range(len(preds))])
+            # dets = [_[0] for _ in dets]  # squeeze
 
             dets = non_max_suppression(preds, self.conf_thresh, self.nms_thresh, method='vision')
 
@@ -74,7 +85,7 @@ class YoloV3Logic(Routine):
                     res = Instances(im0shape)
                     res.set("pred_boxes", [])
                 results.append(res)
-            # end_post_process = time.time()
+            end_post_process = time.time()
             if len(msgs) != len(results):
                 self.logger.debug(f"Detections missing!! Got a batch of size {len(msgs)} "
                                   f"but only have {len(results)} results!")
@@ -84,11 +95,18 @@ class YoloV3Logic(Routine):
                 msg.payload = PredictionPayload(res.to("cpu"))
                 if self.batch:
                     snd_batch[msg.out_key] = msg
-            # end_packaging = time.time()
-            # print("preprocess: {:.6f}, funny_business: {:.6f}, model: {:.6f}, post_process: {:.6f}, packaging: {:.6f},
-            # Total: {:.6f}".format(end_preprocess - start_preprocess, end_funny_business - end_preprocess,
-            #                       end_model - end_funny_business, end_post_process - end_model,
-            #                       end_packaging - end_post_process, end_post_process - start_preprocess))
+            end_packaging = time.time()
+            print("[batch: {}, preprocess: {:.6f},   load_gpu: {:.6f},   model: {:.6f},   post_process: {:.6f},   packaging: {:.6f},   Total: {:.6f}]"
+                  .format(len(msgs), end_preprocess - start_preprocess, end_funny_business - end_preprocess,
+                                  end_model - end_funny_business, end_post_process - end_model,
+                                  end_packaging - end_post_process, end_packaging - start_preprocess))
+            self.timer['batch'].append(len(msgs))
+            self.timer['preprocess'].append(end_preprocess - start_preprocess)
+            self.timer['load_gpu'].append(end_funny_business - end_preprocess)
+            self.timer['model'].append(end_model - end_funny_business)
+            self.timer['post_process'].append(end_post_process - end_model)
+            self.timer['packaging'].append(end_packaging - end_post_process)
+            self.timer['End_to_end'].append(end_packaging - start_preprocess)
             success = self.out_queue.deque_non_blocking_put(snd_batch if self.batch else msgs[0])
             return success
 
@@ -97,7 +115,7 @@ class YoloV3Logic(Routine):
 
     def setup(self, *args, **kwargs):
         self.state.dropped = 0
-        self.device = torch_utils.select_device('0')
+        self.device = torch_utils.select_device('0,1,2,3')
         self.model = Darknet(self.cfg, self.img_size)
         if self.weights.endswith('.pt'):  # pytorch format
             self.model.load_state_dict(torch.load(self.weights, map_location=self.device)['model'])
@@ -113,6 +131,26 @@ class YoloV3Logic(Routine):
 
     def cleanup(self, *args, **kwargs):
         del self.model, self.device, self.classes, self.colors
+        self.latency_analysis()
+
+    def latency_analysis(self):
+        print(f"\n{self.name} - Latency analysis from {len(self.timer['preprocess'])} iterations:")
+        for key, value in self.timer.items():
+            sum_ = sum(value)
+            mean = sum_/len(value)
+            n_mean = sum_/sum(self.timer['batch'])
+
+            print(f"--- {key.capitalize()} ---")
+            print(f"High: {max(value):.6f}")
+            print(f"Low: {min(value):.6f}")
+            print(f"Mean: {mean:.6f}")
+            if key != "batch":
+                print(f"Normalized mean: {n_mean:.6f}")
+                print(f"Ratio: {self.single_times[key]/n_mean:.6f}")
+            print("\n")
+        print("Ratio of >1 means this part is better when batching")
+        print("Ratio of 1> means this part is worse when batching")
+        print("Ratio of 1 means this part is unchanged when batching\n")
 
     @staticmethod
     def get_constructor_parameters():
