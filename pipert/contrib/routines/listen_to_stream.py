@@ -75,6 +75,10 @@ class ListenToStream(Routine):
                 self.ts = time.time()
             return success
 
+        else:
+            self.cleanup()
+            self.begin_capture()
+
     def setup(self, *args, **kwargs):
         self.begin_capture()
 

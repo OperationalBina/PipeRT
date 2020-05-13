@@ -36,10 +36,10 @@ class VisLogic(Routine):
         if pred_msg is not None and not pred_msg.is_empty():
             pred = pred_msg.get_payload()
             self.latest_drawing = self.vis.draw_instance_predictions(np.zeros_like(frame),
-                                                                     pred).get_image().astype(np.uint16)
+                                                                     pred).get_image().astype(np.uint32) * 2
 
         pred_canvas = self.latest_drawing if self.latest_drawing is not None else np.zeros_like(frame)
-        drawing = np.clip(frame + pred_canvas, 0, 255)
+        drawing = np.clip(frame + pred_canvas, 0, 255).astype(np.uint8)
         frame_msg.update_payload(drawing)
 
     def pass_frame_to_flask(self, frame_msg, pred_msg: Optional[Message]):
