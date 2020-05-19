@@ -1,8 +1,12 @@
 import zerorpc
 import re
 import importlib.util
+
+from pipert.contrib.metrics_collectors.prometheus_collector import PrometheusCollector
+from pipert.contrib.metrics_collectors.splunk_collector import SplunkCollector
 from pipert.core.component import BaseComponent
 from pipert.core.errors import QueueDoesNotExist
+from pipert.core.metrics_collector import NullCollector
 from pipert.core.routine import Routine
 from os import listdir
 from os.path import isfile, join
@@ -278,6 +282,27 @@ class PipelineManager:
                 f"Cannot find execution mode '{execution_mode}'"
             )
 
+    @component_name_existence_error(need_to_be_exist=True)
+    def change_component_monitoring_mode(self, component_name, monitoring_mode):
+        monitoring_mode = monitoring_mode.lower()
+        if monitoring_mode == 'prometheus':
+            collector = PrometheusCollector(8081)
+        elif monitoring_mode == 'splunk':
+            collector = SplunkCollector()
+        else:
+            collector = NullCollector()
+        try:
+            getattr(self.components[component_name], collector)()
+            return self._create_response(
+                True,
+                f"The component {component_name} changed monitoring mode to {monitoring_mode}"
+            )
+        except AttributeError:
+            return self._create_response(
+                False,
+                f"Cannot find monitoring mode '{monitoring_mode}'"
+            )
+
     # helping method for changing the file name to class name
     @staticmethod
     def _remove_string_with_underscore(match):
@@ -352,6 +377,10 @@ class PipelineManager:
                     responses.append(self.change_component_execution_mode(
                         component_name=component_name,
                         execution_mode=component_parameters["execution_mode"]))
+                if "monitoring_mode" in component_parameters:
+                    responses.append(self.change_component_monitoring_mode(
+                        component_name=component_name,
+                        monitoring_mode=component_parameters["monitoring_mode"]))
                 for queue in component_parameters["queues"]:
                     responses.append(self.create_queue_to_component(
                         component_name=component_name,
