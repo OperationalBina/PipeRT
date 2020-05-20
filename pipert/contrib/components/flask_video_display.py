@@ -15,7 +15,6 @@ class FlaskVideoDisplay(BaseComponent):
     def __init__(self, component_config):
         self.display_queue_name = "flask_display"
         self.create_queue(self.display_queue_name)
-        super().__init__(component_config)
 
         app = Flask(__name__)
 
@@ -38,6 +37,8 @@ class FlaskVideoDisplay(BaseComponent):
             # app.do_teardown_appcontext()
             shutdown_server()
             return 'Server shutting down...'
+
+        super().__init__(component_config)
 
     def _start(self):
         super()._start()

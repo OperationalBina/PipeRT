@@ -27,6 +27,7 @@ class BaseComponent:
         self.as_process()
         self.metrics_collector = NullCollector()
         self.setup_component(component_config)
+        self.run()
 
     def setup_component(self, component_config):
         component_name, component_parameters = component_config.items()
