@@ -100,7 +100,7 @@ class PipelineManager:
         if "name" not in routine_parameters_kwargs:
             return self._create_response(
                 False,
-                f"Routine must have a name"
+                "Routine must have a name"
             )
 
         if self.components[component_name] \
@@ -108,7 +108,7 @@ class PipelineManager:
             return self._create_response(
                 False,
                 f"Routine with the name {routine_parameters_kwargs['name']}"
-                f" already exist in this component"
+                " already exist in this component"
             )
 
         try:
@@ -185,7 +185,7 @@ class PipelineManager:
                 does_routines_use_queue(queue_name):
             return self._create_response(
                 False,
-                f"Can't remove a queue that is being used by routines"
+                "Can't remove a queue that is being used by routines"
             )
 
         self.components[component_name].delete_queue(queue_name=queue_name)
@@ -234,7 +234,7 @@ class PipelineManager:
                 component.run()
         return self._create_response(
             True,
-            f"All of the components are running"
+            "All of the components are running"
         )
 
     def stop_all_components(self):
@@ -243,7 +243,7 @@ class PipelineManager:
                 component.stop_run()
         return self._create_response(
             True,
-            f"All of the components have been stopped"
+            "All of the components have been stopped"
         )
 
     def get_all_routine_types(self):
@@ -358,7 +358,7 @@ class PipelineManager:
         if (type(components) is not dict) and ("components" not in components):
             return self._create_response(
                 False,
-                f"All of the components must be inside a dictionary with the key 'components'"
+                "All of the components must be inside a dictionary with the key 'components'"
             )
 
         for component_name, component_parameters in components["components"].items():
@@ -400,7 +400,7 @@ class PipelineManager:
         if all(response["Succeeded"] for response in responses):
             return self._create_response(
                 True,
-                f"All of the components have been created"
+                "All of the components have been created"
             )
         else:
             return list(filter(lambda response: not response["Succeeded"], responses))
