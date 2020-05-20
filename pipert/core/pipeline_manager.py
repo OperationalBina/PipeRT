@@ -224,7 +224,7 @@ class PipelineManager:
             else:
                 return self._create_response(
                     False,
-                    f"An error has occurred, can't "
+                    "An error has occurred, can't "
                     f"stop the component {component_name}"
                 )
 
