@@ -11,9 +11,9 @@ class ClassFactory:
 
     def get_class(self, class_name) -> Optional['class_object']:
         path = self.classes_folder_path + "/" + \
-               re.sub(r'[A-Z]',
-                      _add_underscore_before_uppercase,
-                      class_name)[1:] + ".py"
+            re.sub(r'[A-Z]',
+                   _add_underscore_before_uppercase,
+                   class_name)[1:] + ".py"
         return _get_class_object_by_path(path, class_name)
 
 
