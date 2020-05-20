@@ -30,7 +30,7 @@ class BaseComponent:
         self.run()
 
     def setup_component(self, component_config):
-        component_name, component_parameters = component_config.items()
+        component_name, component_parameters = list(component_config.items())[0]
         self.name = component_name
 
         if component_parameters["shared_memory"]:
