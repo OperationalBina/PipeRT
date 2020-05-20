@@ -6,7 +6,6 @@ from typing import Optional
 class ClassFactory:
 
     def __init__(self, classes_folder_path):
-        self.classes_folder_path = "pipert/contrib/routines"
         self.classes_folder_path = classes_folder_path
 
     def get_class(self, class_name) -> Optional['class_object']:
