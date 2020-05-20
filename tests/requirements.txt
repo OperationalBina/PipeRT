@@ -1,3 +1,4 @@
 pytest
 coverage
 jsonschema
+splunk_http_event_collector
