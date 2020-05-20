@@ -39,7 +39,6 @@ if __name__ == '__main__':
 
     if isinstance(component_config, str):
         exit(component_config)
-    print (component_config)
     component_factory = ClassFactory(COMPONENTS_FOLDER_PATH)
 
     _, component_params = list(component_config.items())[0]
