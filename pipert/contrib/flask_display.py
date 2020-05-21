@@ -12,7 +12,7 @@ import queue
 from threading import Thread
 import cv2
 from pipert.utils.visualizer import VideoVisualizer
-from detectron2.data import MetadataCatalog
+from pipert.utils.visualizer.catalog import MetadataCatalog
 from pipert.core.message import message_decode, Message
 from pipert.core.message_handlers import RedisHandler
 from pipert.core import QueueHandler
@@ -108,7 +108,7 @@ class VisLogic(Routine):
         if pred_msg is not None and not pred_msg.is_empty():
             frame = frame_msg.get_payload()
             pred = pred_msg.get_payload()
-            image = self.vis.draw_instance_predictions(frame, pred) \
+            image = self.vis.draw_instance_predictions(frame, pred, args_dict['names']) \
                 .get_image()
             frame_msg.update_payload(image)
 
@@ -175,12 +175,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input_im', help='Input stream key name', type=str, default='camera:0')
     parser.add_argument('-m', '--input_meta', help='Input stream key name', type=str, default='camera:2')
+    parser.add_argument('--names', type=str, default='pipert/contrib/YoloResources/coco.names',
+                        help='coco.names file path')
     parser.add_argument('-u', '--url', help='Redis URL', type=str, default='redis://127.0.0.1:6379')
     parser.add_argument('-z', '--zpc', help='zpc port', type=str, default='4246')
     parser.add_argument('--monitoring', help='Name of the monitoring service', type=str, default='prometheus')
 
     args = parser.parse_args()
-
+    args_dict = vars(args)
     # Set up Redis connection
     # url = urlparse(args.url)
     url = os.environ.get('REDIS_URL')

@@ -104,7 +104,7 @@ class PipelineManager:
             return self._create_response(
                 False,
                 f"Routine with the name {routine_parameters_kwargs['name']}"
-                f" already exist in this component"
+                " already exist in this component"
             )
 
         try:
@@ -220,7 +220,7 @@ class PipelineManager:
             else:
                 return self._create_response(
                     False,
-                    f"An error has occurred, can't "
+                    "An error has occurred, can't "
                     f"stop the component {component_name}"
                 )
 
