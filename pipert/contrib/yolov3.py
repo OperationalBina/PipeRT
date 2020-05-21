@@ -104,8 +104,8 @@ class YoloV3Logic(Routine):
                 res = Instances(im0.shape)
                 res.set("pred_boxes", Boxes(det[:, :4]))
                 res.set("scores", det[:, 4])
-                res.set("class_scores", det[:, 5])
-                res.set("pred_classes", det[:, 6].round().int())
+                res.set("class_scores", det[:, 5:-1].unsqueeze(1))
+                res.set("pred_classes", det[:, -1].round().int())
             else:
                 res = Instances(im0.shape)
                 res.set("pred_boxes", [])

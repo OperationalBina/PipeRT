@@ -19,10 +19,32 @@ Documentation
 =============
 API documentation and an overview of the library can be found [here](https://pipert.readthedocs.io/en/latest/).
 
+Submodule Usage
+===============
+- **In order to use the submodules in this project do the following:**:
+    - **When cloning**: `git clone --recurse-submodules https://github.com/ItamarWilf/PipeRT.git`
+    
+      **OR**
+    
+    - **After `git pull`**: `git submodule update --init --recursive`
+
+
 Installation
+============
+- **Docker**
+
+- **Docker compose**
+
+- **Nvidia docker**: https://github.com/NVIDIA/nvidia-docker
+
+- **nvidia-container-runtime**: https://github.com/NVIDIA/nvidia-container-runtime
+
+Usage
 ============
 - Running the pipeline for the first time:
     - docker-compose up -d
 
 - Build the pipeline after changes:
-    - docker-compose up -d --build --force-recreate
+    - docker-compose up -d --build
+    
+- After the pipeline is up run the [cli.py script](pipert/core/cli.py) and connect (The default endpoint is tcp://0.0.0.0:4002)

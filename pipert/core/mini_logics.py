@@ -1,6 +1,6 @@
 import time
 from pipert.core.message_handlers import RedisHandler
-from pipert.core.message import message_decode, message_encode
+from pipert.core.message import message_decode, message_encode, FramePayload
 from pipert.core.routine import Routine
 from pipert.core import QueueHandler
 
@@ -20,7 +20,11 @@ class Message2Redis(Routine):
         msg = self.q_handler.non_blocking_get()
         if msg:
             msg.record_exit(self.component_name, self.logger)
-            encoded_msg = message_encode(msg)
+            if self.use_memory and isinstance(msg.payload, FramePayload):
+                encoded_msg = message_encode(msg,
+                                             generator=self.generator)
+            else:
+                encoded_msg = message_encode(msg)
             self.msg_handler.send(self.out_key, encoded_msg)
             return True
         else:
