@@ -4,6 +4,7 @@ import pycocotools.mask as mask_util
 from enum import Enum, unique
 from pipert.utils.visualizer.visualizer import Visualizer
 from pipert.utils.structures import Instances
+from pipert.contrib.detection_demo.utils import load_classes
 
 
 @unique
@@ -95,7 +96,7 @@ class VideoVisualizer:
         ], "Other mode not supported yet."
         self._instance_mode = instance_mode
 
-    def draw_instance_predictions(self, frame, predictions):
+    def draw_instance_predictions(self, frame, predictions, names):
         """
         Draw instance-level prediction results on an image.
 
@@ -136,7 +137,7 @@ class VideoVisualizer:
         ]
         colors = self._assign_colors(detected)
 
-        labels = _create_text_labels(classes, scores, self.metadata.get("thing_classes", None), ids)
+        labels = _create_text_labels(classes, scores, load_classes(names), ids)
 
         if self._instance_mode == ColorMode.IMAGE_BW:
             # any() returns uint8 tensor

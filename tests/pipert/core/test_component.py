@@ -1,36 +1,8 @@
-import pytest
-
 import time
-import gevent
-import zerorpc
-# import signal
-# import os
 from threading import Thread
 from torch.multiprocessing import Process
-from pipert.core.component import BaseComponent
-# from pipert.core.routine import Routine
-from tests.pipert.core.test_routine import DummyRoutine
-from pipert.core.errors import RegisteredException
-
-
-class DummyComponent(BaseComponent):
-
-    def __init__(self, endpoint="tcp://0.0.0.0:4242", *args, **kwargs):
-        super().__init__(endpoint, *args, **kwargs)
-
-    @staticmethod
-    def add(a, b):
-        return a + b
-
-
-def test_zerorpc():
-    comp = DummyComponent()
-    gevent.spawn(comp.run)
-    client = zerorpc.Client()
-    client.connect(comp.endpoint)
-    assert client.add(2, 3) == 5
-    assert client.stop_run() == 0
-    client.close()
+from tests.pipert.core.utils.dummy_routine import DummyRoutine
+from tests.pipert.core.utils.dummy_component import DummyComponent
 
 
 def test_register_routine():
@@ -38,9 +10,8 @@ def test_register_routine():
     rout = DummyRoutine().as_thread()
     comp.register_routine(rout)
 
-    with pytest.raises(RegisteredException):
-        comp.register_routine(rout)
-    comp.zrpc.close()
+    assert rout in comp._routines.values()
+    assert rout.stop_event == comp.stop_event
 
 
 def test_safe_stop():
@@ -56,10 +27,15 @@ def test_safe_stop():
     rout3 = Process(target=foo)
     comp.register_routine(rout3)
 
-    gevent.spawn(comp.run)
-    client = zerorpc.Client()
-    client.connect(comp.endpoint)
+    comp.run()
     time.sleep(0.1)
-    assert client.stop_run() == 0
-    client.close()
+    assert comp.stop_run() == 0
 
+
+def test_change_runner():
+    comp = DummyComponent()
+    comp.as_thread()
+    thread_runner = comp.runner_creator
+    comp.as_process()
+    process_runner = comp.runner_creator
+    assert thread_runner != process_runner

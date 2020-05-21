@@ -13,5 +13,7 @@ ARG DETECTRON
 ENV DETECTRON=${DETECTRON}
 RUN if [ "$DETECTRON" = "yes" ]; then pip install 'git+https://github.com/facebookresearch/detectron2.git'; fi
 
-EXPOSE 5000
-ENTRYPOINT ["/demo_run"]
+ENV PYTHONPATH='/'
+ENV PYTHONUNBUFFERED=1
+
+ENTRYPOINT ["python", "pipert/core/main.py"]

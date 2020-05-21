@@ -30,7 +30,18 @@ class State(object):
         self.output = None
 
 
+class RoutineTypes(Enum):
+    """
+    Every routine will have a type
+    """
+    NO_TYPE = -1
+    INPUT = 0
+    PROCESSING = 1
+    OUTPUT = 2
+
+
 class Routine(ABC):
+    routine_type = RoutineTypes.NO_TYPE
 
     def __init__(self, name="", component_name="", metrics_collector=NullCollector()):
 
@@ -39,12 +50,16 @@ class Routine(ABC):
         # name of the component that instantiated the routine
         self.component_name = component_name
         self.metrics_collector = metrics_collector
+        self.use_memory = False
+        self.generator = None
         self.stop_event: mp.Event = None
         self._event_handlers = defaultdict(list)
         self.state = None
         self._allowed_events = []
         self.register_events(*Events)
         self.runner = None
+        self.runner_creator = None
+        self.runner_creator_kwargs = {}
         self._setup_logger()
 
     def _setup_logger(self):
@@ -62,10 +77,10 @@ class Routine(ABC):
         Add events that can be fired.
 
         Registering an event will let the user fire these events at any point.
-        This opens the door to make the :meth:`~ignite.engine.Engine.run` loop
+        This opens the door to make the :meth:`~ignite.routine.Routine.run` loop
         even more configurable.
 
-        By default, the events from :class:`~ignite.engine.Events` are
+        By default, the events from :class:`~ignite.routine.Events` are
         registerd.
 
         Args:
@@ -82,8 +97,8 @@ class Routine(ABC):
                 FOO_EVENT = "foo_event"
                 BAR_EVENT = "bar_event"
 
-            engine = Engine(process_function)
-            engine.register_events(*Custom_Events)
+            routine = Routine(process_function)
+            routine.register_events(*Custom_Events)
 
         """
         for name in event_names:
@@ -97,40 +112,40 @@ class Routine(ABC):
 
         Args:
             event_name: An event to attach the handler to. Valid events are
-            from :class:`~ignite.engine.Events` or any `event_name` added by
-             :meth:`~ignite.engine.Engine.register_events`.
+            from :class:`~ignite.routine.Events` or any `event_name` added by
+             :meth:`~ignite.routine.Routine.register_events`.
             handler (callable): the callable event handler that
             should be invoked
             first: specify 'true' if the event handler should be called first
             last: specify 'true' if the event handler should be called last
-            *args: argsional args to be passed to `handler`.
-            **kwargs: argsional keyword args to be passed to `handler`.
+            *args: additional args to be passed to `handler`.
+            **kwargs: additional keyword args to be passed to `handler`.
 
         Notes:
               The handler function's first argument will be `self`, the
-              :class:`~ignite.engine.Engine` object it was bound to.
+              :class:`~ignite.routine.Routine` object it was bound to.
 
               Note that other arguments can be passed to the handler in
               addition to the `*args` and  `**kwargs` passed here, for example
-               during :attr:`~ignite.engine.Events.EXCEPTION_RAISED`.
+               during :attr:`~ignite.routine.Events.EXCEPTION_RAISED`.
 
         Example usage:
 
         .. code-block:: python
 
-            engine = Engine(process_function)
+            routine = Routine(process_function)
 
-            def print_epoch(engine):
-                print("Epoch: {}".format(engine.state.epoch))
+            def print_epoch(routine):
+                print("Epoch: {}".format(routine.state.epoch))
 
-            engine.add_event_handler(Events.EPOCH_COMPLETED, print_epoch)
+            routine.add_event_handler(Events.EPOCH_COMPLETED, print_epoch)
 
         """
         if event_name not in self._allowed_events:
             self.logger.error("attempt to add event handler to an invalid "
                               "event %s.", event_name)
             raise ValueError("Event {} is not a valid event for this "
-                             "Engine.".format(event_name))
+                             "Routine.".format(event_name))
 
         if first:
             self._event_handlers[event_name].append((0,
@@ -172,7 +187,7 @@ class Routine(ABC):
     def remove_event_handler(self, handler, event_name):
         """
         Remove event handler `handler` from registered handlers of the
-        engine
+        routine
 
         Args:
             handler (callable): the callable event handler that should
@@ -220,10 +235,10 @@ class Routine(ABC):
 
         Args:
             event_name: An event to attach the handler to. Valid events are
-            from :class:`~ignite.engine.Events` or any `event_name` added by
-             :meth:`~ignite.engine.Engine.register_events`.
-            *args: argsional args to be passed to `handler`.
-            **kwargs: argsional keyword args to be passed to `handler`.
+            from :class:`~ignite.routine.Events` or any `event_name` added by
+             :meth:`~ignite.routine.Routine.register_events`.
+            *args: additional args to be passed to `handler`.
+            **kwargs: additional keyword args to be passed to `handler`.
 
         """
         def decorator(f):
@@ -239,15 +254,15 @@ class Routine(ABC):
         `event_name`. Optional positional and keyword arguments can be used to
         pass arguments to **all** handlers added with this event. These
         aguments updates arguments passed using
-        :meth:`~ignite.engine.Engine.add_event_handler`.
+        :meth:`~ignite.routine.Routine.add_event_handler`.
 
         Args:
             event_name: event for which the handlers should be executed. Valid
-                events are from :class:`~ignite.engine.Events` or any
+                events are from :class:`~ignite.routine.Events` or any
                 `event_name` added by
-                 :meth:`~ignite.engine.Engine.register_events`.
-            *event_args: argsional args to be passed to all handlers.
-            **event_kwargs: argsional keyword args to be passed to
+                 :meth:`~ignite.routine.Routine.register_events`.
+            *event_args: additional args to be passed to all handlers.
+            **event_kwargs: additional keyword args to be passed to
             all handlers.
 
         """
@@ -261,9 +276,11 @@ class Routine(ABC):
     def main_logic(self, *args, **kwargs):
         raise NotImplementedError
 
+    @abstractmethod
     def setup(self, *args, **kwargs):
         raise NotImplementedError
 
+    @abstractmethod
     def cleanup(self, *args, **kwargs):
         raise NotImplementedError
 
@@ -293,15 +310,52 @@ class Routine(ABC):
         self.cleanup()
 
     def as_thread(self):
-        self.runner = threading.Thread(target=self._extended_run)
+        self.runner_creator = threading.Thread
+        self.runner_creator_kwargs = {"target": self._extended_run}
         return self
 
     def as_process(self):
-        self.runner = mp.Process(target=self._extended_run)
+        self.runner_creator = mp.Process
+        self.runner_creator_kwargs = {"target": self._extended_run}
         return self
 
     def start(self):
-        if self.runner is None:
+        if self.runner_creator is None:
             # TODO - create better errors
             raise NoRunnerException("Runner not configured for routine")
+        self.runner = self.runner_creator(**self.runner_creator_kwargs)
         self.runner.start()
+
+    @staticmethod
+    @abstractmethod
+    def get_constructor_parameters():
+        """
+           Returns a dictionary of the constructor's
+           parameters built as key for name and value
+           for type name
+        """
+        return {
+            "name": "String"
+        }
+
+    @abstractmethod
+    def does_routine_use_queue(self, queue_name):
+        """
+           Returns True whether the routine uses the given
+           queue_name.
+           Args:
+               queue_name: the name of the queue
+        """
+        raise NotImplementedError
+
+    def get_creation_dictionary(self):
+        """
+           Returns a dictionary containing the routine parameters name as keys
+           and their values as values. The method return queue objects instead
+           of queue names when encountering them.
+        """
+        parameters_dictionary_with_routine_params = self.get_constructor_parameters()
+        parameters_dictionary_with_all_params = self.__dict__
+        for key in parameters_dictionary_with_routine_params.keys():
+            parameters_dictionary_with_routine_params[key] = parameters_dictionary_with_all_params[key]
+        return parameters_dictionary_with_routine_params
