@@ -4,11 +4,16 @@ from typing import Optional
 
 
 class ClassFactory:
-
+    """Class that generates the class object of files from the given folder path"""
     def __init__(self, classes_folder_path):
         self.classes_folder_path = classes_folder_path
 
     def get_class(self, class_name) -> Optional['class_object']:
+        """
+
+        :param class_name: The name of the class
+        :return: The class object from the given name or None if the name doesn't exist
+        """
         path = self.classes_folder_path + "/" + \
             re.sub(r'[A-Z]',
                    _add_underscore_before_uppercase,

@@ -33,7 +33,7 @@ if __name__ == '__main__':
     opts, unknown = parser.parse_known_args()
 
     if opts.port is None:
-        exit("Must get port in the script parameters")
+        exit("Must get port for the zeroRPC server in the script parameters")
 
     component_config = open_config_file(opts.config_path)
 
@@ -43,6 +43,7 @@ if __name__ == '__main__':
 
     _, component_params = list(component_config.items())[0]
 
+    # Checks if special component is need or base component
     if "component_type_name" in component_params:
         component_class = component_factory.get_class(component_params["component_type_name"])
     else:
