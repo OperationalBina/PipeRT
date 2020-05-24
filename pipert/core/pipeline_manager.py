@@ -1,5 +1,6 @@
 import socket
-
+import subprocess
+import yaml
 import zerorpc
 import re
 import importlib.util
@@ -42,6 +43,7 @@ class PipelineManager:
         self.components = {}
         self.ROUTINES_FOLDER_PATH = "pipert/contrib/routines"
         self.COMPONENTS_FOLDER_PATH = "pipert/contrib/components"
+        self.ports_counter = 20000
 
     @component_name_existence_error(need_to_be_exist=True)
     def add_routine_to_component(self, component_name,
@@ -306,29 +308,17 @@ class PipelineManager:
         for component_name, component_parameters in components["components"].items():
             try:
                 validate(instance=component_parameters, schema=component_validator)
-                to_use_shared_memory = component_parameters.get("shared_memory", False)
-                if "component_type_name" in component_parameters:
-                    responses.append(self.create_premade_component(
-                        component_name=component_name,
-                        component_type_name=component_parameters["component_type_name"],
-                        use_shared_memory=to_use_shared_memory))
-                else:
-                    responses.append(self.create_component(component_name=component_name,
-                                                           use_shared_memory=to_use_shared_memory))
-                if "execution_mode" in component_parameters:
-                    responses.append(self.change_component_execution_mode(
-                        component_name=component_name,
-                        execution_mode=component_parameters["execution_mode"]))
-                for queue in component_parameters["queues"]:
-                    responses.append(self.create_queue_to_component(
-                        component_name=component_name,
-                        queue_name=queue))
-                for routine_name, routine_parameters in component_parameters["routines"].items():
-                    routine_type_name = routine_parameters.pop("routine_type_name", "")
-                    routine_parameters["name"] = routine_name
-                    responses.append(self.add_routine_to_component(
-                        component_name=component_name,
-                        routine_type_name=routine_type_name, **routine_parameters))
+                current_component_dict = {component_name: component_parameters}
+                component_file_path = component_name + ".yaml"
+                with open(component_file_path, 'w') as file:
+                    yaml.dump(current_component_dict, file)
+
+                component_port = str(self.get_random_available_ports())
+                print(component_port)
+                cmd = "python pipert/core/component_factory.py -cp " + component_file_path + " -p " + component_port
+                subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+                self.components[component_name] = zerorpc.Client()
+                self.components[component_name].connect("tcp://localhost:" + component_port)
             except ValidationError as error:
                 responses.append(self._create_response(
                     False,
@@ -396,9 +386,6 @@ class PipelineManager:
 
         return routine_dict
 
-    @staticmethod
-    def get_random_available_ports():
-        for port in range(20000, 30000):
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                if sock.connect_ex(('localhost', port)) == 0:
-                    return port
+    def get_random_available_ports(self):
+        self.ports_counter += 1
+        return self.ports_counter
