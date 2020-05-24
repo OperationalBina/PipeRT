@@ -1,3 +1,5 @@
+import socket
+
 import zerorpc
 import re
 import importlib.util
@@ -40,41 +42,6 @@ class PipelineManager:
         self.components = {}
         self.ROUTINES_FOLDER_PATH = "pipert/contrib/routines"
         self.COMPONENTS_FOLDER_PATH = "pipert/contrib/components"
-
-    @component_name_existence_error(need_to_be_exist=False)
-    def create_component(self, component_name, use_shared_memory=False):
-        self.components[component_name] = \
-            BaseComponent(name=component_name, use_memory=use_shared_memory)
-        return self._create_response(
-            True,
-            f"Component {component_name} has been created"
-        )
-
-    @component_name_existence_error(need_to_be_exist=False)
-    def create_premade_component(self, component_name, component_type_name, use_shared_memory=False):
-        component_class = \
-            self._get_component_class_object_by_type_name(component_type_name)
-        if component_class is None:
-            return self._create_response(
-                False,
-                f"The component type {component_type_name} doesn't exist"
-            )
-        self.components[component_name] = \
-            component_class(name=component_name, use_memory=use_shared_memory)
-        return self._create_response(
-            True,
-            f"Component {component_name} has been created"
-        )
-
-    @component_name_existence_error(need_to_be_exist=True)
-    def remove_component(self, component_name):
-        if self._does_component_running(self.components[component_name]):
-            self.components[component_name].stop_run()
-        del self.components[component_name]
-        return self._create_response(
-            True,
-            f"Component {component_name} has been removed"
-        )
 
     @component_name_existence_error(need_to_be_exist=True)
     def add_routine_to_component(self, component_name,
@@ -376,29 +343,6 @@ class PipelineManager:
         else:
             return list(filter(lambda response: not response["Succeeded"], responses))
 
-    def _get_routine_class_object_by_type_name(self, routine_name: str) -> Routine:
-        path = self.ROUTINES_FOLDER_PATH + "/" + \
-            re.sub(r'[A-Z]',
-                   self._add_underscore_before_uppercase,
-                   routine_name)[1:] + ".py"
-        return self._get_class_object_by_path(path, routine_name)
-
-    def _get_component_class_object_by_type_name(self, component_type_name):
-        path = self.COMPONENTS_FOLDER_PATH + "/" + \
-            re.sub(r'[A-Z]',
-                   self._add_underscore_before_uppercase,
-                   component_type_name)[1:] + ".py"
-        return self._get_class_object_by_path(path, component_type_name)
-
-    def _get_class_object_by_path(self, path, class_name):
-        spec = importlib.util.spec_from_file_location(class_name, path)
-        class_object = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(class_object)
-        try:
-            return getattr(class_object, class_name)
-        except AttributeError:
-            return None
-
     def _does_component_exist(self, component_name):
         return component_name in self.components
 
@@ -451,3 +395,10 @@ class PipelineManager:
                         routine_dict[routine_param_name] = queue_name
 
         return routine_dict
+
+    @staticmethod
+    def get_random_available_ports():
+        for port in range(20000, 30000):
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                if sock.connect_ex(('localhost', port)) == 0:
+                    return port
