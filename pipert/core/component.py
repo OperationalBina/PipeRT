@@ -26,12 +26,7 @@ class BaseComponent:
         """
         super().__init__()
         self.name = name
-        if metrics_collector == 'prometheus':
-            self.metrics_collector = PrometheusCollector(8081)
-        elif metrics_collector == 'splunk':
-            self.metrics_collector = SplunkCollector()
-        else:
-            self.metrics_collector = metrics_collector
+        self.metrics_collector = metrics_collector
         self.stop_event = Event()
         self.stop_event.set()
         self.queues = {}

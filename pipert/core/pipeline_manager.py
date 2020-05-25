@@ -282,21 +282,6 @@ class PipelineManager:
                 f"Cannot find execution mode '{execution_mode}'"
             )
 
-    @component_name_existence_error(need_to_be_exist=True)
-    def change_component_monitoring_mode(self, component_name, monitoring_mode):
-        monitoring_mode = monitoring_mode.lower()
-        try:
-            getattr(self.components[component_name], monitoring_mode)()
-            return self._create_response(
-                True,
-                f"The component {component_name} changed monitoring mode to {monitoring_mode}"
-            )
-        except AttributeError:
-            return self._create_response(
-                False,
-                f"Cannot find monitoring mode '{monitoring_mode}'"
-            )
-
     # helping method for changing the file name to class name
     @staticmethod
     def _remove_string_with_underscore(match):
@@ -359,22 +344,21 @@ class PipelineManager:
             try:
                 validate(instance=component_parameters, schema=component_validator)
                 to_use_shared_memory = component_parameters.get("shared_memory", False)
+                monitoring_mode = component_parameters.get("monitoring_mode", NullCollector())
                 if "component_type_name" in component_parameters:
                     responses.append(self.create_premade_component(
                         component_name=component_name,
                         component_type_name=component_parameters["component_type_name"],
-                        use_shared_memory=to_use_shared_memory))
+                        use_shared_memory=to_use_shared_memory,
+                        monitoring_mode=monitoring_mode))
                 else:
                     responses.append(self.create_component(component_name=component_name,
-                                                           use_shared_memory=to_use_shared_memory))
+                                                           use_shared_memory=to_use_shared_memory,
+                                                           monitoring_mode=monitoring_mode))
                 if "execution_mode" in component_parameters:
                     responses.append(self.change_component_execution_mode(
                         component_name=component_name,
                         execution_mode=component_parameters["execution_mode"]))
-                if "monitoring_mode" in component_parameters:
-                    responses.append(self.change_component_monitoring_mode(
-                        component_name=component_name,
-                        monitoring_mode=component_parameters["monitoring_mode"]))
                 for queue in component_parameters["queues"]:
                     responses.append(self.create_queue_to_component(
                         component_name=component_name,
