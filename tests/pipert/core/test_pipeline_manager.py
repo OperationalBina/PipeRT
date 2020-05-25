@@ -269,11 +269,11 @@ def test_change_component_execution_mode_method_with_wrong_mode(pipeline_manager
 
 def test_change_component_monitoring_mode_method(pipeline_manager_with_component):
     response = pipeline_manager_with_component.\
-        change_component_monitoring_mode(component_name="comp", execution_mode="splunk")
+        change_component_monitoring_mode(component_name="comp", monitoring_mode="splunk")
     assert response["Succeeded"], response["Message"]
     collector_after_first_change = pipeline_manager_with_component.components["comp"].metrics_collector
     response = pipeline_manager_with_component. \
-        change_component_monitoring_mode(component_name="comp", execution_mode="prometheus")
+        change_component_monitoring_mode(component_name="comp", monitoring_mode="prometheus")
     assert response["Succeeded"], response["Message"]
     collector_after_second_change = pipeline_manager_with_component.components["comp"].metrics_collector
     assert collector_after_first_change != collector_after_second_change
