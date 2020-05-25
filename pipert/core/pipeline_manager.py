@@ -285,14 +285,8 @@ class PipelineManager:
     @component_name_existence_error(need_to_be_exist=True)
     def change_component_monitoring_mode(self, component_name, monitoring_mode):
         monitoring_mode = monitoring_mode.lower()
-        if monitoring_mode == 'prometheus':
-            collector = PrometheusCollector(8081)
-        elif monitoring_mode == 'splunk':
-            collector = SplunkCollector()
-        else:
-            collector = NullCollector()
         try:
-            getattr(self.components[component_name], collector)()
+            getattr(self.components[component_name], monitoring_mode)()
             return self._create_response(
                 True,
                 f"The component {component_name} changed monitoring mode to {monitoring_mode}"
