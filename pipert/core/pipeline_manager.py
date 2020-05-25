@@ -55,7 +55,10 @@ class PipelineManager:
         )
 
     @component_name_existence_error(need_to_be_exist=False)
-    def create_premade_component(self, component_name, component_type_name, use_shared_memory=False, monitoring_mode=NullCollector()):
+    def create_premade_component(self, component_name,
+                                 component_type_name,
+                                 use_shared_memory=False,
+                                 monitoring_mode=NullCollector()):
         component_class = \
             self._get_component_class_object_by_type_name(component_type_name)
         if component_class is None:
