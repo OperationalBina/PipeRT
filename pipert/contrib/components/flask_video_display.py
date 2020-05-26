@@ -39,17 +39,11 @@ class FlaskVideoDisplay(BaseComponent):
 
     def _start(self):
         super()._start()
-        # TODO need to understand why working as thread and not as process
         self.server = Thread(target=self.flask_app.run, kwargs={"host": '0.0.0.0'})
         self.server.start()
 
     def stop_run(self):
-        try:
-            super().stop_run()
-            self.server.join()
-            return 0
-        except RuntimeError:
-            return 1
+        return super().stop_run()
 
     def _gen(self):
         q = self.get_queue("flask_display")
