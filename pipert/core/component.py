@@ -27,7 +27,7 @@ class BaseComponent:
         self.as_process()
         self.metrics_collector = NullCollector()
         self.setup_component(component_config)
-        self.run()
+        self.run_comp()
 
     def setup_component(self, component_config):
         component_name, component_parameters = list(component_config.items())[0]
@@ -68,7 +68,7 @@ class BaseComponent:
         for routine in self._routines.values():
             routine.start()
 
-    def run(self):
+    def run_comp(self):
         self.component_runner = self.runner_creator(**self.runner_creator_kwargs)
         self.component_runner.start()
 
@@ -221,3 +221,9 @@ class BaseComponent:
         self.runner_creator = Process
         self.runner_creator_kwargs = {"target": self._run}
         return self
+
+    def does_component_running(self):
+        return not self.stop_event.is_set()
+
+    def get_routines(self):
+        return self._routines
