@@ -1,9 +1,9 @@
-import socket
 import subprocess
+from typing import Optional
 import yaml
 import zerorpc
 import re
-import importlib.util
+from pipert.core.class_factory import ClassFactory
 from pipert.core.component import BaseComponent
 from pipert.core.errors import QueueDoesNotExist
 from pipert.core.routine import Routine
@@ -167,7 +167,7 @@ class PipelineManager:
                 f"The component {component_name} already running"
             )
         else:
-            self.components[component_name].run()
+            self.components[component_name].run_comp()
             return self._create_response(
                 True,
                 f"The component {component_name} is now running"
@@ -196,7 +196,7 @@ class PipelineManager:
     def run_all_components(self):
         for component in self.components.values():
             if not self._does_component_running(component):
-                component.run()
+                component.run_comp()
         return self._create_response(
             True,
             "All of the components are running"
@@ -294,6 +294,8 @@ class PipelineManager:
             "required": ["queues", "routines"]
         }
 
+        COMPONENT_FACTORY_PATH = "pipert/core/component_factory.py"
+
         # Delete all of the current components
         self.components = {}
         responses = []
@@ -314,8 +316,7 @@ class PipelineManager:
                     yaml.dump(current_component_dict, file)
 
                 component_port = str(self.get_random_available_ports())
-                print(component_port)
-                cmd = "python pipert/core/component_factory.py -cp " + component_file_path + " -p " + component_port
+                cmd = "python " + COMPONENT_FACTORY_PATH + " -cp " + component_file_path + " -p " + component_port
                 subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
                 self.components[component_name] = zerorpc.Client()
                 self.components[component_name].connect("tcp://localhost:" + component_port)
@@ -333,12 +334,16 @@ class PipelineManager:
         else:
             return list(filter(lambda response: not response["Succeeded"], responses))
 
+    def _get_routine_class_object_by_type_name(self, routine_name: str) -> Optional[Routine]:
+        routine_factory = ClassFactory(self.ROUTINES_FOLDER_PATH)
+        return routine_factory.get_class(routine_name)
+
     def _does_component_exist(self, component_name):
         return component_name in self.components
 
     @staticmethod
     def _does_component_running(component):
-        return not component.stop_event.is_set()
+        return component.does_component_running()
 
     @staticmethod
     def _create_response(succeeded, message):
@@ -365,7 +370,7 @@ class PipelineManager:
 
         if type(self.components[component_name]).__name__ != BaseComponent.__name__:
             component_dict["component_type_name"] = type(self.components[component_name]).__name__
-        for current_routine_object in self.components[component_name]._routines.values():
+        for current_routine_object in self.components[component_name].get_routines().values():
             routine_creation_object = self._get_routine_creation(
                 component_name, current_routine_object)
             routine_name = routine_creation_object.pop("name")
