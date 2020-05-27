@@ -1,9 +1,5 @@
 import threading
-from prometheus_client import start_http_server
 from torch.multiprocessing import Event, Process
-
-from pipert.contrib.metrics_collectors.prometheus_collector import PrometheusCollector
-from pipert.contrib.metrics_collectors.splunk_collector import SplunkCollector
 from pipert.core.routine import Routine
 from threading import Thread
 from typing import Union
