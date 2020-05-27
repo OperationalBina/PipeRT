@@ -16,9 +16,3 @@ RUN pip3 install -r requirements.txt
 # Install pycocotools
 RUN pip3 install --upgrade cython
 RUN pip3 install pycocotools
-
-# Install Splunk HEC handler for python
-RUN pip install 'git+git://github.com/georgestarcher/Splunk-Class-httpevent.git'
-
-# Install detectron2
-RUN pip install 'git+https://github.com/facebookresearch/detectron2.git'
