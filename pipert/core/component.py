@@ -30,6 +30,9 @@ class BaseComponent:
         self.run_comp()
 
     def setup_component(self, component_config):
+        if (component_config is None) or (type(component_config) is not dict) or\
+                (component_config == {}):
+            return
         component_name, component_parameters = list(component_config.items())[0]
         self.name = component_name
 

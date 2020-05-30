@@ -19,13 +19,20 @@ def return_routine_class_object_by_name(name):
 def pipeline_manager():
     pipeline_manager = PipelineManager()
     pipeline_manager._get_routine_class_object_by_type_name = MagicMock(side_effect=return_routine_class_object_by_name)
-    pipeline_manager._get_component_class_object_by_type_name = MagicMock(return_value=DummyComponent)
     return pipeline_manager
 
 
 @pytest.fixture(scope="function")
 def pipeline_manager_with_component(pipeline_manager):
-    response = pipeline_manager.create_component(component_name="comp")
+    response = pipeline_manager.setup_components({
+        "components": {
+            "comp": {
+                "queues": [],
+                "routines": {}
+            }
+        }
+    })
+    # pipeline_manager.stop_component(component_name="comp")
     assert response["Succeeded"], response["Message"]
     return pipeline_manager
 
@@ -48,23 +55,6 @@ def pipeline_manager_with_component_and_queue_and_routine(pipeline_manager_with_
             name="routine1")
     assert response["Succeeded"], response["Message"]
     return pipeline_manager_with_component_and_queue
-
-
-def test_create_component(pipeline_manager):  # cant add with the same name for queue comp and routine
-    response = pipeline_manager.create_component(component_name="comp")
-    assert response["Succeeded"], response["Message"]
-    assert "comp" in pipeline_manager.components
-
-
-def test_create_component_with_same_name(pipeline_manager_with_component):
-    response = pipeline_manager_with_component.create_component(component_name="comp")
-    assert not response["Succeeded"], response["Message"]
-
-
-def test_remove_component(pipeline_manager_with_component):
-    response = pipeline_manager_with_component.remove_component(component_name="comp")
-    assert response["Succeeded"], response["Message"]
-    assert "comp" not in pipeline_manager_with_component.components
 
 
 def test_add_queue(pipeline_manager_with_component):
