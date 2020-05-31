@@ -36,7 +36,8 @@ class BaseComponent:
         component_name, component_parameters = list(component_config.items())[0]
         self.name = component_name
 
-        if component_parameters["shared_memory"]:
+        if ("shared_memory" in component_parameters) and \
+                (component_parameters["shared_memory"]):
             self.use_memory = True
             self.generator = MpSharedMemoryGenerator(self.name)
 
