@@ -1,40 +1,64 @@
-import threading
-from prometheus_client import start_http_server
 from torch.multiprocessing import Event, Process
 from pipert.core.routine import Routine
 from threading import Thread
 from typing import Union
 import signal
 import gevent
-from .metrics_collector import NullCollector
-from .multiprocessing_shared_memory import MpSharedMemoryGenerator
-from .errors import RegisteredException, QueueDoesNotExist
+from pipert.core.metrics_collector import NullCollector
+from pipert.core.multiprocessing_shared_memory import MpSharedMemoryGenerator
+from pipert.core.errors import RegisteredException, QueueDoesNotExist
+from pipert.core.class_factory import ClassFactory
 from queue import Queue
 
 
 class BaseComponent:
 
-    def __init__(self, name="", metrics_collector=NullCollector(),
-                 use_memory=False, *args, **kwargs):
-        """
-        Args:
-            *args: TBD
-            **kwargs: TBD
-        """
-        super().__init__()
-        self.name = name
-        self.metrics_collector = metrics_collector
+    def __init__(self, component_config):
+        self.name = ""
+        self.ROUTINES_FOLDER_PATH = "pipert/contrib/routines"
+        self.use_memory = False
         self.stop_event = Event()
         self.stop_event.set()
         self.queues = {}
         self._routines = {}
-        self.use_memory = use_memory
-        if use_memory:
-            self.generator = MpSharedMemoryGenerator(self.name)
         self.component_runner = None
         self.runner_creator = None
         self.runner_creator_kwargs = {}
-        self.as_thread()
+        self.as_process()
+        self.metrics_collector = NullCollector()
+        self.setup_component(component_config)
+        self.run()
+
+    def setup_component(self, component_config):
+        component_name, component_parameters = list(component_config.items())[0]
+        self.name = component_name
+
+        if component_parameters["shared_memory"]:
+            self.use_memory = True
+            self.generator = MpSharedMemoryGenerator(self.name)
+
+        for queue in component_parameters["queues"]:
+            self.create_queue(queue_name=queue, queue_size=1)
+
+        routine_factory = ClassFactory(self.ROUTINES_FOLDER_PATH)
+        for routine_name, routine_parameters in component_parameters["routines"].items():
+            routine_parameters["name"] = routine_name
+            routine_class = routine_factory.get_class(routine_parameters.pop("routine_type_name", ""))
+            if routine_class is None:
+                continue
+            try:
+                self._replace_queue_names_with_queue_objects(routine_parameters)
+            except QueueDoesNotExist as e:
+                continue
+
+            routine_parameters["component_name"] = self.name
+
+            self.register_routine(routine_class(**routine_parameters).as_thread())
+
+    def _replace_queue_names_with_queue_objects(self, routine_parameters_kwargs):
+        for key, value in routine_parameters_kwargs.items():
+            if 'queue' in key.lower():
+                routine_parameters_kwargs[key] = self.get_queue(queue_name=value)
 
     def _start(self):
         """
@@ -189,7 +213,7 @@ class BaseComponent:
         return False
 
     def as_thread(self):
-        self.runner_creator = threading.Thread
+        self.runner_creator = Thread
         self.runner_creator_kwargs = {"target": self._run}
         return self
 
