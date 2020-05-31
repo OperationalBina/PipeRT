@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     _, component_params = list(component_config.items())[0]
 
-    # Checks if special component is need or base component
+    # Checks if special component is needed or base component
     if "component_type_name" in component_params:
         component_class = component_factory.get_class(component_params["component_type_name"])
     else:
