@@ -13,7 +13,7 @@ from queue import Queue
 
 class BaseComponent:
 
-    def __init__(self, component_config):
+    def __init__(self, component_config, start_component=True):
         self.name = ""
         self.ROUTINES_FOLDER_PATH = "pipert/contrib/routines"
         self.use_memory = False
@@ -27,7 +27,8 @@ class BaseComponent:
         self.as_process()
         self.metrics_collector = NullCollector()
         self.setup_component(component_config)
-        self.run_comp()
+        if start_component:
+            self.run_comp()
 
     def setup_component(self, component_config):
         if (component_config is None) or (type(component_config) is not dict) or\
@@ -118,6 +119,8 @@ class BaseComponent:
         pass
 
     def stop_run(self):
+        if self.stop_event.is_set():
+            return 0
         self.stop_event.set()
         try:
             self.component_runner.join()
@@ -194,6 +197,10 @@ class BaseComponent:
            Raises:
                KeyError - if no queue has the name queue_name
         """
+        if queue_name not in self.queues:
+            raise QueueDoesNotExist(queue_name)
+        if self.does_routines_use_queue(queue_name=queue_name):
+            return False
         try:
             del self.queues[queue_name]
             return True
