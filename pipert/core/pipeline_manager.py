@@ -315,7 +315,7 @@ class PipelineManager:
                 with open(component_file_path, 'w') as file:
                     yaml.dump(current_component_dict, file)
 
-                component_port = str(self.get_random_available_ports())
+                component_port = str(self.get_random_available_port())
                 cmd = "python " + COMPONENT_FACTORY_PATH + " -cp " + component_file_path + " -p " + component_port
                 subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
                 self.components[component_name] = zerorpc.Client()
