@@ -391,6 +391,6 @@ class PipelineManager:
 
         return routine_dict
 
-    def get_random_available_ports(self):
+    def get_random_available_port(self):
         self.ports_counter += 1
         return self.ports_counter
