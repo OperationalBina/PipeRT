@@ -21,10 +21,6 @@ class BaseComponent:
         self.stop_event.set()
         self.queues = {}
         self._routines = {}
-        self.component_runner = None
-        self.runner_creator = None
-        self.runner_creator_kwargs = {}
-        self.as_process()
         self.metrics_collector = NullCollector()
         self.setup_component(component_config)
         if start_component:
@@ -74,10 +70,6 @@ class BaseComponent:
             routine.start()
 
     def run_comp(self):
-        self.component_runner = self.runner_creator(**self.runner_creator_kwargs)
-        self.component_runner.start()
-
-    def _run(self):
         """
         Starts running all the component's routines.
         """
@@ -85,11 +77,6 @@ class BaseComponent:
         self._start()
         gevent.signal_handler(signal.SIGTERM, self.stop_run)
         self.metrics_collector.setup()
-
-        # keeps the component execution alive
-        while not self.stop_event.is_set():
-            pass
-        self._stop_run()
 
     def register_routine(self, routine: Union[Routine, Process, Thread]):
         """
@@ -119,20 +106,13 @@ class BaseComponent:
         pass
 
     def stop_run(self):
-        if self.stop_event.is_set():
-            return 0
-        self.stop_event.set()
-        try:
-            self.component_runner.join()
-            return 0
-        except RuntimeError:
-            print(f"Wasn't able to stop the component {self.name}")
-            return 1
-
-    def _stop_run(self):
         """
         Signals all the component's routines to stop.
         """
+        if self.stop_event.is_set():
+            return 0
+        self.stop_event.set()
+
         try:
             self._teardown_callback()
             if self.use_memory:
@@ -222,16 +202,6 @@ class BaseComponent:
             if routine.does_routine_use_queue(self.queues[queue_name]):
                 return True
         return False
-
-    def as_thread(self):
-        self.runner_creator = Thread
-        self.runner_creator_kwargs = {"target": self._run}
-        return self
-
-    def as_process(self):
-        self.runner_creator = Process
-        self.runner_creator_kwargs = {"target": self._run}
-        return self
 
     def does_component_running(self):
         return not self.stop_event.is_set()
