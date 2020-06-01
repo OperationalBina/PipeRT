@@ -49,15 +49,6 @@ def test_safe_stop():
     assert comp.stop_run() == 0
 
 
-def test_change_runner():
-    comp = DummyComponent({})
-    comp.as_thread()
-    thread_runner = comp.runner_creator
-    comp.as_process()
-    process_runner = comp.runner_creator
-    assert thread_runner != process_runner
-
-
 def test_create_queue():
     comp = DummyComponent({})
     assert comp.create_queue("que1", 1)
