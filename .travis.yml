@@ -23,6 +23,8 @@ jobs:
       python: "3.8"
       services:
         - redis-server
+      before_install:
+        - export PYTHONPATH=$PYTHONPATH:$(pwd)
       install:
         - pip install -r pipe-base/requirements.txt
         - pip install -r tests/requirements.txt
