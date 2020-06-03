@@ -237,28 +237,3 @@ def test_create_components_using_bad_structures(pipeline_manager):
             }
         })
     assert type(response) is list, '\n'.join([res["Message"] for res in response])
-
-
-def test_change_component_execution_mode_method(pipeline_manager_with_component):
-    response = pipeline_manager_with_component.\
-        change_component_execution_mode(component_name="comp", execution_mode="thread")
-    assert response["Succeeded"], response["Message"]
-    runner_after_first_change = pipeline_manager_with_component.components["comp"].runner_creator
-    response = pipeline_manager_with_component. \
-        change_component_execution_mode(component_name="comp", execution_mode="process")
-    assert response["Succeeded"], response["Message"]
-    runner_after_second_change = pipeline_manager_with_component.components["comp"].runner_creator
-    assert runner_after_first_change != runner_after_second_change
-
-
-def test_change_component_execution_mode_method_with_wrong_mode(pipeline_manager_with_component):
-    response = pipeline_manager_with_component. \
-        change_component_execution_mode(component_name="comp", execution_mode="nothing")
-    assert not response["Succeeded"], response["Message"]
-
-
-def test_create_component_with_shared_memory(pipeline_manager):
-    response = pipeline_manager.create_component(component_name="comp",
-                                                 use_shared_memory=True)
-    assert response["Succeeded"], response["Message"]
-    assert pipeline_manager.components["comp"].use_memory
