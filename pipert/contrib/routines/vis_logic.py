@@ -1,7 +1,7 @@
 from pipert.core.routine import Routine, RoutineTypes
 from queue import Empty, Full
 from pipert.utils.visualizer import VideoVisualizer
-from detectron2.data import MetadataCatalog
+from pipert.utils.visualizer.catalog import MetadataCatalog
 import time
 
 
@@ -13,6 +13,7 @@ class VisLogic(Routine):
         self.in_queue = in_queue
         self.out_queue = out_queue
         self.vis = VideoVisualizer(MetadataCatalog.get("coco_2017_train"))
+        self.NAMES = "pipert/contrib/YoloResources/coco.names"
 
     def main_logic(self, *args, **kwargs):
         # TODO implement input that takes both frame and metadata
@@ -23,7 +24,7 @@ class VisLogic(Routine):
             if pred_msg is not None and not pred_msg.is_empty():
                 frame = frame_msg.get_payload()
                 pred = pred_msg.get_payload()
-                image = self.vis.draw_instance_predictions(frame, pred) \
+                image = self.vis.draw_instance_predictions(frame, pred, self.NAMES) \
                     .get_image()
                 frame_msg.update_payload(image)
                 frame_msg.history = pred_msg.history

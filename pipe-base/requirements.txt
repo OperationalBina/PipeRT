@@ -26,3 +26,4 @@ SQLAlchemy
 flask-sqlalchemy
 psycopg2-binary
 jsonschema
+requests
