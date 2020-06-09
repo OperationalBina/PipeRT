@@ -18,6 +18,7 @@ def component_with_queue():
 def component_with_queue_and_routine(component_with_queue):
     component_with_queue.register_routine(
         DummyRoutineWithQueue(
+            name="rout1",
             queue=component_with_queue.queues["que1"])
         .as_thread())
     return component_with_queue
@@ -55,6 +56,11 @@ def test_create_queue():
     assert "que1" in comp.queues
 
 
+def test_remove_queue(component_with_queue):
+    assert component_with_queue.delete_queue("que1")
+    assert "que1" not in component_with_queue.queues
+
+
 def test_create_queue_with_same_name(component_with_queue):
     assert not component_with_queue.create_queue("que1", 2)
     assert "que1" in component_with_queue.queues
@@ -62,3 +68,12 @@ def test_create_queue_with_same_name(component_with_queue):
 
 def test_remove_queue_used_by_routine(component_with_queue_and_routine):
     assert not component_with_queue_and_routine.delete_queue("que1")
+
+
+def test_remove_routine(component_with_queue_and_routine):
+    assert component_with_queue_and_routine.remove_routine("rout1")
+    assert "rout1" not in component_with_queue_and_routine._routines
+
+
+def test_remove_routine_does_not_exist(component_with_queue_and_routine):
+    assert not component_with_queue_and_routine.remove_routine("not_exist")

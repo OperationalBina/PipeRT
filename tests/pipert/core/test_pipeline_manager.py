@@ -1,8 +1,9 @@
 from unittest.mock import MagicMock
 import pytest
+
+from pipert import BaseComponent
 from tests.pipert.core.utils.dummy_routine_with_queue import DummyRoutineWithQueue
 from tests.pipert.core.utils.dummy_routine import DummyRoutine
-from tests.pipert.core.utils.dummy_component import DummyComponent
 from pipert.core.pipeline_manager import PipelineManager
 
 
@@ -24,16 +25,7 @@ def pipeline_manager():
 
 @pytest.fixture(scope="function")
 def pipeline_manager_with_component(pipeline_manager):
-    response = pipeline_manager.setup_components({
-        "components": {
-            "comp": {
-                "queues": [],
-                "routines": {}
-            }
-        }
-    })
-    # pipeline_manager.stop_component(component_name="comp")
-    assert response["Succeeded"], response["Message"]
+    pipeline_manager.components["comp"] = BaseComponent(component_config={}, start_component=False)
     return pipeline_manager
 
 
@@ -139,101 +131,3 @@ def test_run_and_stop_component(pipeline_manager_with_component_and_queue_and_ro
     assert response["Succeeded"], response["Message"]
     assert pipeline_manager_with_component_and_queue_and_routine. \
         components["comp"].stop_event.is_set()
-
-
-def test_create_components_using_structure(pipeline_manager):
-    response = pipeline_manager.setup_components(
-        {
-            "components": {
-                "comp1": {
-                    "queues": [
-                        "que1",
-                    ],
-                    "execution_mode": "process",
-                    "routines": {
-                        "rout1": {
-                            "queue": "que1",
-                            "routine_type_name": "DummyRoutineWithQueue"
-                        },
-                        "rout2": {
-                            "routine_type_name": "DummyRoutine"
-                        }
-                    }
-                },
-                "comp2": {
-                    "component_type_name": "DummyComponent",
-                    "queues": [
-                        "que1"
-                    ],
-                    "routines": {
-                        "rout1": {
-                            "routine_type_name": "DummyRoutine"
-                        }
-                    }
-                }
-            }
-        })
-    assert type(response) is not list, '\n'.join([res["Message"] for res in response])
-
-
-def test_create_components_using_bad_structures(pipeline_manager):
-    response = pipeline_manager.setup_components(
-        {
-            "components": {
-                "comp1": {
-                    "queues": [
-                        "que1",
-                    ],
-                    "routiness": {
-                        "rout1": {
-                            "queue": "que1",
-                            "routine_type_name": "DummyRoutineWithQueue"
-                        },
-                        "rout2": {
-                            "routine_type_name": "DummyRoutine"
-                        }
-                    }
-                }
-            }
-        })
-    assert type(response) is list, '\n'.join([res["Message"] for res in response])
-
-    response = pipeline_manager.setup_components(
-        {
-            "components": {
-                "comp1": {
-                    "routines": {
-                        "rout1": {
-                            "queue": "que1",
-                            "routine_type_name": "DummyRoutineWithQueue"
-                        },
-                        "rout2": {
-                            "routine_type_name": "DummyRoutine"
-                        }
-                    }
-                }
-            }
-        })
-    assert type(response) is list, '\n'.join([res["Message"] for res in response])
-
-    response = pipeline_manager.setup_components(
-        {
-            "components": {
-                "comp1": {
-                    "queues": [
-                        "que1",
-                    ],
-                    "execution_mode": "proces",
-                    "routines": {
-                        "rout1": {
-                            "queue": "que1",
-                            "routine_type_name": "DummyRoutineWithQueue"
-                        },
-                        "rout2": {
-                            "routine_type_name": "DummyRoutine"
-                        }
-                    }
-                }
-            }
-        })
-    assert type(response) is list, '\n'.join([res["Message"] for res in response])
