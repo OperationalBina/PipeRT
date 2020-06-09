@@ -125,18 +125,18 @@ class PipelineManager:
     @component_name_existence_error(need_to_be_exist=True)
     def create_queue_to_component(self, component_name,
                                   queue_name, queue_size=1):
-        if self.components[component_name].does_queue_exist(queue_name):
+        if self.components[component_name].\
+                create_queue(queue_name=queue_name,
+                             queue_size=queue_size):
+            return self._create_response(
+                True,
+                f"The Queue {queue_name} has been created"
+            )
+        else:
             return self._create_response(
                 False,
                 f"Queue named {queue_name} already exist"
             )
-
-        self.components[component_name].create_queue(queue_name=queue_name,
-                                                     queue_size=queue_size)
-        return self._create_response(
-            True,
-            f"The Queue {queue_name} has been created"
-        )
 
     @component_name_existence_error(need_to_be_exist=True)
     def remove_queue_from_component(self, component_name, queue_name):
