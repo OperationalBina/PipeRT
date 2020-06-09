@@ -86,6 +86,8 @@ class BaseComponent:
         """
         # TODO - write this function in a cleaner way?
         if isinstance(routine, Routine):
+            if routine.name in self._routines:
+                raise RegisteredException("routine name already exist")
             if routine.stop_event is None:
                 routine.stop_event = self.stop_event
                 if self.use_memory:
