@@ -355,41 +355,10 @@ class PipelineManager:
     def get_pipeline_creation(self):
         components = {}
         for component_name in self.components.keys():
-            components[component_name] = self._get_component_creation(component_name)
+            components[component_name] = \
+                self.components[component_name].get_component_configuration()
 
         return {"components": components}
-
-    def _get_component_creation(self, component_name):
-
-        component_dict = {
-            "queues":
-                list(self.components[component_name].
-                     get_all_queue_names()),
-            "routines": {}
-        }
-
-        if type(self.components[component_name]).__name__ != BaseComponent.__name__:
-            component_dict["component_type_name"] = type(self.components[component_name]).__name__
-        for current_routine_object in self.components[component_name].get_routines().values():
-            routine_creation_object = self._get_routine_creation(
-                component_name, current_routine_object)
-            routine_name = routine_creation_object.pop("name")
-            component_dict["routines"][routine_name] = \
-                routine_creation_object
-
-        return component_dict
-
-    def _get_routine_creation(self, component_name, routine):
-        routine_dict = routine.get_creation_dictionary()
-        routine_dict["routine_type_name"] = routine.__class__.__name__
-        for routine_param_name in routine_dict.keys():
-            if "queue" in routine_param_name:
-                for queue_name in self.components[component_name].queues.keys():
-                    if getattr(routine, routine_param_name) is \
-                            self.components[component_name].queues[queue_name]:
-                        routine_dict[routine_param_name] = queue_name
-
-        return routine_dict
 
     def get_random_available_port(self):
         self.ports_counter += 1

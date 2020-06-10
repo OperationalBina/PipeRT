@@ -210,3 +210,32 @@ class BaseComponent:
 
     def get_routines(self):
         return self._routines
+
+    def get_component_configuration(self):
+        component_dict = {
+            "shared_memory": self.use_memory,
+            "queues":
+                list(self.get_all_queue_names()),
+            "routines": {}
+        }
+
+        if type(self).__name__ != BaseComponent.__name__:
+            component_dict["component_type_name"] = type(self).__name__
+        for current_routine_object in self._routines.values():
+            routine_creation_dict = \
+                self._get_routine_creation(current_routine_object)
+            routine_name = routine_creation_dict.pop("name")
+            component_dict["routines"][routine_name] = \
+                routine_creation_dict
+
+    def _get_routine_creation(self, routine):
+        routine_dict = routine.get_creation_dictionary()
+        routine_dict["routine_type_name"] = routine.__class__.__name__
+        for routine_param_name in routine_dict.keys():
+            if "queue" in routine_param_name:
+                for queue_name in self.queues.keys():
+                    if getattr(routine, routine_param_name) is \
+                            self.queues[queue_name]:
+                        routine_dict[routine_param_name] = queue_name
+
+        return routine_dict
