@@ -48,6 +48,7 @@ class BaseComponent:
         routine_factory = ClassFactory(self.ROUTINES_FOLDER_PATH)
         for routine_name, routine_parameters in component_parameters["routines"].items():
             routine_parameters["name"] = routine_name
+            routine_parameters['metrics_collector'] = self.metrics_collector
             routine_class = routine_factory.get_class(routine_parameters.pop("routine_type_name", ""))
             if routine_class is None:
                 continue
@@ -246,7 +247,7 @@ class BaseComponent:
 
     def set_monitoring_system(self, monitoring_system_parameters):
         monitoring_system_factory = ClassFactory(self.MONITORING_SYSTEMS_FOLDER_PATH)
-        monitoring_system_name = monitoring_system_parameters.pop("name") + "_collector"
+        monitoring_system_name = monitoring_system_parameters.pop("name") + "Collector"
         monitoring_system_class = monitoring_system_factory.get_class(monitoring_system_name)
         if monitoring_system_class is None:
             return
