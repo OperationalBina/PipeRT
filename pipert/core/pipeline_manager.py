@@ -4,7 +4,6 @@ import yaml
 import zerorpc
 import re
 from pipert.core.class_factory import ClassFactory
-from pipert.core.component import BaseComponent
 from pipert.core.errors import QueueDoesNotExist
 from pipert.core.routine import Routine
 from os import listdir
@@ -311,7 +310,7 @@ class PipelineManager:
             try:
                 validate(instance=component_parameters, schema=component_validator)
                 current_component_dict = {component_name: component_parameters}
-                component_file_path = component_name + ".yaml"
+                component_file_path = "pipert/utils/config_files/" + component_name + ".yaml"
                 with open(component_file_path, 'w') as file:
                     yaml.dump(current_component_dict, file)
 
