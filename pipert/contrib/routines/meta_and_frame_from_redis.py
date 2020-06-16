@@ -23,7 +23,7 @@ class MetaAndFrameFromRedis(Routine):
         self.negative = False
 
     def receive_msg(self, in_key):
-        encoded_msg = self.msg_handler.read_most_recent_msg(in_key)
+        encoded_msg = self.msg_handler.receive(in_key)
         if not encoded_msg:
             return None
         msg = message_decode(encoded_msg)

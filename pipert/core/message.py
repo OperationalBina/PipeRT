@@ -78,8 +78,9 @@ class PredictionPayload(Payload):
         pass
 
     def is_empty(self):
-        if not self.data.has("pred_boxes") or not self.data.pred_boxes:
-            if self.data == "":
+        if self.data == "":
+            if not self.data.has("pred_boxes") or not self.data.pred_boxes:
+                print("the pred is empty: ", self.data)
                 return True
             else:
                 return False

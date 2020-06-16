@@ -3,24 +3,40 @@ from pipert import Routine
 from pipert.core import Message
 from pipert.core.routine import RoutineTypes
 from queue import Empty
+import torch
+import torchvision
 
 
 class AnomalyLogic(Routine):
     routine_type = RoutineTypes.PROCESSING
 
-    def __init__(self, in_queue, out_queue, *args, **kwargs):
+    def __init__(self, in_queue, out_queue, weights, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.in_queue = in_queue
         self.out_queue = out_queue
+        self.weights = weights
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.net = torchvision.models.resnet50(pretrained=False)
+        self.transform = torchvision.transforms.Compose(
+            [torchvision.transforms.ToTensor(),
+             torchvision.transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+        self.net = self.net.to(self.device)
+        self.net.fc = torch.nn.Linear(self.net.fc.in_features, 2)
+        chkpt = torch.load(self.weights, map_location=self.device)
+        chkpt['state_dict'] = \
+            {k[4:]: v for k, v in chkpt['state_dict'].items() if self.net.state_dict()[k[4:]].numel() == v.numel()}
+        self.net.load_state_dict(chkpt['state_dict'], strict=False)
 
     def main_logic(self, *args, **kwargs):
         try:
             frame_msg = self.in_queue.get(block=False)
             frame = frame_msg.get_payload()
-
-            # TODO: implement Yonatan's model logic
-            # need to rount to 2 digits after point.
-            # need to turn to string
+            frame = self.transform(frame)
+            frame = frame.to(self.device)
+            frame = frame.unsqueeze(0)
+            pred = self.net(frame)
+            pred = torch.argmax(pred, dim=1).item()
+            pred = str(pred)
 
             try:
                 self.out_queue.get(block=False)

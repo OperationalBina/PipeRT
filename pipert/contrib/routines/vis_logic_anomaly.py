@@ -17,7 +17,7 @@ class VisLogicAnomaly(Routine):
         try:
             frame_msg, pred_msg = self.in_queue.get(block=False)
             # print("frame", frame_msg)
-            # print("pred", pred_msg)
+            # print("pred msg = ", pred_msg)
             if pred_msg is not None and not pred_msg.is_empty():
                 frame = frame_msg.get_payload()
                 pred = pred_msg.get_payload()
@@ -45,14 +45,14 @@ class VisLogicAnomaly(Routine):
             time.sleep(0)
             return False
 
-    def draw_pred_on_frame(self, frame, prediction):
+    def draw_pred_on_frame(self, frame, pred):
         font = cv2.FONT_HERSHEY_SIMPLEX
         org = (50, 50)
         fontScale = 1
         color = (255, 0, 0)
         thickness = 2
-        image = cv2.putText(frame, prediction, org, font, fontScale, color, thickness, cv2.LINE_AA)
-        return image
+        frame = cv2.putText(frame, pred, org, font, fontScale, color, thickness, cv2.LINE_AA)
+        return frame
 
     def setup(self, *args, **kwargs):
         self.state.dropped = 0
