@@ -35,7 +35,8 @@ class AnomalyLogic(Routine):
             frame = frame.to(self.device)
             frame = frame.unsqueeze(0)
             pred = self.net(frame)
-            pred = torch.argmax(pred, dim=1).item()
+            pred = torch.nn.functional.softmax(pred, dim=1).detach()[0, 1].item()
+            pred = round(pred, 2)
             pred = str(pred)
 
             try:
