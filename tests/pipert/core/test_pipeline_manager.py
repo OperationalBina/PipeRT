@@ -272,3 +272,9 @@ def test_create_component_with_shared_memory(pipeline_manager):
                                                  use_shared_memory=True)
     assert response["Succeeded"], response["Message"]
     assert pipeline_manager.components["comp"].use_memory
+
+
+def test_create_component_with_monitoring_mode(pipeline_manager):
+    response = pipeline_manager.create_component(component_name="comp",
+                                                 monitoring_mode="splunk")
+    assert response["Succeeded"], response["Message"]
