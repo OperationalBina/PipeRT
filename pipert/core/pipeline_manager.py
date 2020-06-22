@@ -1,9 +1,5 @@
-import zerorpc
 import re
 import importlib.util
-
-from pipert.contrib.metrics_collectors.prometheus_collector import PrometheusCollector
-from pipert.contrib.metrics_collectors.splunk_collector import SplunkCollector
 from pipert.core.component import BaseComponent
 from pipert.core.errors import QueueDoesNotExist
 from pipert.core.metrics_collector import NullCollector
