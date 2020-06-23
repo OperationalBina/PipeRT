@@ -53,4 +53,5 @@ def does_process_running(process):
 
 
 def kill_process(process):
-    os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
+    # os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
+    process.kill()
