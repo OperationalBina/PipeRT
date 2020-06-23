@@ -1,3 +1,4 @@
 pytest
 coverage
 jsonschema
+pytest-console-scripts

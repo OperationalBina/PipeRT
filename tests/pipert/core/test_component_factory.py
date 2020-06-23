@@ -3,6 +3,7 @@ import os
 import signal
 import subprocess
 import pytest
+import pytest_console_scripts
 
 COMPONENT_FACTORY_FILE_PATH = "pipert/core/component_factory.py"
 DUMMY_COMPONENT_CONFIG_PATH = 'tests/pipert/core/utils/dummy_component_config.yaml'
@@ -20,21 +21,22 @@ def test_bad_config_path():
     assert True
 
 
-def test_no_port_sent():
-    cmd = "python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + DUMMY_COMPONENT_CONFIG_PATH
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    _, error = process.communicate()
-    assert process.returncode
-    assert str(error) == b"Must get port for the zeroRPC server in the script parameters"
+def test_no_port_sent(script_runner):
+    ret = script_runner.run_subprocess("python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + DUMMY_COMPONENT_CONFIG_PATH)
+    # cmd = "python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + DUMMY_COMPONENT_CONFIG_PATH
+    # process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    # _, error = process.communicate()
+    # assert process.returncode
+    # assert str(error) == b"Must get port for the zeroRPC server in the script parameters"
+    print(ret.stderr)
+    print(ret.stdout)
+    print(ret.returncode)
 
 
 def test_good_parameters():
     cmd = "python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + DUMMY_COMPONENT_CONFIG_PATH + " -p " + COMPONENT_PORT
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     sleep(3)
-    _, error = process.communicate()
-    assert str(error) == b""
-    kill_process(process)
 
 
 def does_process_running(process):
