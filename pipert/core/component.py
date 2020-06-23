@@ -1,5 +1,4 @@
 import threading
-from prometheus_client import start_http_server
 from torch.multiprocessing import Event, Process
 from pipert.core.routine import Routine
 from threading import Thread
@@ -23,7 +22,14 @@ class BaseComponent:
         """
         super().__init__()
         self.name = name
-        self.metrics_collector = metrics_collector
+        if metrics_collector == "splunk":
+            from pipert.contrib.metrics_collectors.splunk_collector import SplunkCollector
+            self.metrics_collector = SplunkCollector()
+        elif metrics_collector == "prometheus":
+            from pipert.contrib.metrics_collectors.prometheus_collector import PrometheusCollector
+            self.metrics_collector = PrometheusCollector(8081)
+        else:
+            self.metrics_collector = metrics_collector
         self.stop_event = Event()
         self.stop_event.set()
         self.queues = {}

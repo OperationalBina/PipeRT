@@ -272,3 +272,19 @@ def test_create_component_with_shared_memory(pipeline_manager):
                                                  use_shared_memory=True)
     assert response["Succeeded"], response["Message"]
     assert pipeline_manager.components["comp"].use_memory
+
+
+def test_create_component_with_metrics_collector_splunk(pipeline_manager):
+    response = pipeline_manager.create_component(component_name="comp",
+                                                 metrics_collector="splunk")
+    assert response["Succeeded"], response["Message"]
+    from pipert.contrib.metrics_collectors.splunk_collector import SplunkCollector
+    assert isinstance(pipeline_manager.components["comp"].metrics_collector, SplunkCollector)
+
+
+def test_create_component_with_metrics_collector_prometheus(pipeline_manager):
+    response = pipeline_manager.create_component(component_name="comp",
+                                                 metrics_collector="prometheus")
+    assert response["Succeeded"], response["Message"]
+    from pipert.contrib.metrics_collectors.prometheus_collector import PrometheusCollector
+    assert isinstance(pipeline_manager.components["comp"].metrics_collector, PrometheusCollector)
