@@ -12,22 +12,13 @@ COMPONENT_PORT = "5050"
 def test_bad_config_path():
     bad_config_path = 'tests/pipert/core/utils/bad_path.yaml'
     cmd = "python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + bad_config_path + " -p " + COMPONENT_PORT
-    print("1")
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    print("2")
     process_is_running = does_process_running(process)
     prin, error = process.communicate()
-    print("logs: " + str(prin))
-    print("error: " + str(error))
-    print("3")
-    if process_is_running:
-        print("4")
+    if error != b'':
         kill_process(process)
-        print("4.5")
-        assert False
-        # assert not process_is_running, "Expected to get an error"
-    print("5")
-    assert process.returncode
+        assert False, "Expected to get an error"
+    assert True
 
 
 def test_no_port_sent():
@@ -49,6 +40,7 @@ def test_good_parameters():
     sleep(3)
     assert does_process_running(process)
     kill_process(process)
+    assert not does_process_running(process)
 
 
 def does_process_running(process):
@@ -57,4 +49,5 @@ def does_process_running(process):
 
 def kill_process(process):
     # os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
-    process.kill()
+    # process.kill()
+    os.kill(process.pid, signal.SIGKILL)
