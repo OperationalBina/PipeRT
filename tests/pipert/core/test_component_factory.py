@@ -13,8 +13,7 @@ def test_bad_config_path():
     bad_config_path = 'tests/pipert/core/utils/bad_path.yaml'
     cmd = "python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + bad_config_path + " -p " + COMPONENT_PORT
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    process_is_running = does_process_running(process)
-    prin, error = process.communicate()
+    _, error = process.communicate()
     if error != b'':
         kill_process(process)
         assert False, "Expected to get an error"
@@ -24,23 +23,18 @@ def test_bad_config_path():
 def test_no_port_sent():
     cmd = "python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + DUMMY_COMPONENT_CONFIG_PATH
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    process_is_running = does_process_running(process)
-    if process_is_running:
-        kill_process(process)
-        assert not process_is_running, "Expected to get an error"
-
     _, error = process.communicate()
     assert process.returncode
-    assert error == "Must get port for the zeroRPC server in the script parameters"
+    assert str(error) == b"Must get port for the zeroRPC server in the script parameters"
 
 
 def test_good_parameters():
     cmd = "python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + DUMMY_COMPONENT_CONFIG_PATH + " -p " + COMPONENT_PORT
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     sleep(3)
-    assert does_process_running(process)
+    _, error = process.communicate()
+    assert str(error) == b""
     kill_process(process)
-    assert not does_process_running(process)
 
 
 def does_process_running(process):
