@@ -278,3 +278,5 @@ def test_create_component_with_monitoring_mode(pipeline_manager):
     response = pipeline_manager.create_component(component_name="comp",
                                                  monitoring_mode="splunk")
     assert response["Succeeded"], response["Message"]
+    from pipert.contrib.metrics_collectors.splunk_collector import SplunkCollector
+    assert pipeline_manager.components["comp"].monitring_mode.isclass(SplunkCollector)
