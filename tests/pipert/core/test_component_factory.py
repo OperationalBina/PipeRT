@@ -16,6 +16,9 @@ def test_bad_config_path():
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     print("2")
     process_is_running = does_process_running(process)
+    prin, error = process.communicate()
+    print("logs: " + str(prin))
+    print("error: " + str(error))
     print("3")
     if process_is_running:
         print("4")
