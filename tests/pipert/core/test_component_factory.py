@@ -21,7 +21,8 @@ def test_bad_config_path():
         print("4")
         kill_process(process)
         print("4.5")
-        assert not process_is_running, "Expected to get an error"
+        assert False
+        # assert not process_is_running, "Expected to get an error"
     print("5")
     assert process.returncode
 
