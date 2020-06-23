@@ -279,4 +279,4 @@ def test_create_component_with_metrics_collector(pipeline_manager):
                                                  metrics_collector="splunk")
     assert response["Succeeded"], response["Message"]
     from pipert.contrib.metrics_collectors.splunk_collector import SplunkCollector
-    assert pipeline_manager.components["comp"].metrics_collector.isclass(SplunkCollector)
+    assert isinstance(pipeline_manager.components["comp"].metrics_collector, SplunkCollector)
