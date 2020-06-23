@@ -47,9 +47,7 @@ class FlaskVideoDisplay(BaseComponent):
 
     def stop_run(self):
         try:
-            super().stop_run()
-            self.server.join()
-            return 0
+            return super().stop_run()
         except RuntimeError:
             return 1
 
