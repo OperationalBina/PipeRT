@@ -12,12 +12,17 @@ COMPONENT_PORT = "5050"
 def test_bad_config_path():
     bad_config_path = 'tests/pipert/core/utils/bad_path.yaml'
     cmd = "python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + bad_config_path + " -p " + COMPONENT_PORT
+    print("1")
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    print("2")
     process_is_running = does_process_running(process)
+    print("3")
     if process_is_running:
+        print("4")
         kill_process(process)
+        print("4.5")
         assert not process_is_running, "Expected to get an error"
-
+    print("5")
     assert process.returncode
 
 
