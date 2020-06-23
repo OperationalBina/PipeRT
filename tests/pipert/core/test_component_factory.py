@@ -10,15 +10,15 @@ DUMMY_COMPONENT_CONFIG_PATH = 'tests/pipert/core/utils/dummy_component_config.ya
 COMPONENT_PORT = "5050"
 
 
-def test_bad_config_path():
-    bad_config_path = 'tests/pipert/core/utils/bad_path.yaml'
-    cmd = "python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + bad_config_path + " -p " + COMPONENT_PORT
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    _, error = process.communicate()
-    if error != b'':
-        kill_process(process)
-        assert False, "Expected to get an error"
-    assert True
+# def test_bad_config_path():
+#     bad_config_path = 'tests/pipert/core/utils/bad_path.yaml'
+#     cmd = "python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + bad_config_path + " -p " + COMPONENT_PORT
+#     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+#     _, error = process.communicate()
+#     if error != b'':
+#         kill_process(process)
+#         assert False, "Expected to get an error"
+#     assert True
 
 
 def test_no_port_sent(script_runner):
@@ -31,12 +31,13 @@ def test_no_port_sent(script_runner):
     print(ret.stderr)
     print(ret.stdout)
     print(ret.returncode)
+    assert False
 
 
-def test_good_parameters():
-    cmd = "python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + DUMMY_COMPONENT_CONFIG_PATH + " -p " + COMPONENT_PORT
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    sleep(3)
+# def test_good_parameters():
+#     cmd = "python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + DUMMY_COMPONENT_CONFIG_PATH + " -p " + COMPONENT_PORT
+#     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+#     sleep(3)
 
 
 def does_process_running(process):
