@@ -26,6 +26,7 @@ jobs:
       install:
         - pip install -r pipe-base/requirements.txt
         - pip install -r tests/requirements.txt
+        - pip install 'git+git://github.com/georgestarcher/Splunk-Class-httpevent.git'
         - pip install codecov
         - echo "Running unit tests…"
       script:
