@@ -294,7 +294,7 @@ class PipelineManager:
             "required": ["queues", "routines"]
         }
 
-        COMPONENT_FACTORY_PATH = "pipert/core/component_factory.py"
+        COMPONENT_FACTORY_PATH = "pipert/utils/scripts/component_factory.py"
 
         # Delete all of the current components
         self.components = {}
