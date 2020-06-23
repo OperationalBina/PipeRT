@@ -3,7 +3,6 @@ import os
 import signal
 import subprocess
 import pytest
-import pytest_console_scripts
 
 COMPONENT_FACTORY_FILE_PATH = "pipert/core/component_factory.py"
 DUMMY_COMPONENT_CONFIG_PATH = 'tests/pipert/core/utils/dummy_component_config.yaml'
@@ -22,7 +21,7 @@ COMPONENT_PORT = "5050"
 
 
 def test_no_port_sent(script_runner):
-    ret = script_runner.run_subprocess("python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + DUMMY_COMPONENT_CONFIG_PATH)
+    ret = script_runner.run_subprocess(COMPONENT_FACTORY_FILE_PATH, " -cp " + DUMMY_COMPONENT_CONFIG_PATH)
     # cmd = "python " + COMPONENT_FACTORY_FILE_PATH + " -cp " + DUMMY_COMPONENT_CONFIG_PATH
     # process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     # _, error = process.communicate()
