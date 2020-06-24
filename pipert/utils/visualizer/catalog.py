@@ -4,7 +4,7 @@ import logging
 import types
 from typing import List
 
-from detectron2.utils.logger import log_first_n
+from pipert.utils.visualizer.logger import log_first_n
 
 __all__ = ["DatasetCatalog", "MetadataCatalog"]
 
