@@ -80,6 +80,7 @@ services:
       args:
         SPLUNK: "no"
         DETECTRON: "no"
+        TORCHVISION: "no"
     networks:
       default:
         aliases:

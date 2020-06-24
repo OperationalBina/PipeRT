@@ -13,6 +13,11 @@ ARG DETECTRON
 ENV DETECTRON=${DETECTRON}
 RUN if [ "$DETECTRON" = "yes" ]; then pip install 'git+https://github.com/facebookresearch/detectron2.git'; fi
 
+# Install torchvision if needed
+ARG TORCHVISION
+ENV TORCHVISION=${TORCHVISION}
+RUN if [ "TORCHVISION" = "yes" ]; then pip install torchvision; fi
+
 ENV PYTHONPATH='/'
 ENV PYTHONUNBUFFERED=1
 
