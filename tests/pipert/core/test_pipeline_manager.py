@@ -19,7 +19,8 @@ def return_routine_class_object_by_name(name):
 @pytest.fixture(scope="function")
 def pipeline_manager():
     pipeline_manager = PipelineManager()
-    pipeline_manager.ROUTINES_FOLDER_PATH
+    pipeline_manager.ROUTINES_FOLDER_PATH = "tests/pipert/core/utils/routines"
+    pipeline_manager.COMPONENTS_FOLDER_PATH = "tests/pipert/core/utils/components"
     pipeline_manager._get_routine_class_object_by_type_name = MagicMock(side_effect=return_routine_class_object_by_name)
     return pipeline_manager
 
@@ -132,3 +133,7 @@ def test_run_and_stop_component(pipeline_manager_with_component_and_queue_and_ro
     assert response["Succeeded"], response["Message"]
     assert pipeline_manager_with_component_and_queue_and_routine. \
         components["comp"].stop_event.is_set()
+
+
+def test_get_routine_type_object_by_name(pipeline_manager):
+    assert pipeline_manager._get_routine_class_object_by_type_name("DummyRoutine") is DummyRoutine
