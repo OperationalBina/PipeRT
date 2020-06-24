@@ -3,9 +3,9 @@ from threading import Thread
 
 import pytest
 from multiprocessing import Process
-from tests.pipert.core.utils.dummy_routine import DummyRoutine
-from tests.pipert.core.utils.dummy_component import DummyComponent
-from tests.pipert.core.utils.dummy_routine_with_queue import DummyRoutineWithQueue
+from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
+from tests.pipert.core.utils.component.dummy_component import DummyComponent
+from tests.pipert.core.utils.routines.dummy_routine_with_queue import DummyRoutineWithQueue
 
 
 @pytest.fixture(scope="function")

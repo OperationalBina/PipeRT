@@ -2,8 +2,8 @@ from unittest.mock import MagicMock
 import pytest
 
 from pipert import BaseComponent
-from tests.pipert.core.utils.dummy_routine_with_queue import DummyRoutineWithQueue
-from tests.pipert.core.utils.dummy_routine import DummyRoutine
+from tests.pipert.core.utils.routines.dummy_routine_with_queue import DummyRoutineWithQueue
+from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
 from pipert.core.pipeline_manager import PipelineManager
 
 
@@ -19,6 +19,7 @@ def return_routine_class_object_by_name(name):
 @pytest.fixture(scope="function")
 def pipeline_manager():
     pipeline_manager = PipelineManager()
+    pipeline_manager.ROUTINES_FOLDER_PATH
     pipeline_manager._get_routine_class_object_by_type_name = MagicMock(side_effect=return_routine_class_object_by_name)
     return pipeline_manager
 
