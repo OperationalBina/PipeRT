@@ -28,6 +28,7 @@ def pipeline_manager():
 @pytest.fixture(scope="function")
 def pipeline_manager_with_component(pipeline_manager):
     pipeline_manager.components["comp"] = BaseComponent(component_config={}, start_component=False)
+    pipeline_manager.components["comp"].name = "comp"
     return pipeline_manager
 
 
@@ -137,3 +138,22 @@ def test_run_and_stop_component(pipeline_manager_with_component_and_queue_and_ro
 
 def test_get_routine_type_object_by_name(pipeline_manager):
     assert pipeline_manager._get_routine_class_object_by_type_name("DummyRoutine") is DummyRoutine
+
+
+def test_get_pipeline_creation(pipeline_manager_with_component_and_queue_and_routine):
+    EXPECTED_PIPELINE_DICTIONARY = {
+        'components': {
+            'comp': {
+                'shared_memory': False,
+                'queues': ['queue1'],
+                'routines': {
+                    'routine1': {
+                        'queue': 'queue1',
+                        'routine_type_name': 'DummyRoutineWithQueue'
+                    }
+                }
+            }
+        }
+    }
+
+    assert EXPECTED_PIPELINE_DICTIONARY == pipeline_manager_with_component_and_queue_and_routine.get_pipeline_creation()

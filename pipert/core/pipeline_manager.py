@@ -355,9 +355,7 @@ class PipelineManager:
     def get_pipeline_creation(self):
         components = {}
         for component_name in self.components.keys():
-            components[component_name] = \
-                self.components[component_name].get_component_configuration()
-
+            components.update(self.components[component_name].get_component_configuration())
         return {"components": components}
 
     def get_random_available_port(self):
