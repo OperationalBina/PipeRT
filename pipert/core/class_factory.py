@@ -26,10 +26,10 @@ def _add_underscore_before_uppercase(match):
 
 
 def _get_class_object_by_path(path, class_name):
-    spec = importlib.util.spec_from_file_location(class_name, path)
-    class_object = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(class_object)
     try:
+        spec = importlib.util.spec_from_file_location(class_name, path)
+        class_object = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(class_object)
         return getattr(class_object, class_name)
-    except AttributeError:
+    except (AttributeError, FileNotFoundError):
         return None
