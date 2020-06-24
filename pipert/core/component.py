@@ -227,7 +227,7 @@ class BaseComponent:
             routine_name = routine_creation_dict.pop("name")
             component_dict["routines"][routine_name] = \
                 routine_creation_dict
-        return component_dict
+        return {self.name: component_dict}
 
     def _get_routine_creation(self, routine):
         routine_dict = routine.get_creation_dictionary()

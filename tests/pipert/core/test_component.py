@@ -11,6 +11,7 @@ from tests.pipert.core.utils.dummy_routine_with_queue import DummyRoutineWithQue
 @pytest.fixture(scope="function")
 def component_with_queue():
     comp = DummyComponent({})
+    comp.name = "Comp1"
     assert comp.create_queue("que1", 1)
     return comp
 
@@ -82,15 +83,17 @@ def test_remove_routine_does_not_exist(component_with_queue_and_routine):
 
 def test_get_component_configuration(component_with_queue_and_routine):
     EXPECTED_COMPONENT_DICTIONARY = {
-        "shared_memory": False,
-        "queues": ["que1"],
-        "routines": {
-            "rout1": {
-                "queue": "que1",
-                "routine_type_name": "DummyRoutineWithQueue",
-            }
-        },
-        "component_type_name": "DummyComponent"
+        "Comp1": {
+            "shared_memory": False,
+            "queues": ["que1"],
+            "routines": {
+                "rout1": {
+                    "queue": "que1",
+                    "routine_type_name": "DummyRoutineWithQueue",
+                }
+            },
+            "component_type_name": "DummyComponent"
+        }
     }
     component_configuration = component_with_queue_and_routine.get_component_configuration()
     assert component_configuration == EXPECTED_COMPONENT_DICTIONARY
@@ -106,3 +109,25 @@ def test_get_routine_creation(component_with_queue_and_routine):
         _get_routine_creation(component_with_queue_and_routine.
                               get_routines()["rout1"])
     assert routine_configuration == EXPECTED_ROUTINE_DICTIONARY
+
+
+def test_setup_component():
+    component = DummyComponent(component_config={})
+    component_name = "comp"
+    shared_memory = True
+    queue_names = ["que1", "que2"]
+
+    component_configuration = {
+        component_name: {
+            "shared_memory": shared_memory,
+            "queues": queue_names,
+            "routines": {},
+            "component_type_name": "DummyComponent"
+        }
+    }
+
+    component.setup_component(component_config=component_configuration)
+    assert component.name == "comp"
+    assert component.use_memory == shared_memory
+    assert all(queue_name in component.queues for queue_name in queue_names)
+    assert component_configuration == component.get_component_configuration()
