@@ -2,7 +2,7 @@ import time
 from threading import Thread
 
 import pytest
-from torch.multiprocessing import Process
+from multiprocessing import Process
 from tests.pipert.core.utils.dummy_routine import DummyRoutine
 from tests.pipert.core.utils.dummy_component import DummyComponent
 from tests.pipert.core.utils.dummy_routine_with_queue import DummyRoutineWithQueue
@@ -14,14 +14,16 @@ def component_with_queue():
     assert comp.create_queue("que1", 1)
     return comp
 
+
 @pytest.fixture(scope="function")
 def component_with_queue_and_routine(component_with_queue):
     component_with_queue.register_routine(
         DummyRoutineWithQueue(
             name="rout1",
             queue=component_with_queue.queues["que1"])
-        .as_thread())
+            .as_thread())
     return component_with_queue
+
 
 def test_register_routine():
     comp = DummyComponent({})
@@ -33,7 +35,6 @@ def test_register_routine():
 
 
 def test_safe_stop():
-
     def foo():
         print("bar")
 
@@ -77,3 +78,31 @@ def test_remove_routine(component_with_queue_and_routine):
 
 def test_remove_routine_does_not_exist(component_with_queue_and_routine):
     assert not component_with_queue_and_routine.remove_routine("not_exist")
+
+
+def test_get_component_configuration(component_with_queue_and_routine):
+    EXPECTED_COMPONENT_DICTIONARY = {
+        "shared_memory": False,
+        "queues": ["que1"],
+        "routines": {
+            "rout1": {
+                "queue": "que1",
+                "routine_type_name": "DummyRoutineWithQueue",
+            }
+        },
+        "component_type_name": "DummyComponent"
+    }
+    component_configuration = component_with_queue_and_routine.get_component_configuration()
+    assert component_configuration == EXPECTED_COMPONENT_DICTIONARY
+
+
+def test_get_routine_creation(component_with_queue_and_routine):
+    EXPECTED_ROUTINE_DICTIONARY = {
+        "name": "rout1",
+        "queue": "que1",
+        "routine_type_name": "DummyRoutineWithQueue",
+    }
+    routine_configuration = component_with_queue_and_routine.\
+        _get_routine_creation(component_with_queue_and_routine.
+                              get_routines()["rout1"])
+    assert routine_configuration == EXPECTED_ROUTINE_DICTIONARY
