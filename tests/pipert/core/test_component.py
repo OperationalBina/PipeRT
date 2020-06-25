@@ -131,3 +131,15 @@ def test_setup_component():
     assert component.use_memory == shared_memory
     assert all(queue_name in component.queues for queue_name in queue_names)
     assert component_configuration == component.get_component_configuration()
+
+
+def test_set_monitoring_with_bad_name(component_with_queue_and_routine):
+    component_with_queue_and_routine.set_monitoring_system({
+        "name": "bad_name"
+    })
+    import os
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    print("dir_path - " + dir_path)
+    cwd = os.getcwd()
+    print("cwd - " + cwd)
+    assert component_with_queue_and_routine.metrics_collector is None
