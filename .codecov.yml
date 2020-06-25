@@ -14,4 +14,5 @@ ignore:
   - "tests/"
   - "pipert/contrib/"
   - "pipert/utils/"
+  - "compose_generator.py"
   - "docs/"
