@@ -12,7 +12,7 @@ from pipert.core.component import BaseComponent
 # from pipert.core.routine import Routine
 from pipert.core.multiprocessing_shared_memory import MpSharedMemoryGenerator
 from pipert.core.message import Message, FramePayload, message_encode, \
-    message_decode
+    message_decode, PredictionPayload
 
 
 class DummyMessage(Message):
@@ -37,6 +37,13 @@ def test_get_payload():
     msg = DummyMessage(img, "localhost")
     assert isinstance(msg.payload, FramePayload)
     assert (msg.get_payload() == img).all()
+
+
+def test_prediction_payload_is_empty():
+    pred = ""
+    msg = DummyMessage(pred, "localhost")
+    assert isinstance(msg.payload, PredictionPayload)
+    assert msg.is_empty()
 
 
 def test_update_payload():
