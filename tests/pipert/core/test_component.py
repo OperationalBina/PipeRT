@@ -150,3 +150,4 @@ def test_set_monitoring_with_good_params(component_with_queue_and_routine):
         "parameter": "check"
     })
     assert not isinstance(component_with_queue_and_routine.metrics_collector, NullCollector)
+
