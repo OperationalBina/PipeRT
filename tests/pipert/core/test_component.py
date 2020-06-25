@@ -151,4 +151,4 @@ def test_set_monitoring_with_good_params(component_with_queue_and_routine):
         "name": "Dummy",
         "parameter": "check"
     })
-    assert type(component_with_queue_and_routine.metrics_collector) is DummyCollector
+    assert type(component_with_queue_and_routine.metrics_collector) is type(DummyCollector)
