@@ -1,6 +1,6 @@
 import time
 from threading import Thread
-from torch.multiprocessing import Process
+from multiprocessing import Process
 from tests.pipert.core.utils.dummy_routine import DummyRoutine
 from tests.pipert.core.utils.dummy_component import DummyComponent
 
