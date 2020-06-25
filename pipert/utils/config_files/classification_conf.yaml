@@ -1,5 +1,5 @@
 components:
-  AnomalyDet:
+  ClassificationDet:
     execution_mode: process
     shared_memory: True
     queues:
@@ -10,7 +10,7 @@ components:
         in_queue: frames
         out_queue: preds
         weights: pipert/contrib/june16.pt
-        routine_type_name: AnomalyLogic
+        routine_type_name: ClassificationLogic
       from_redis:
         message_queue: frames
         redis_read_key: cam
@@ -30,7 +30,7 @@ components:
       create_image:
         in_queue: messages
         out_queue: flask_display
-        routine_type_name: VisLogicAnomaly
+        routine_type_name: VisLogicClassification
       get_frames_and_pred:
         image_meta_queue: messages
         redis_read_image_key: cam

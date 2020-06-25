@@ -4,7 +4,7 @@ from queue import Empty, Full
 import time
 
 
-class VisLogicAnomaly(Routine):
+class VisLogicClassification(Routine):
     routine_type = RoutineTypes.PROCESSING
 
     def __init__(self, in_queue, out_queue, *args, **kwargs):

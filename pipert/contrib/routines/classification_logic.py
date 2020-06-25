@@ -7,7 +7,7 @@ import torch
 import torchvision
 
 
-class AnomalyLogic(Routine):
+class ClassificationLogic(Routine):
     routine_type = RoutineTypes.PROCESSING
 
     def __init__(self, in_queue, out_queue, weights, *args, **kwargs):
@@ -36,8 +36,7 @@ class AnomalyLogic(Routine):
             frame = frame.unsqueeze(0)
             pred = self.net(frame)
             pred = torch.nn.functional.softmax(pred, dim=1).detach()[0, 1].item()
-            pred = round(pred, 2)
-            pred = str(pred)
+            pred = str(round(pred, 2))
 
             try:
                 self.out_queue.get(block=False)

@@ -22,8 +22,11 @@ class MetaAndFrameFromRedis(Routine):
         self.flip = False
         self.negative = False
 
-    def receive_msg(self, in_key):
-        encoded_msg = self.msg_handler.receive(in_key)
+    def receive_msg(self, in_key, most_recent=True):
+        if most_recent:
+            encoded_msg = self.msg_handler.read_most_recent_msg(in_key)
+        else:
+            encoded_msg = self.msg_handler.receive(in_key)
         if not encoded_msg:
             return None
         msg = message_decode(encoded_msg)
@@ -31,7 +34,7 @@ class MetaAndFrameFromRedis(Routine):
         return msg
 
     def main_logic(self, *args, **kwargs):
-        pred_msg = self.receive_msg(self.redis_read_meta_key)
+        pred_msg = self.receive_msg(self.redis_read_meta_key, most_recent=False)
         frame_msg = self.receive_msg(self.redis_read_image_key)
         if frame_msg:
             arr = frame_msg.get_payload()
