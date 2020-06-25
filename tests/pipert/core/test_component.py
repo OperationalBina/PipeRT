@@ -12,7 +12,7 @@ import os
 
 
 @pytest.fixture(scope="function")
-def component_wih_queue():
+def component_with_queue():
     comp = DummyComponent({})
     comp.MONITORING_SYSTEMS_FOLDER_PATH = os.getcwd() + "/" + "tests/pipert/core/utils/metrics_collectors"
     comp.name = "Comp1"
