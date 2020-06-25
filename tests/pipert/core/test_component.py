@@ -13,7 +13,7 @@ import os
 
 
 @pytest.fixture(scope="function")
-def component_with_queue():
+def component_wih_queue():
     comp = DummyComponent({})
     comp.MONITORING_SYSTEMS_FOLDER_PATH = os.getcwd() + "/" + "tests/pipert/core/utils/metrics_collectors"
     comp.name = "Comp1"
@@ -142,7 +142,6 @@ def test_set_monitoring_with_bad_name(component_with_queue_and_routine):
     component_with_queue_and_routine.set_monitoring_system({
         "name": "BadName"
     })
-    print(component_with_queue_and_routine.MONITORING_SYSTEMS_FOLDER_PATH)
     assert isinstance(component_with_queue_and_routine.metrics_collector, NullCollector)
 
 
@@ -151,7 +150,4 @@ def test_set_monitoring_with_good_params(component_with_queue_and_routine):
         "name": "Dummy",
         "parameter": "check"
     })
-    print(component_with_queue_and_routine.metrics_collector.__class__)
-    print(DummyCollector.__class__)
-    assert DummyCollector.__class__ is component_with_queue_and_routine.metrics_collector.__class__
-    assert type(component_with_queue_and_routine.metrics_collector) is type(DummyCollector)
+    assert not isinstance(component_with_queue_and_routine.metrics_collector, NullCollector)
