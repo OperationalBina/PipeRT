@@ -79,7 +79,7 @@ services:
       context: .
       args:
         SPLUNK: "no"
-        DETECTRON: "no"
+        DETECTRON: "yes"
     networks:
       default:
         aliases:

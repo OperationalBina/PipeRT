@@ -1,8 +1,9 @@
 from unittest.mock import MagicMock
 import pytest
-from tests.pipert.core.utils.dummy_routine_with_queue import DummyRoutineWithQueue
-from tests.pipert.core.utils.dummy_routine import DummyRoutine
-from tests.pipert.core.utils.dummy_component import DummyComponent
+
+from pipert import BaseComponent
+from tests.pipert.core.utils.routines.dummy_routine_with_queue import DummyRoutineWithQueue
+from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
 from pipert.core.pipeline_manager import PipelineManager
 
 
@@ -18,15 +19,16 @@ def return_routine_class_object_by_name(name):
 @pytest.fixture(scope="function")
 def pipeline_manager():
     pipeline_manager = PipelineManager()
+    pipeline_manager.ROUTINES_FOLDER_PATH = "tests/pipert/core/utils/routines"
+    pipeline_manager.COMPONENTS_FOLDER_PATH = "tests/pipert/core/utils/components"
     pipeline_manager._get_routine_class_object_by_type_name = MagicMock(side_effect=return_routine_class_object_by_name)
-    pipeline_manager._get_component_class_object_by_type_name = MagicMock(return_value=DummyComponent)
     return pipeline_manager
 
 
 @pytest.fixture(scope="function")
 def pipeline_manager_with_component(pipeline_manager):
-    response = pipeline_manager.create_component(component_name="comp")
-    assert response["Succeeded"], response["Message"]
+    pipeline_manager.components["comp"] = BaseComponent(component_config={}, start_component=False)
+    pipeline_manager.components["comp"].name = "comp"
     return pipeline_manager
 
 
@@ -48,23 +50,6 @@ def pipeline_manager_with_component_and_queue_and_routine(pipeline_manager_with_
             name="routine1")
     assert response["Succeeded"], response["Message"]
     return pipeline_manager_with_component_and_queue
-
-
-def test_create_component(pipeline_manager):  # cant add with the same name for queue comp and routine
-    response = pipeline_manager.create_component(component_name="comp")
-    assert response["Succeeded"], response["Message"]
-    assert "comp" in pipeline_manager.components
-
-
-def test_create_component_with_same_name(pipeline_manager_with_component):
-    response = pipeline_manager_with_component.create_component(component_name="comp")
-    assert not response["Succeeded"], response["Message"]
-
-
-def test_remove_component(pipeline_manager_with_component):
-    response = pipeline_manager_with_component.remove_component(component_name="comp")
-    assert response["Succeeded"], response["Message"]
-    assert "comp" not in pipeline_manager_with_component.components
 
 
 def test_add_queue(pipeline_manager_with_component):
@@ -151,124 +136,24 @@ def test_run_and_stop_component(pipeline_manager_with_component_and_queue_and_ro
         components["comp"].stop_event.is_set()
 
 
-def test_create_components_using_structure(pipeline_manager):
-    response = pipeline_manager.setup_components(
-        {
-            "components": {
-                "comp1": {
-                    "queues": [
-                        "que1",
-                    ],
-                    "execution_mode": "process",
-                    "routines": {
-                        "rout1": {
-                            "queue": "que1",
-                            "routine_type_name": "DummyRoutineWithQueue"
-                        },
-                        "rout2": {
-                            "routine_type_name": "DummyRoutine"
-                        }
-                    }
-                },
-                "comp2": {
-                    "component_type_name": "DummyComponent",
-                    "queues": [
-                        "que1"
-                    ],
-                    "routines": {
-                        "rout1": {
-                            "routine_type_name": "DummyRoutine"
-                        }
+def test_get_routine_type_object_by_name(pipeline_manager):
+    assert pipeline_manager._get_routine_class_object_by_type_name("DummyRoutine") is DummyRoutine
+
+
+def test_get_pipeline_creation(pipeline_manager_with_component_and_queue_and_routine):
+    EXPECTED_PIPELINE_DICTIONARY = {
+        'components': {
+            'comp': {
+                'shared_memory': False,
+                'queues': ['queue1'],
+                'routines': {
+                    'routine1': {
+                        'queue': 'queue1',
+                        'routine_type_name': 'DummyRoutineWithQueue'
                     }
                 }
             }
-        })
-    assert type(response) is not list, '\n'.join([res["Message"] for res in response])
+        }
+    }
 
-
-def test_create_components_using_bad_structures(pipeline_manager):
-    response = pipeline_manager.setup_components(
-        {
-            "components": {
-                "comp1": {
-                    "queues": [
-                        "que1",
-                    ],
-                    "routiness": {
-                        "rout1": {
-                            "queue": "que1",
-                            "routine_type_name": "DummyRoutineWithQueue"
-                        },
-                        "rout2": {
-                            "routine_type_name": "DummyRoutine"
-                        }
-                    }
-                }
-            }
-        })
-    assert type(response) is list, '\n'.join([res["Message"] for res in response])
-
-    response = pipeline_manager.setup_components(
-        {
-            "components": {
-                "comp1": {
-                    "routines": {
-                        "rout1": {
-                            "queue": "que1",
-                            "routine_type_name": "DummyRoutineWithQueue"
-                        },
-                        "rout2": {
-                            "routine_type_name": "DummyRoutine"
-                        }
-                    }
-                }
-            }
-        })
-    assert type(response) is list, '\n'.join([res["Message"] for res in response])
-
-    response = pipeline_manager.setup_components(
-        {
-            "components": {
-                "comp1": {
-                    "queues": [
-                        "que1",
-                    ],
-                    "execution_mode": "proces",
-                    "routines": {
-                        "rout1": {
-                            "queue": "que1",
-                            "routine_type_name": "DummyRoutineWithQueue"
-                        },
-                        "rout2": {
-                            "routine_type_name": "DummyRoutine"
-                        }
-                    }
-                }
-            }
-        })
-    assert type(response) is list, '\n'.join([res["Message"] for res in response])
-
-
-def test_change_component_execution_mode_method(pipeline_manager_with_component):
-    response = pipeline_manager_with_component.\
-        change_component_execution_mode(component_name="comp", execution_mode="thread")
-    assert response["Succeeded"], response["Message"]
-    runner_after_first_change = pipeline_manager_with_component.components["comp"].runner_creator
-    response = pipeline_manager_with_component. \
-        change_component_execution_mode(component_name="comp", execution_mode="process")
-    assert response["Succeeded"], response["Message"]
-    runner_after_second_change = pipeline_manager_with_component.components["comp"].runner_creator
-    assert runner_after_first_change != runner_after_second_change
-
-
-def test_change_component_execution_mode_method_with_wrong_mode(pipeline_manager_with_component):
-    response = pipeline_manager_with_component. \
-        change_component_execution_mode(component_name="comp", execution_mode="nothing")
-    assert not response["Succeeded"], response["Message"]
-
-
-def test_create_component_with_shared_memory(pipeline_manager):
-    response = pipeline_manager.create_component(component_name="comp",
-                                                 use_shared_memory=True)
-    assert response["Succeeded"], response["Message"]
-    assert pipeline_manager.components["comp"].use_memory
+    assert EXPECTED_PIPELINE_DICTIONARY == pipeline_manager_with_component_and_queue_and_routine.get_pipeline_creation()

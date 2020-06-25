@@ -11,7 +11,8 @@ class FlaskVideoDisplay(BaseComponent):
 
     def __init__(self, component_config):
         component_name, _ = list(component_config.items())[0]
-        component_config[component_name]["queues"].append("flask_display")
+        self.display_queue_name = "flask_display"
+        component_config[component_name]["queues"].append(self.display_queue_name)
 
         app = Flask(__name__)
 
@@ -39,15 +40,14 @@ class FlaskVideoDisplay(BaseComponent):
 
     def _start(self):
         super()._start()
-        # TODO need to understand why working as thread and not as process
         self.server = Thread(target=self.flask_app.run, kwargs={"host": '0.0.0.0'})
         self.server.start()
 
     def stop_run(self):
+        component_response = super().stop_run()
         try:
-            super().stop_run()
             self.server.join()
-            return 0
+            return component_response
         except RuntimeError:
             return 1
 

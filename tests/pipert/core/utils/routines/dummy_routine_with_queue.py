@@ -2,13 +2,6 @@ from pipert.core.routine import Routine
 
 
 class DummyRoutineWithQueue(Routine):
-    @staticmethod
-    def get_constructor_parameters():
-        pass
-
-    def does_routine_use_queue(self, queue):
-        return self.queue == queue
-
     def __init__(self, queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.queue = queue
@@ -23,3 +16,13 @@ class DummyRoutineWithQueue(Routine):
     def cleanup(self, *args, **kwargs):
         pass
 
+    @staticmethod
+    def get_constructor_parameters():
+        dicts = Routine.get_constructor_parameters()
+        dicts.update({
+            "queue": "QueueOut"
+        })
+        return dicts
+
+    def does_routine_use_queue(self, queue):
+        return self.queue == queue

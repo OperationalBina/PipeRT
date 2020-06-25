@@ -1,9 +1,9 @@
 import pytest
 import time
 from torch.multiprocessing import Event
-from pipert.core.routine import Routine, Events, State
+from pipert.core.routine import Routine, Events
 from pipert.core.errors import NoRunnerException
-from tests.pipert.core.utils.dummy_routine import DummyRoutine
+from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
 
 
 class DummySleepRoutine(Routine):

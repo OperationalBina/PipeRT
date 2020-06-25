@@ -1,6 +1,9 @@
+import subprocess
+from typing import Optional
+import yaml
 import zerorpc
 import re
-import importlib.util
+from pipert.core.class_factory import ClassFactory
 from pipert.core.component import BaseComponent
 from pipert.core.errors import QueueDoesNotExist
 from pipert.core.routine import Routine
@@ -40,41 +43,7 @@ class PipelineManager:
         self.components = {}
         self.ROUTINES_FOLDER_PATH = "pipert/contrib/routines"
         self.COMPONENTS_FOLDER_PATH = "pipert/contrib/components"
-
-    @component_name_existence_error(need_to_be_exist=False)
-    def create_component(self, component_name, use_shared_memory=False):
-        self.components[component_name] = \
-            BaseComponent(name=component_name, use_memory=use_shared_memory)
-        return self._create_response(
-            True,
-            f"Component {component_name} has been created"
-        )
-
-    @component_name_existence_error(need_to_be_exist=False)
-    def create_premade_component(self, component_name, component_type_name, use_shared_memory=False):
-        component_class = \
-            self._get_component_class_object_by_type_name(component_type_name)
-        if component_class is None:
-            return self._create_response(
-                False,
-                f"The component type {component_type_name} doesn't exist"
-            )
-        self.components[component_name] = \
-            component_class(name=component_name, use_memory=use_shared_memory)
-        return self._create_response(
-            True,
-            f"Component {component_name} has been created"
-        )
-
-    @component_name_existence_error(need_to_be_exist=True)
-    def remove_component(self, component_name):
-        if self._does_component_running(self.components[component_name]):
-            self.components[component_name].stop_run()
-        del self.components[component_name]
-        return self._create_response(
-            True,
-            f"Component {component_name} has been removed"
-        )
+        self.ports_counter = 20000
 
     @component_name_existence_error(need_to_be_exist=True)
     def add_routine_to_component(self, component_name,
@@ -156,18 +125,18 @@ class PipelineManager:
     @component_name_existence_error(need_to_be_exist=True)
     def create_queue_to_component(self, component_name,
                                   queue_name, queue_size=1):
-        if self.components[component_name].does_queue_exist(queue_name):
+        if self.components[component_name].\
+                create_queue(queue_name=queue_name,
+                             queue_size=queue_size):
+            return self._create_response(
+                True,
+                f"The Queue {queue_name} has been created"
+            )
+        else:
             return self._create_response(
                 False,
                 f"Queue named {queue_name} already exist"
             )
-
-        self.components[component_name].create_queue(queue_name=queue_name,
-                                                     queue_size=queue_size)
-        return self._create_response(
-            True,
-            f"The Queue {queue_name} has been created"
-        )
 
     @component_name_existence_error(need_to_be_exist=True)
     def remove_queue_from_component(self, component_name, queue_name):
@@ -198,7 +167,7 @@ class PipelineManager:
                 f"The component {component_name} already running"
             )
         else:
-            self.components[component_name].run()
+            self.components[component_name].run_comp()
             return self._create_response(
                 True,
                 f"The component {component_name} is now running"
@@ -227,7 +196,7 @@ class PipelineManager:
     def run_all_components(self):
         for component in self.components.values():
             if not self._does_component_running(component):
-                component.run()
+                component.run_comp()
         return self._create_response(
             True,
             "All of the components are running"
@@ -325,6 +294,8 @@ class PipelineManager:
             "required": ["queues", "routines"]
         }
 
+        COMPONENT_FACTORY_PATH = "pipert/utils/scripts/component_factory.py"
+
         # Delete all of the current components
         self.components = {}
         responses = []
@@ -339,29 +310,16 @@ class PipelineManager:
         for component_name, component_parameters in components["components"].items():
             try:
                 validate(instance=component_parameters, schema=component_validator)
-                to_use_shared_memory = component_parameters.get("shared_memory", False)
-                if "component_type_name" in component_parameters:
-                    responses.append(self.create_premade_component(
-                        component_name=component_name,
-                        component_type_name=component_parameters["component_type_name"],
-                        use_shared_memory=to_use_shared_memory))
-                else:
-                    responses.append(self.create_component(component_name=component_name,
-                                                           use_shared_memory=to_use_shared_memory))
-                if "execution_mode" in component_parameters:
-                    responses.append(self.change_component_execution_mode(
-                        component_name=component_name,
-                        execution_mode=component_parameters["execution_mode"]))
-                for queue in component_parameters["queues"]:
-                    responses.append(self.create_queue_to_component(
-                        component_name=component_name,
-                        queue_name=queue))
-                for routine_name, routine_parameters in component_parameters["routines"].items():
-                    routine_type_name = routine_parameters.pop("routine_type_name", "")
-                    routine_parameters["name"] = routine_name
-                    responses.append(self.add_routine_to_component(
-                        component_name=component_name,
-                        routine_type_name=routine_type_name, **routine_parameters))
+                current_component_dict = {component_name: component_parameters}
+                component_file_path = component_name + ".yaml"
+                with open(component_file_path, 'w') as file:
+                    yaml.dump(current_component_dict, file)
+
+                component_port = str(self.get_random_available_port())
+                cmd = "python " + COMPONENT_FACTORY_PATH + " -cp " + component_file_path + " -p " + component_port
+                subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+                self.components[component_name] = zerorpc.Client()
+                self.components[component_name].connect("tcp://localhost:" + component_port)
             except ValidationError as error:
                 responses.append(self._create_response(
                     False,
@@ -376,35 +334,16 @@ class PipelineManager:
         else:
             return list(filter(lambda response: not response["Succeeded"], responses))
 
-    def _get_routine_class_object_by_type_name(self, routine_name: str) -> Routine:
-        path = self.ROUTINES_FOLDER_PATH + "/" + \
-            re.sub(r'[A-Z]',
-                   self._add_underscore_before_uppercase,
-                   routine_name)[1:] + ".py"
-        return self._get_class_object_by_path(path, routine_name)
-
-    def _get_component_class_object_by_type_name(self, component_type_name):
-        path = self.COMPONENTS_FOLDER_PATH + "/" + \
-            re.sub(r'[A-Z]',
-                   self._add_underscore_before_uppercase,
-                   component_type_name)[1:] + ".py"
-        return self._get_class_object_by_path(path, component_type_name)
-
-    def _get_class_object_by_path(self, path, class_name):
-        spec = importlib.util.spec_from_file_location(class_name, path)
-        class_object = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(class_object)
-        try:
-            return getattr(class_object, class_name)
-        except AttributeError:
-            return None
+    def _get_routine_class_object_by_type_name(self, routine_name: str) -> Optional[Routine]:
+        routine_factory = ClassFactory(self.ROUTINES_FOLDER_PATH)
+        return routine_factory.get_class(routine_name)
 
     def _does_component_exist(self, component_name):
         return component_name in self.components
 
     @staticmethod
     def _does_component_running(component):
-        return not component.stop_event.is_set()
+        return component.does_component_running()
 
     @staticmethod
     def _create_response(succeeded, message):
@@ -416,38 +355,9 @@ class PipelineManager:
     def get_pipeline_creation(self):
         components = {}
         for component_name in self.components.keys():
-            components[component_name] = self._get_component_creation(component_name)
-
+            components.update(self.components[component_name].get_component_configuration())
         return {"components": components}
 
-    def _get_component_creation(self, component_name):
-
-        component_dict = {
-            "queues":
-                list(self.components[component_name].
-                     get_all_queue_names()),
-            "routines": {}
-        }
-
-        if type(self.components[component_name]).__name__ != BaseComponent.__name__:
-            component_dict["component_type_name"] = type(self.components[component_name]).__name__
-        for current_routine_object in self.components[component_name]._routines.values():
-            routine_creation_object = self._get_routine_creation(
-                component_name, current_routine_object)
-            routine_name = routine_creation_object.pop("name")
-            component_dict["routines"][routine_name] = \
-                routine_creation_object
-
-        return component_dict
-
-    def _get_routine_creation(self, component_name, routine):
-        routine_dict = routine.get_creation_dictionary()
-        routine_dict["routine_type_name"] = routine.__class__.__name__
-        for routine_param_name in routine_dict.keys():
-            if "queue" in routine_param_name:
-                for queue_name in self.components[component_name].queues.keys():
-                    if getattr(routine, routine_param_name) is \
-                            self.components[component_name].queues[queue_name]:
-                        routine_dict[routine_param_name] = queue_name
-
-        return routine_dict
+    def get_random_available_port(self):
+        self.ports_counter += 1
+        return self.ports_counter

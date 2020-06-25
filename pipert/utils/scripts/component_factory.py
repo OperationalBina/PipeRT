@@ -1,4 +1,5 @@
 import argparse
+import sys
 from typing import Union
 
 import yaml
@@ -33,22 +34,22 @@ if __name__ == '__main__':
     opts, unknown = parser.parse_known_args()
 
     if opts.port is None:
-        exit("Must get port for the zeroRPC server in the script parameters")
+        sys.exit("Must get port for the zeroRPC server in the script parameters")
 
     component_config = open_config_file(opts.config_path)
 
     if isinstance(component_config, str):
-        exit(component_config)
+        sys.exit(component_config)
     component_factory = ClassFactory(COMPONENTS_FOLDER_PATH)
 
     _, component_params = list(component_config.items())[0]
 
-    # Checks if special component is need or base component
+    # Checks if special component is needed or base component
     if "component_type_name" in component_params:
         component_class = component_factory.get_class(component_params["component_type_name"])
     else:
         component_class = BaseComponent
 
     zpc = zerorpc.Server(component_class(component_config))
-    zpc.bind(f"tcp://0.0.0.0:{opts.zpc}")
+    zpc.bind(f"tcp://0.0.0.0:{opts.port}")
     zpc.run()
