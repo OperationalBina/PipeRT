@@ -3,14 +3,19 @@ from threading import Thread
 
 import pytest
 from multiprocessing import Process
+
+from pipert.contrib.metrics_collectors.prometheus_collector import PrometheusCollector
+from pipert.core.metrics_collector import NullCollector
 from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
 from tests.pipert.core.utils.component.dummy_component import DummyComponent
 from tests.pipert.core.utils.routines.dummy_routine_with_queue import DummyRoutineWithQueue
+import os
 
 
 @pytest.fixture(scope="function")
 def component_with_queue():
     comp = DummyComponent({})
+    comp.MONITORING_SYSTEMS_FOLDER_PATH = os.getcwd() + "/" + comp.MONITORING_SYSTEMS_FOLDER_PATH
     comp.name = "Comp1"
     assert comp.create_queue("que1", 1)
     return comp
@@ -105,7 +110,7 @@ def test_get_routine_creation(component_with_queue_and_routine):
         "queue": "que1",
         "routine_type_name": "DummyRoutineWithQueue",
     }
-    routine_configuration = component_with_queue_and_routine.\
+    routine_configuration = component_with_queue_and_routine. \
         _get_routine_creation(component_with_queue_and_routine.
                               get_routines()["rout1"])
     assert routine_configuration == EXPECTED_ROUTINE_DICTIONARY
@@ -135,11 +140,15 @@ def test_setup_component():
 
 def test_set_monitoring_with_bad_name(component_with_queue_and_routine):
     component_with_queue_and_routine.set_monitoring_system({
-        "name": "bad_name"
+        "name": "BadName"
     })
-    import os
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    print("dir_path - " + dir_path)
-    cwd = os.getcwd()
-    print("cwd - " + cwd)
-    assert component_with_queue_and_routine.metrics_collector is None
+    print("folder path = " + component_with_queue_and_routine.MONITORING_SYSTEMS_FOLDER_PATH)
+    assert isinstance(component_with_queue_and_routine.metrics_collector, NullCollector)
+
+
+def test_set_monitoring_with_good_params_prometheus(component_with_queue_and_routine):
+    component_with_queue_and_routine.set_monitoring_system({
+        "name": "Prometheus",
+        "port": 20000
+    })
+    assert type(component_with_queue_and_routine.metrics_collector, PrometheusCollector)
