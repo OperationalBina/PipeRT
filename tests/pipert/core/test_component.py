@@ -5,7 +5,6 @@ import pytest
 from multiprocessing import Process
 
 from pipert.core.metrics_collector import NullCollector
-from tests.pipert.core.utils.metrics_collectors.dummy_collector import DummyCollector
 from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
 from tests.pipert.core.utils.component.dummy_component import DummyComponent
 from tests.pipert.core.utils.routines.dummy_routine_with_queue import DummyRoutineWithQueue
