@@ -16,6 +16,7 @@ class BaseComponent:
     def __init__(self, component_config, start_component=True):
         self.name = ""
         self.ROUTINES_FOLDER_PATH = "pipert/contrib/routines"
+        self.MONITORING_SYSTEMS_FOLDER_PATH = "pipert/contrib/metrics_collectors"
         self.use_memory = False
         self.stop_event = Event()
         self.stop_event.set()
@@ -38,12 +39,16 @@ class BaseComponent:
             self.use_memory = True
             self.generator = MpSharedMemoryGenerator(self.name)
 
+        if "monitoring_system" in component_parameters:
+            self.set_monitoring_system(component_parameters["monitoring_system"])
+
         for queue in component_parameters["queues"]:
             self.create_queue(queue_name=queue, queue_size=1)
 
         routine_factory = ClassFactory(self.ROUTINES_FOLDER_PATH)
         for routine_name, routine_parameters in component_parameters["routines"].items():
             routine_parameters["name"] = routine_name
+            routine_parameters['metrics_collector'] = self.metrics_collector
             routine_class = routine_factory.get_class(routine_parameters.pop("routine_type_name", ""))
             if routine_class is None:
                 continue
@@ -240,3 +245,17 @@ class BaseComponent:
                         routine_dict[routine_param_name] = queue_name
 
         return routine_dict
+
+    def set_monitoring_system(self, monitoring_system_parameters):
+        monitoring_system_factory = ClassFactory(self.MONITORING_SYSTEMS_FOLDER_PATH)
+        if "name" not in monitoring_system_parameters:
+            print("No name parameter found inside the monitoring system")
+            return
+        monitoring_system_name = monitoring_system_parameters.pop("name") + "Collector"
+        monitoring_system_class = monitoring_system_factory.get_class(monitoring_system_name)
+        if monitoring_system_class is None:
+            return
+        try:
+            self.metrics_collector = monitoring_system_class(**monitoring_system_parameters)
+        except TypeError:
+            print("Bad parameters given for the monitoring system " + monitoring_system_name)

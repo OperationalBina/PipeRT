@@ -3,14 +3,18 @@ from threading import Thread
 
 import pytest
 from multiprocessing import Process
+
+from pipert.core.metrics_collector import NullCollector
 from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
 from tests.pipert.core.utils.component.dummy_component import DummyComponent
 from tests.pipert.core.utils.routines.dummy_routine_with_queue import DummyRoutineWithQueue
+import os
 
 
 @pytest.fixture(scope="function")
 def component_with_queue():
     comp = DummyComponent({})
+    comp.MONITORING_SYSTEMS_FOLDER_PATH = os.getcwd() + "/" + "tests/pipert/core/utils/metrics_collectors"
     comp.name = "Comp1"
     assert comp.create_queue("que1", 1)
     return comp
@@ -105,7 +109,7 @@ def test_get_routine_creation(component_with_queue_and_routine):
         "queue": "que1",
         "routine_type_name": "DummyRoutineWithQueue",
     }
-    routine_configuration = component_with_queue_and_routine.\
+    routine_configuration = component_with_queue_and_routine. \
         _get_routine_creation(component_with_queue_and_routine.
                               get_routines()["rout1"])
     assert routine_configuration == EXPECTED_ROUTINE_DICTIONARY
@@ -131,3 +135,19 @@ def test_setup_component():
     assert component.use_memory == shared_memory
     assert all(queue_name in component.queues for queue_name in queue_names)
     assert component_configuration == component.get_component_configuration()
+
+
+def test_set_monitoring_with_bad_name(component_with_queue_and_routine):
+    component_with_queue_and_routine.set_monitoring_system({
+        "name": "BadName"
+    })
+    assert isinstance(component_with_queue_and_routine.metrics_collector, NullCollector)
+
+
+def test_set_monitoring_with_good_params(component_with_queue_and_routine):
+    component_with_queue_and_routine.set_monitoring_system({
+        "name": "Dummy",
+        "parameter": "check"
+    })
+    assert not isinstance(component_with_queue_and_routine.metrics_collector, NullCollector)
+
