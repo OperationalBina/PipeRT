@@ -39,13 +39,6 @@ def test_get_payload():
     assert (msg.get_payload() == img).all()
 
 
-def test_prediction_payload_is_empty():
-    pred = ""
-    msg = DummyMessage(pred, "localhost")
-    assert isinstance(msg.payload, PredictionPayload)
-    assert msg.is_empty()
-
-
 def test_update_payload():
     msg = create_msg()
     new_img = np.random.rand(576, 720, 3)
