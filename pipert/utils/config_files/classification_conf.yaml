@@ -35,7 +35,7 @@ components:
         image_meta_queue: messages
         redis_read_image_key: cam
         redis_read_meta_key: camera:1
-        routine_type_name: MetaAndFrameFromRedis
+        routine_type_name: MetaAndFrameFromRedisClassification
   Stream:
     execution_mode: process
     shared_memory: True
