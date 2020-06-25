@@ -15,8 +15,7 @@ import os
 @pytest.fixture(scope="function")
 def component_with_queue():
     comp = DummyComponent({})
-    # comp.MONITORING_SYSTEMS_FOLDER_PATH = os.getcwd() + "/" + "tests/pipert/core/utils/metrics_collectors"
-    comp.MONITORING_SYSTEMS_FOLDER_PATH = os.getcwd() + "/" + "pipert/contrib/metrics_collectors"
+    comp.MONITORING_SYSTEMS_FOLDER_PATH = os.getcwd() + "/" + "tests/pipert/core/utils/metrics_collectors"
     comp.name = "Comp1"
     assert comp.create_queue("que1", 1)
     return comp
@@ -153,4 +152,12 @@ def test_set_monitoring_with_good_params_prometheus(component_with_queue_and_rou
         "parameter": "check"
     })
     print(component_with_queue_and_routine.MONITORING_SYSTEMS_FOLDER_PATH)
+    assert isinstance(component_with_queue_and_routine.metrics_collector, DummyCollector)
+
+
+def test_set_monitoring_with_good_params_prometheus2(component_with_queue_and_routine):
+    component_with_queue_and_routine.set_monitoring_system({
+        "name": "Dummy",
+        "parameter": "check"
+    })
     assert isinstance(component_with_queue_and_routine.metrics_collector, DummyCollector)
