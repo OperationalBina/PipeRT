@@ -47,4 +47,4 @@ Usage
 - Build the pipeline after changes:
     - docker-compose up -d --build
     
-- After the pipeline is up run the [cli.py script](pipert/core/cli.py) and connect (The default endpoint is tcp://0.0.0.0:4002)
+- After the pipeline is up run the [cli.py script](pipert/utils/scripts/cli.py) and connect (The default endpoint is tcp://0.0.0.0:4002)
