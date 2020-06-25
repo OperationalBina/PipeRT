@@ -146,18 +146,9 @@ def test_set_monitoring_with_bad_name(component_with_queue_and_routine):
     assert isinstance(component_with_queue_and_routine.metrics_collector, NullCollector)
 
 
-def test_set_monitoring_with_good_params_prometheus(component_with_queue_and_routine):
-    component_with_queue_and_routine.set_monitoring_system({
-        "name": "DummyCollector",
-        "parameter": "check"
-    })
-    print(component_with_queue_and_routine.MONITORING_SYSTEMS_FOLDER_PATH)
-    assert isinstance(component_with_queue_and_routine.metrics_collector, DummyCollector)
-
-
-def test_set_monitoring_with_good_params_prometheus2(component_with_queue_and_routine):
+def test_set_monitoring_with_good_params(component_with_queue_and_routine):
     component_with_queue_and_routine.set_monitoring_system({
         "name": "Dummy",
         "parameter": "check"
     })
-    assert isinstance(component_with_queue_and_routine.metrics_collector, DummyCollector)
+    assert type(component_with_queue_and_routine.metrics_collector) is DummyCollector
