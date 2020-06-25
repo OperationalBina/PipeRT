@@ -232,6 +232,7 @@ class BaseComponent:
             routine_name = routine_creation_dict.pop("name")
             component_dict["routines"][routine_name] = \
                 routine_creation_dict
+        return {self.name: component_dict}
 
     def _get_routine_creation(self, routine):
         routine_dict = routine.get_creation_dictionary()
@@ -247,6 +248,9 @@ class BaseComponent:
 
     def set_monitoring_system(self, monitoring_system_parameters):
         monitoring_system_factory = ClassFactory(self.MONITORING_SYSTEMS_FOLDER_PATH)
+        if "name" not in monitoring_system_parameters:
+            print("No name parameter found inside the monitoring system")
+            return
         monitoring_system_name = monitoring_system_parameters.pop("name") + "Collector"
         monitoring_system_class = monitoring_system_factory.get_class(monitoring_system_name)
         if monitoring_system_class is None:
