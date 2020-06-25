@@ -6,6 +6,7 @@ from multiprocessing import Process
 
 from pipert.contrib.metrics_collectors.prometheus_collector import PrometheusCollector
 from pipert.core.metrics_collector import NullCollector
+from tests.pipert.core.utils.metrics_collectors.dummy_collector import DummyCollector
 from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
 from tests.pipert.core.utils.component.dummy_component import DummyComponent
 from tests.pipert.core.utils.routines.dummy_routine_with_queue import DummyRoutineWithQueue
@@ -15,7 +16,7 @@ import os
 @pytest.fixture(scope="function")
 def component_with_queue():
     comp = DummyComponent({})
-    comp.MONITORING_SYSTEMS_FOLDER_PATH = os.getcwd() + "/" + comp.MONITORING_SYSTEMS_FOLDER_PATH
+    comp.MONITORING_SYSTEMS_FOLDER_PATH = os.getcwd() + "/" + "tests/pipert/core/utils/metrics_collectors"
     comp.name = "Comp1"
     assert comp.create_queue("que1", 1)
     return comp
@@ -142,13 +143,12 @@ def test_set_monitoring_with_bad_name(component_with_queue_and_routine):
     component_with_queue_and_routine.set_monitoring_system({
         "name": "BadName"
     })
-    print("folder path = " + component_with_queue_and_routine.MONITORING_SYSTEMS_FOLDER_PATH)
     assert isinstance(component_with_queue_and_routine.metrics_collector, NullCollector)
 
 
 def test_set_monitoring_with_good_params_prometheus(component_with_queue_and_routine):
     component_with_queue_and_routine.set_monitoring_system({
-        "name": "Prometheus",
-        "port": 20000
+        "name": "DummyCollector",
+        "parameter": "check"
     })
-    assert type(component_with_queue_and_routine.metrics_collector, PrometheusCollector)
+    assert isinstance(component_with_queue_and_routine.metrics_collector, DummyCollector)
