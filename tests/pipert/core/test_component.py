@@ -4,7 +4,6 @@ from threading import Thread
 import pytest
 from multiprocessing import Process
 
-from pipert.contrib.metrics_collectors.prometheus_collector import PrometheusCollector
 from pipert.core.metrics_collector import NullCollector
 from tests.pipert.core.utils.metrics_collectors.dummy_collector import DummyCollector
 from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
@@ -16,7 +15,8 @@ import os
 @pytest.fixture(scope="function")
 def component_with_queue():
     comp = DummyComponent({})
-    comp.MONITORING_SYSTEMS_FOLDER_PATH = os.getcwd() + "/" + "tests/pipert/core/utils/metrics_collectors"
+    # comp.MONITORING_SYSTEMS_FOLDER_PATH = os.getcwd() + "/" + "tests/pipert/core/utils/metrics_collectors"
+    comp.MONITORING_SYSTEMS_FOLDER_PATH = os.getcwd() + "/" + "pipert/contrib/metrics_collectors"
     comp.name = "Comp1"
     assert comp.create_queue("que1", 1)
     return comp
