@@ -97,6 +97,7 @@ services:
       UI: ${UI:-false}
       UI_PORT: ${UI_PORT:-5005}
       CLI_ENDPOINT: ${CLI_ENDPOINT:-4001}
+      TORCHVISION: "no"
     ports:
       - ${CLI_ENDPOINT:-4001}:${CLI_ENDPOINT:-4001}
       - 5000:5000
