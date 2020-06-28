@@ -12,7 +12,7 @@ from pipert.core.component import BaseComponent
 # from pipert.core.routine import Routine
 from pipert.core.multiprocessing_shared_memory import MpSharedMemoryGenerator
 from pipert.core.message import Message, FramePayload, message_encode, \
-    message_decode
+    message_decode, PredictionPayload
 
 
 class DummyMessage(Message):
