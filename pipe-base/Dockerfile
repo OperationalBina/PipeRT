@@ -11,7 +11,7 @@ RUN apt-get update -y && \
 # Install and initialize all python packages for Pipert
 COPY requirements.txt /
 RUN pip3 install --upgrade pip
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r requirements.txt --no-cache-dir --default-timeout=100
 
 # Install pycocotools
 RUN pip3 install --upgrade cython
