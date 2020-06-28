@@ -1,5 +1,9 @@
 import threading
-from torch.multiprocessing import Event, Process
+import os
+if os.environ.get('TORCHVISION', 'no') == 'yes':
+    from torch.multiprocessing import Event, Process
+else:
+    from multiprocessing import Event, Process
 from pipert.core.routine import Routine
 from threading import Thread
 from typing import Union
@@ -30,6 +34,7 @@ class BaseComponent:
             self.metrics_collector = PrometheusCollector(8081)
         else:
             self.metrics_collector = metrics_collector
+
         self.stop_event = Event()
         self.stop_event.set()
         self.queues = {}
