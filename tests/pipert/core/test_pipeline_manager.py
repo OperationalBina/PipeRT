@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 import pytest
 
-from pipert import BaseComponent
+from pipert.core.component import BaseComponent
 from tests.pipert.core.utils.routines.dummy_routine_with_queue import DummyRoutineWithQueue
 from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
 from pipert.core.pipeline_manager import PipelineManager

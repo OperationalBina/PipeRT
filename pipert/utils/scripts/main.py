@@ -1,8 +1,8 @@
 import os
-
 import yaml
 from flask import Flask, jsonify, request, Response
 from pipert.core.pipeline_manager import PipelineManager
+from pipert.utils.useful_methods import open_config_file
 import inspect
 import zerorpc
 
@@ -11,12 +11,9 @@ class CliConnection(object):
 
     def __init__(self, pipeline_manager):
         self.pipeline_manager = pipeline_manager
-        try:
-            with open("pipert/core/default_config.yaml") as config_file:
-                components = yaml.load(config_file, Loader=yaml.FullLoader)
-                self.pipeline_manager.setup_components(components)
-        except FileNotFoundError:
-            pass
+        components = open_config_file(os.environ.get("CONFIG_PATH", ""))
+        if not isinstance(components, str):
+            self.pipeline_manager.setup_components(components)
 
     def execute_method(self, method_name, parameters_values):
         return getattr(self.pipeline_manager, method_name)(**parameters_values)
