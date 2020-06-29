@@ -217,7 +217,8 @@ pipeline_first_pod = {
         "context": ".",
         "args": {
             "SPLUNK": "no",
-            "DETECTRON": "no"
+            "DETECTRON": "no",
+            "TORCHVISION": 'no'
         }
     },
     "networks": {
