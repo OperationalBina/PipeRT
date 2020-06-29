@@ -1,4 +1,9 @@
-from torch.multiprocessing import Event, Process
+import threading
+import os
+if os.environ.get('TORCHVISION', 'no') == 'yes':
+    from torch.multiprocessing import Event, Process
+else:
+    from multiprocessing import Event, Process
 from pipert.core.routine import Routine
 from threading import Thread
 from typing import Union

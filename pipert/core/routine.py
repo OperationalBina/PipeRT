@@ -5,7 +5,11 @@ from enum import Enum
 import logging
 import threading
 from logging.handlers import TimedRotatingFileHandler
-import torch.multiprocessing as mp
+import os
+if os.environ.get('TORCHVISION', 'no') == 'yes':
+    import torch.multiprocessing as mp
+else:
+    import multiprocessing as mp
 from .errors import NoRunnerException
 from .metrics_collector import NullCollector
 

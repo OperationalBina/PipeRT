@@ -20,7 +20,6 @@ filterpy>=1.4.5
 redisAI
 ml2rt
 pytest
-torchvision
 prometheus-client
 SQLAlchemy
 flask-sqlalchemy
