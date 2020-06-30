@@ -2,11 +2,9 @@ import os
 from pprint import pprint
 import yaml
 import zerorpc
-from yaml.parser import ParserError
-from yaml.scanner import ScannerError
 import sys
 from subprocess import call
-
+from pipert.utils.useful_methods import open_config_file
 EXIT_METHOD_TEXT = 'exit'
 SHOW_METHODS_METHOD_TEXT = 'show_methods'
 
@@ -16,16 +14,11 @@ def load_config_file():
     Loading a configuration file of the pipeline to be configured
     """
     file_path = input("Enter the config file path: ")
-    try:
-        with open(file_path) as config_file:
-            components = yaml.load(config_file, Loader=yaml.FullLoader)
+    components = open_config_file(file_path)
+    if isinstance(components, str):
+        print(components)
+    else:
         print(connection.execute_method("setup_components", {"components": components}))
-    except FileNotFoundError as error:
-        print(error.args[1], "'{}'".format(file_path))
-    except IsADirectoryError as error:
-        print("'{}' is a directory not a file".format(file_path))
-    except (ScannerError, ParserError):
-        print("Expecting yaml file, can't parse the file '{}'".format(file_path))
 
 
 def export_config_file():

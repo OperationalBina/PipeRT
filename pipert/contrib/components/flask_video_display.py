@@ -1,21 +1,18 @@
 from threading import Thread
-
 from flask import Flask, Response, request
 from pipert.core.component import BaseComponent
 from queue import Empty
-from multiprocessing import Process
 import cv2
 import time
 import requests
 
 
-# Not working for some reason, the flask_display queue is empty forever ????????
 class FlaskVideoDisplay(BaseComponent):
 
-    def __init__(self, name="FlaskVideoDisplay", *args, **kwargs):
-        super().__init__(name, *args, **kwargs)
+    def __init__(self, component_config):
+        component_name, _ = list(component_config.items())[0]
         self.display_queue_name = "flask_display"
-        self.create_queue(self.display_queue_name)
+        component_config[component_name]["queues"].append(self.display_queue_name)
 
         app = Flask(__name__)
 
@@ -39,15 +36,18 @@ class FlaskVideoDisplay(BaseComponent):
             shutdown_server()
             return 'Server shutting down...'
 
+        super().__init__(component_config)
+
     def _start(self):
         super()._start()
-        # TODO need to understand why working as thread and not as process
         self.server = Thread(target=self.flask_app.run, kwargs={"host": '0.0.0.0'})
         self.server.start()
 
     def stop_run(self):
+        component_response = super().stop_run()
         try:
-            return super().stop_run()
+            self.server.join()
+            return component_response
         except RuntimeError:
             return 1
 

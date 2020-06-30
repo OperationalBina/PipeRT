@@ -16,9 +16,9 @@ RUN if [ "$DETECTRON" = "yes" ]; then pip install 'git+https://github.com/facebo
 # Install torchvision if needed
 ARG TORCHVISION
 ENV TORCHVISION=${TORCHVISION}
-RUN if [ TORCHVISION = "yes" ]; then pip install torchvision; fi
+RUN if [ "$TORCHVISION" = "yes" ]; then pip install torchvision; fi
 
 ENV PYTHONPATH='/'
 ENV PYTHONUNBUFFERED=1
 
-ENTRYPOINT ["python", "pipert/core/main.py"]
+ENTRYPOINT ["python", "pipert/utils/scripts/main.py"]

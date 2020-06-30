@@ -9,43 +9,67 @@ from threading import Thread
 from typing import Union
 import signal
 import gevent
-from .metrics_collector import NullCollector
-from .multiprocessing_shared_memory import MpSharedMemoryGenerator
-from .errors import RegisteredException, QueueDoesNotExist
+from pipert.core.metrics_collector import NullCollector
+from pipert.core.multiprocessing_shared_memory import MpSharedMemoryGenerator
+from pipert.core.errors import RegisteredException, QueueDoesNotExist
+from pipert.core.class_factory import ClassFactory
 from queue import Queue
 
 
 class BaseComponent:
 
-    def __init__(self, name="", metrics_collector=NullCollector(),
-                 use_memory=False, *args, **kwargs):
-        """
-        Args:
-            *args: TBD
-            **kwargs: TBD
-        """
-        super().__init__()
-        self.name = name
-        if metrics_collector == "splunk":
-            from pipert.contrib.metrics_collectors.splunk_collector import SplunkCollector
-            self.metrics_collector = SplunkCollector()
-        elif metrics_collector == "prometheus":
-            from pipert.contrib.metrics_collectors.prometheus_collector import PrometheusCollector
-            self.metrics_collector = PrometheusCollector(8081)
-        else:
-            self.metrics_collector = metrics_collector
-
+    def __init__(self, component_config, start_component=True):
+        self.name = ""
+        self.ROUTINES_FOLDER_PATH = "pipert/contrib/routines"
+        self.MONITORING_SYSTEMS_FOLDER_PATH = "pipert/contrib/metrics_collectors"
+        self.use_memory = False
         self.stop_event = Event()
         self.stop_event.set()
         self.queues = {}
         self._routines = {}
-        self.use_memory = use_memory
-        if use_memory:
+        self.metrics_collector = NullCollector()
+        self.setup_component(component_config)
+        if start_component:
+            self.run_comp()
+
+    def setup_component(self, component_config):
+        if (component_config is None) or (type(component_config) is not dict) or\
+                (component_config == {}):
+            return
+        component_name, component_parameters = list(component_config.items())[0]
+        self.name = component_name
+
+        if ("shared_memory" in component_parameters) and \
+                (component_parameters["shared_memory"]):
+            self.use_memory = True
             self.generator = MpSharedMemoryGenerator(self.name)
-        self.component_runner = None
-        self.runner_creator = None
-        self.runner_creator_kwargs = {}
-        self.as_thread()
+
+        if "monitoring_system" in component_parameters:
+            self.set_monitoring_system(component_parameters["monitoring_system"])
+
+        for queue in component_parameters["queues"]:
+            self.create_queue(queue_name=queue, queue_size=1)
+
+        routine_factory = ClassFactory(self.ROUTINES_FOLDER_PATH)
+        for routine_name, routine_parameters in component_parameters["routines"].items():
+            routine_parameters["name"] = routine_name
+            routine_parameters['metrics_collector'] = self.metrics_collector
+            routine_class = routine_factory.get_class(routine_parameters.pop("routine_type_name", ""))
+            if routine_class is None:
+                continue
+            try:
+                self._replace_queue_names_with_queue_objects(routine_parameters)
+            except QueueDoesNotExist as e:
+                continue
+
+            routine_parameters["component_name"] = self.name
+
+            self.register_routine(routine_class(**routine_parameters).as_thread())
+
+    def _replace_queue_names_with_queue_objects(self, routine_parameters_kwargs):
+        for key, value in routine_parameters_kwargs.items():
+            if 'queue' in key.lower():
+                routine_parameters_kwargs[key] = self.get_queue(queue_name=value)
 
     def _start(self):
         """
@@ -55,11 +79,7 @@ class BaseComponent:
         for routine in self._routines.values():
             routine.start()
 
-    def run(self):
-        self.component_runner = self.runner_creator(**self.runner_creator_kwargs)
-        self.component_runner.start()
-
-    def _run(self):
+    def run_comp(self):
         """
         Starts running all the component's routines.
         """
@@ -67,11 +87,6 @@ class BaseComponent:
         self._start()
         gevent.signal_handler(signal.SIGTERM, self.stop_run)
         self.metrics_collector.setup()
-
-        # keeps the component execution alive
-        while not self.stop_event.is_set():
-            pass
-        self._stop_run()
 
     def register_routine(self, routine: Union[Routine, Process, Thread]):
         """
@@ -81,6 +96,8 @@ class BaseComponent:
         """
         # TODO - write this function in a cleaner way?
         if isinstance(routine, Routine):
+            if routine.name in self._routines:
+                raise RegisteredException("routine name already exist")
             if routine.stop_event is None:
                 routine.stop_event = self.stop_event
                 if self.use_memory:
@@ -101,18 +118,13 @@ class BaseComponent:
         pass
 
     def stop_run(self):
-        self.stop_event.set()
-        try:
-            self.component_runner.join()
-            return 0
-        except RuntimeError:
-            print(f"Wasn't able to stop the component {self.name}")
-            return 1
-
-    def _stop_run(self):
         """
         Signals all the component's routines to stop.
         """
+        if self.stop_event.is_set():
+            return 0
+        self.stop_event.set()
+
         try:
             self._teardown_callback()
             if self.use_memory:
@@ -177,6 +189,10 @@ class BaseComponent:
            Raises:
                KeyError - if no queue has the name queue_name
         """
+        if queue_name not in self.queues:
+            raise QueueDoesNotExist(queue_name)
+        if self.does_routines_use_queue(queue_name=queue_name):
+            return False
         try:
             del self.queues[queue_name]
             return True
@@ -199,12 +215,52 @@ class BaseComponent:
                 return True
         return False
 
-    def as_thread(self):
-        self.runner_creator = threading.Thread
-        self.runner_creator_kwargs = {"target": self._run}
-        return self
+    def does_component_running(self):
+        return not self.stop_event.is_set()
 
-    def as_process(self):
-        self.runner_creator = Process
-        self.runner_creator_kwargs = {"target": self._run}
-        return self
+    def get_routines(self):
+        return self._routines
+
+    def get_component_configuration(self):
+        component_dict = {
+            "shared_memory": self.use_memory,
+            "queues":
+                list(self.get_all_queue_names()),
+            "routines": {}
+        }
+
+        if type(self).__name__ != BaseComponent.__name__:
+            component_dict["component_type_name"] = type(self).__name__
+        for current_routine_object in self._routines.values():
+            routine_creation_dict = \
+                self._get_routine_creation(current_routine_object)
+            routine_name = routine_creation_dict.pop("name")
+            component_dict["routines"][routine_name] = \
+                routine_creation_dict
+        return {self.name: component_dict}
+
+    def _get_routine_creation(self, routine):
+        routine_dict = routine.get_creation_dictionary()
+        routine_dict["routine_type_name"] = routine.__class__.__name__
+        for routine_param_name in routine_dict.keys():
+            if "queue" in routine_param_name:
+                for queue_name in self.queues.keys():
+                    if getattr(routine, routine_param_name) is \
+                            self.queues[queue_name]:
+                        routine_dict[routine_param_name] = queue_name
+
+        return routine_dict
+
+    def set_monitoring_system(self, monitoring_system_parameters):
+        monitoring_system_factory = ClassFactory(self.MONITORING_SYSTEMS_FOLDER_PATH)
+        if "name" not in monitoring_system_parameters:
+            print("No name parameter found inside the monitoring system")
+            return
+        monitoring_system_name = monitoring_system_parameters.pop("name") + "Collector"
+        monitoring_system_class = monitoring_system_factory.get_class(monitoring_system_name)
+        if monitoring_system_class is None:
+            return
+        try:
+            self.metrics_collector = monitoring_system_class(**monitoring_system_parameters)
+        except TypeError:
+            print("Bad parameters given for the monitoring system " + monitoring_system_name)

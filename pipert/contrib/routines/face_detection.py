@@ -1,7 +1,6 @@
 import torch
-from pipert import Routine
 from pipert.core.message import Message
-from pipert.core.routine import RoutineTypes
+from pipert.core.routine import RoutineTypes, Routine
 from pipert.utils.structures import Instances, Boxes
 from queue import Empty
 import time
