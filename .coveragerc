@@ -1,4 +1,0 @@
-[report]
-exclude_lines =
-    component_file_path = "pipert/utils/config_files/" + component_name + ".yaml"
-    cmd = "python " + COMPONENT_FACTORY_PATH + " -cp " + component_file_path + " -p " + component_port
