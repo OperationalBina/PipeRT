@@ -1,0 +1,106 @@
+FROM nvcr.io/nvidia/l4t-base:r32.4.2
+
+FROM python:3.8-slim-buster
+
+#Install dependencies
+RUN apt-get update -y \
+    && apt-get upgrade -y \
+    && apt-get autoremove -y \
+    && apt-get install -y \
+        gcc \
+        build-essential \
+        zlib1g-dev \
+        wget \
+        unzip \
+        cmake \
+        gfortran \
+        libblas-dev \
+        liblapack-dev \
+        libgtk2.0-dev \
+        libatlas-base-dev \
+        git \
+    && apt-get clean
+
+# Install python packages
+RUN pip install --upgrade pip \
+    && pip install \
+        numpy \
+        matplotlib \
+        scipy \
+        cython \
+    && rm -fr /root/.cache
+
+
+# Install dependencies for Opencv
+RUN apt-get update -y \
+    && apt-get upgrade -y \
+    && apt-get autoremove -y \
+    && apt-get install -y \
+        llvm \
+        build-essential \
+        cmake \
+        libjpeg-dev \
+        libpng-dev \
+        libopenblas-base \
+        libopenmpi-dev \
+        pkg-config \
+        libswscale-dev \
+        libtbb2 \
+        libtbb-dev \
+        curl \
+        libjpeg-dev \
+        libpng-dev \
+        libtiff-dev \
+        libavcodec-dev \
+        libavformat-dev \
+        libgstreamer1.0-dev \
+        libgstreamer-plugins-base1.0-dev \
+        libv4l-dev \
+        v4l-utils \
+        qv4l2 \
+        v4l2ucp \
+        libdc1394-22-dev \
+    && apt-get clean
+
+# Installing Opencv
+RUN curl -L https://github.com/opencv/opencv/archive/4.1.0.zip -o opencv-4.1.0.zip && \
+    curl -L https://github.com/opencv/opencv_contrib/archive/4.1.0.zip -o opencv_contrib-4.1.0.zip && \
+    unzip opencv-4.1.0.zip && \
+    unzip opencv_contrib-4.1.0.zip && \
+    cd opencv-4.1.0/ && \
+    mkdir release && \
+    cd release/ && \
+    cmake -D WITH_CUDA=ON \
+        -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib-4.1.0/modules \
+        -D WITH_GSTREAMER=ON \
+        -D WITH_LIBV4L=ON \
+        -D BUILD_opencv_python2=OFF \
+        -D BUILD_opencv_python3=ON \
+        -D BUILD_TESTS=OFF \
+        -D BUILD_PERF_TESTS=OFF \
+        -D BUILD_EXAMPLES=OFF \
+        -D CMAKE_BUILD_TYPE=RELEASE \
+        -D CMAKE_INSTALL_PREFIX=/usr/local .. && \
+    make -j4 && \
+    make install && \
+	cd ../.. && \
+	rm opencv-4.1.0.zip && \
+	rm opencv_contrib-4.1.0.zip
+
+# Install Pillow
+RUN pip install --upgrade pip \
+    && pip install \
+		Pillow==6.2.1 --no-cache-dir --default-timeout=100 \
+    && rm -fr /root/.cache
+
+# Install requirements
+COPY xavier-requirements.txt .
+RUN pip install --upgrade pip \
+    && pip install \
+        -r xavier-requirements.txt --default-timeout=100 \
+    && rm -fr /root/.cache && \
+    rm xavier-requirements.txt
+
+# Install pycocotools
+RUN pip3 install --upgrade cython
+RUN pip3 install pycocotools
