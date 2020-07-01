@@ -109,3 +109,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# docker compose
+docker-compose.yaml
+
+# monitoring yml
+monitoring/prometheus.yml
