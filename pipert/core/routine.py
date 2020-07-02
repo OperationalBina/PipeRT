@@ -64,14 +64,13 @@ class Routine(ABC):
         self.runner = None
         self.runner_creator = None
         self.runner_creator_kwargs = {}
-        self.LOG_FILES_FOLDER_PATH = "pipert/utils/log_files"
         self._setup_logger()
 
     def _setup_logger(self):
         self.logger = logging.getLogger(self.component_name + "." + self.name)
         self.logger.setLevel(logging.DEBUG)
         self.logger.propagate = False
-        log_file = self.LOG_FILES_FOLDER_PATH + "/" + self.component_name + "-" + self.name + ".log"
+        log_file = os.environ.get("LOGS_FOLDER_PATH", "pipert/utils/log_files") + "/" + self.component_name + "-" + self.name + ".log"
         file_handler = TimedRotatingFileHandler(log_file, when='midnight')
         file_handler.setFormatter(logging.Formatter(
             "%(asctime)s - %(levelname)s - %(name)s - %(message)s"))

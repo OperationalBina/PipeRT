@@ -22,6 +22,7 @@ ENV PYTHONPATH='/'
 ENV PYTHONUNBUFFERED=1
 
 # Create folder for log files
-RUN mkdir pipert/utils/log_files
+ENV LOGS_FOLDER_PATH pipert/utils/log_files
+RUN mkdir $LOGS_FOLDER_PATH
 
 ENTRYPOINT ["python", "pipert/utils/scripts/main.py"]
