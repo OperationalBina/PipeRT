@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 import multiprocessing as mp
 from pipert.core.metrics_collector import NullCollector
@@ -20,6 +21,7 @@ class DummyRoutineWithQueue(Routine):
         self.runner_creator = None
         self.runner_creator_kwargs = {}
         self.queue = queue
+        self.logger = logging.getLogger("test_logs.log")
 
     def main_logic(self, *args, **kwargs):
         self.metrics_collector.collect_latency(0.1, self.component_name)
