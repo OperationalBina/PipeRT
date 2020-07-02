@@ -71,7 +71,7 @@ class Routine(ABC):
         self.logger = logging.getLogger(self.component_name + "." + self.name)
         self.logger.setLevel(logging.DEBUG)
         self.logger.propagate = False
-        log_file = "pipert/utils/log_files/" + self.component_name + "-" + self.name + ".log"
+        log_file = self.LOG_FILES_FOLDER_PATH + "/" + self.component_name + "-" + self.name + ".log"
         file_handler = TimedRotatingFileHandler(log_file, when='midnight')
         file_handler.setFormatter(logging.Formatter(
             "%(asctime)s - %(levelname)s - %(name)s - %(message)s"))
