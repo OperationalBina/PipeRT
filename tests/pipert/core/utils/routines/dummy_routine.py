@@ -1,5 +1,5 @@
 from collections import defaultdict
-
+import multiprocessing as mp
 from pipert.core.metrics_collector import NullCollector
 from pipert.core.routine import Routine
 
@@ -19,6 +19,7 @@ class DummyRoutine(Routine):
         self.metrics_collector = metrics_collector
         self.use_memory = False
         self.generator = None
+        self.stop_event: mp.Event = None
         self._event_handlers = defaultdict(list)
         self.state = None
         self._allowed_events = []
