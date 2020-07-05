@@ -1,7 +1,11 @@
 import collections
 from abc import ABC, abstractmethod
 
-from pipert.core.multiprocessing_shared_memory import get_shared_memory_object
+import sys
+if sys.version_info.minor == 8:
+    from pipert.core.multiprocessing_shared_memory import get_shared_memory_object
+else:
+    from pipert.core.shared_memory import get_shared_memory_object
 
 import numpy as np
 import time
@@ -49,9 +53,17 @@ class FramePayload(Payload):
         if generator is None:
             self.data = buf
         else:
-            memory = generator.get_next_shared_memory(size=len(buf))
-            memory.buf[:] = bytes(buf)
-            self.data = memory.name
+            if sys.version_info.minor == 8:
+                memory = generator.get_next_shared_memory(size=len(buf))
+                memory.buf[:] = bytes(buf)
+                self.data = memory.name
+            else:
+                memory_name = generator.get_next_shared_memory(size=len(buf))
+                memory = get_shared_memory_object(memory_name)
+                memory.acquire_semaphore()
+                memory.write_to_memory(buf)
+                memory.release_semaphore()
+                self.data = memory_name
         self.encoded = True
 
     def is_empty(self):
@@ -60,8 +72,13 @@ class FramePayload(Payload):
     def _get_frame(self):
         memory = get_shared_memory_object(self.data)
         if memory:
-            data = bytes(memory.buf)
-            memory.close()
+            if sys.version_info.minor == 8:
+                data = bytes(memory.buf)
+                memory.close()
+            else:
+                memory.acquire_semaphore()
+                data = memory.read_from_memory()
+                memory.release_semaphore()
             frame = np.fromstring(data, dtype=np.uint8)
             return cv2.imdecode(frame, cv2.IMREAD_COLOR)
         return None

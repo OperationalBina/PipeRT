@@ -1,4 +1,8 @@
-import pipert.core.multiprocessing_shared_memory as sm
+import sys
+if sys.version_info.minor == 8:
+    import pipert.core.multiprocessing_shared_memory as sm
+else:
+    import pipert.core.shared_memory as sm
 
 
 class DummySharedMemoryGenerator(sm.MpSharedMemoryGenerator):
