@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 import time
 import os
@@ -22,6 +24,9 @@ class DummySleepRoutine(Routine):
         super().__init__(name)
         self.stop_event = Event()
         self.sleep_time = sleep_time
+
+    def _setup_logger(self):
+        self.logger = logging.getLogger("test_logs.log")
 
     def main_logic(self, *args, **kwargs):
         time.sleep(self.sleep_time)

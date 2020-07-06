@@ -21,4 +21,8 @@ RUN if [ "$TORCHVISION" = "yes" ]; then pip install torchvision; fi
 ENV PYTHONPATH='/'
 ENV PYTHONUNBUFFERED=1
 
+# Create folder for log files
+ENV LOGS_FOLDER_PATH pipert/utils/log_files
+RUN mkdir $LOGS_FOLDER_PATH
+
 ENTRYPOINT ["python", "pipert/utils/scripts/main.py"]
