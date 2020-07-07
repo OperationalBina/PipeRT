@@ -108,37 +108,53 @@ class FrameMetadataPayload(Payload):
 
     def __init__(self, data):
         super().__init__(data)
+        self.shape = None
+        self.dtype = None
 
     def decode(self):
         if isinstance(self.data, str):
             decoded_img = self._get_frame()
         else:
-            decoded_img = cv2.imdecode(np.fromstring(self.data[0],
-                                                     dtype=np.uint8),
-                                       cv2.IMREAD_COLOR)
+            decoded_img = np.frombuffer(self.data, dtype=self.dtype)
+            decoded_img = decoded_img.reshape(self.shape)
         self.data = (decoded_img, self.data[1])
         self.encoded = False
 
     def encode(self, generator):
-        buf = cv2.imencode('.png', self.data[0])[1].tobytes()
+        self.shape = self.data.shape
+        self.dtype = self.data.dtype
+        buf = self.data.tobytes()
         if generator is None:
             self.data = (buf, self.data[1])
         else:
-            memory = generator.get_next_shared_memory(size=len(buf))
-            memory.buf[:] = bytes(buf)
-            self.data = (memory.name, self.data[1])
+            if sys.version_info.minor == 8:
+                memory = generator.get_next_shared_memory(size=len(buf))
+                memory.buf[:] = bytes(buf)
+                self.data = (memory.name, self.data[1])
+            else:
+                memory_name = generator.get_next_shared_memory(size=len(buf))
+                memory = get_shared_memory_object(memory_name)
+                memory.acquire_semaphore()
+                memory.write_to_memory(buf)
+                memory.release_semaphore()
+                self.data = (memory_name, self.data[1])
         self.encoded = True
 
     def is_empty(self):
         return self.data is None
 
     def _get_frame(self):
-        memory = get_shared_memory_object(self.data)
+        memory = get_shared_memory_object(self.data[0])
         if memory:
-            data = bytes(memory.buf)
-            memory.close()
-            frame = np.fromstring(data[0], dtype=np.uint8)
-            return cv2.imdecode(frame, cv2.IMREAD_COLOR)
+            if sys.version_info.minor == 8:
+                data = bytes(memory.buf)
+                memory.close()
+            else:
+                memory.acquire_semaphore()
+                data = memory.read_from_memory()
+                memory.release_semaphore()
+            frame = np.frombuffer(data, dtype=self.dtype)
+            return frame.reshape(self.shape)
         return None
 
 
