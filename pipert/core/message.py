@@ -37,19 +37,22 @@ class FramePayload(Payload):
 
     def __init__(self, data):
         super().__init__(data)
+        self.shape = None
+        self.dtype = None
 
     def decode(self):
         if isinstance(self.data, str):
             decoded_img = self._get_frame()
         else:
-            decoded_img = cv2.imdecode(np.fromstring(self.data,
-                                                     dtype=np.uint8),
-                                       cv2.IMREAD_COLOR)
+            decoded_img = np.frombuffer(self.data, dtype=self.dtype)
+            decoded_img = decoded_img.reshape(self.shape)
         self.data = decoded_img
         self.encoded = False
 
     def encode(self, generator):
-        buf = cv2.imencode('.jpeg', self.data)[1].tobytes()
+        self.shape = self.data.shape
+        self.dtype = self.data.dtype
+        buf = self.data.tobytes()
         if generator is None:
             self.data = buf
         else:
@@ -79,8 +82,8 @@ class FramePayload(Payload):
                 memory.acquire_semaphore()
                 data = memory.read_from_memory()
                 memory.release_semaphore()
-            frame = np.fromstring(data, dtype=np.uint8)
-            return cv2.imdecode(frame, cv2.IMREAD_COLOR)
+            frame = np.frombuffer(data, dtype=self.dtype)
+            return frame.reshape(self.shape)
         return None
 
 
