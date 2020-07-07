@@ -115,7 +115,7 @@ class FrameMetadataPayload(Payload):
         if isinstance(self.data, str):
             decoded_img = self._get_frame()
         else:
-            decoded_img = np.frombuffer(self.data, dtype=self.dtype)
+            decoded_img = np.frombuffer(self.data[0], dtype=self.dtype)
             decoded_img = decoded_img.reshape(self.shape)
         self.data = (decoded_img, self.data[1])
         self.encoded = False
