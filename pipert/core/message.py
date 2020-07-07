@@ -121,8 +121,8 @@ class FrameMetadataPayload(Payload):
         self.encoded = False
 
     def encode(self, generator):
-        self.shape = self.data.shape
-        self.dtype = self.data.dtype
+        self.shape = self.data[0].shape
+        self.dtype = self.data[0].dtype
         buf = self.data.tobytes()
         if generator is None:
             self.data = (buf, self.data[1])
