@@ -7,7 +7,7 @@ if sys.version_info.minor == 8:
 else:
     from pipert.core.shared_memory import SharedMemoryGenerator as smGen
 from pipert.core.message import Message, FramePayload, message_encode, \
-    message_decode, PredictionPayload
+    message_decode, PredictionPayload, FrameMetadataPayload
 
 
 class DummyMessage(Message):
@@ -85,3 +85,27 @@ def test_message_encode_shared_memory():
     assert msg.source_address == decoded_msg.source_address
     assert msg.history == decoded_msg.history
     generator.cleanup()
+
+
+def test_frame_metadata_payload_decode_encode():
+    metadata_dictionary = {"id": 2}
+    img = np.random.rand(576, 720, 3)
+
+    msg = Message((img, metadata_dictionary.copy()), "localhost")
+    assert isinstance(msg.payload, FrameMetadataPayload)
+    encoded_message = message_encode(msg)
+    decoded_message = message_decode(encoded_message)
+    decoded_message_data = decoded_message.get_payload()
+    assert decoded_message_data[1] == metadata_dictionary
+    # assert (decoded_message_data[0] == img).all()
+
+
+def test_prediction_payload_decode_encode():
+    preds = {"test": 1}
+
+    msg = Message(preds.copy(), "localhost")
+    assert isinstance(msg.payload, PredictionPayload)
+    encoded_message = message_encode(msg)
+    decoded_message = message_decode(encoded_message)
+    decoded_message_data = decoded_message.get_payload()
+    assert preds == decoded_message_data
