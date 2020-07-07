@@ -45,7 +45,7 @@ class FramePayload(Payload):
         self.encoded = False
 
     def encode(self, generator):
-        buf = cv2.imencode('.jpeg', self.data)[1].tobytes()
+        buf = cv2.imencode('.png', self.data)[1].tobytes()
         if generator is None:
             self.data = buf
         else:
@@ -84,12 +84,52 @@ class PredictionPayload(Payload):
             return False
 
 
+class FrameMetadataPayload(Payload):
+
+    def __init__(self, data):
+        super().__init__(data)
+
+    def decode(self):
+        if isinstance(self.data, str):
+            decoded_img = self._get_frame()
+        else:
+            decoded_img = cv2.imdecode(np.fromstring(self.data[0],
+                                                     dtype=np.uint8),
+                                       cv2.IMREAD_COLOR)
+        self.data = (decoded_img, self.data[1])
+        self.encoded = False
+
+    def encode(self, generator):
+        buf = cv2.imencode('.png', self.data[0])[1].tobytes()
+        if generator is None:
+            self.data = (buf, self.data[1])
+        else:
+            memory = generator.get_next_shared_memory(size=len(buf))
+            memory.buf[:] = bytes(buf)
+            self.data = (memory.name, self.data[1])
+        self.encoded = True
+
+    def is_empty(self):
+        return self.data is None
+
+    def _get_frame(self):
+        memory = get_shared_memory_object(self.data)
+        if memory:
+            data = bytes(memory.buf)
+            memory.close()
+            frame = np.fromstring(data[0], dtype=np.uint8)
+            return cv2.imdecode(frame, cv2.IMREAD_COLOR)
+        return None
+
+
 class Message:
     counter = 0
 
     def __init__(self, data, source_address):
         if isinstance(data, np.ndarray):
             self.payload = FramePayload(data)
+        elif isinstance(data, tuple):
+            self.payload = FrameMetadataPayload(data)
         else:
             self.payload = PredictionPayload(data)
         self.source_address = source_address
