@@ -26,3 +26,4 @@ flask-sqlalchemy
 psycopg2-binary
 jsonschema
 requests
+scikit-image
