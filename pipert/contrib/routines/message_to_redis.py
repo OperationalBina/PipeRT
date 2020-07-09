@@ -25,11 +25,7 @@ class MessageToRedis(Routine):
         try:
             msg = self.message_queue.get(block=False)
             msg.record_exit(self.component_name, self.logger)
-            if self.use_memory and isinstance(msg.payload, FramePayload):
-                encoded_msg = message_encode(msg,
-                                             generator=self.generator)
-            else:
-                encoded_msg = message_encode(msg)
+            encoded_msg = message_encode(msg, generator=self.generator)
             self.msg_handler.send(self.redis_send_key, encoded_msg)
             time.sleep(0)
             return True
