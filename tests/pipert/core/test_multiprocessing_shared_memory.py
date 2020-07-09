@@ -27,7 +27,7 @@ def test_get_next_shared_memory():
 def test_max_count():
     generator = DummySharedMemoryGenerator()
     first_memory = generator.get_next_shared_memory()
-    for _ in range(5):
+    for _ in range(generator.max_count):
         generator.get_next_shared_memory()
 
     assert first_memory.name not in generator.shared_memories

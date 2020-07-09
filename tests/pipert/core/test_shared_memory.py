@@ -19,25 +19,30 @@ def test_get_next_shared_memory():
     first_memory = generator.get_next_shared_memory()
     second_memory = generator.get_next_shared_memory()
     assert first_memory != second_memory
-    assert first_memory.name == "dummy_component_0"
-    assert second_memory.name == "dummy_component_1"
+    assert first_memory == "dummy_component_0"
+    assert second_memory == "dummy_component_1"
     generator.cleanup()
 
 
 def test_max_count():
     generator = DummySharedMemoryGenerator()
     first_memory = generator.get_next_shared_memory()
-    for _ in range(5):
+    for _ in range(generator.max_count):
         generator.get_next_shared_memory()
 
-    assert first_memory.name not in generator.shared_memories
+    assert first_memory not in generator.shared_memories
     generator.cleanup()
 
 
 def test_write_and_read_from_memory():
     generator = DummySharedMemoryGenerator()
-    memory_name = generator.get_next_shared_memory(size=3).name
+    memory_name = generator.get_next_shared_memory(size=3)
     memory = sm.get_shared_memory_object(memory_name)
-    memory.buf[:] = b"AAA"
-    assert bytes(memory.buf) == b"AAA"
+    memory.acquire_semaphore()
+    memory.write_to_memory(b"AAA")
+    memory.release_semaphore()
+    memory.acquire_semaphore()
+    data = memory.read_from_memory()
+    memory.release_semaphore()
+    assert data == b"AAA"
     generator.cleanup()
