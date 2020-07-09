@@ -117,7 +117,7 @@ def add_ports_if_needed(pod_dict, components):
     global flask_port_counter
     for component in components.values():
         if ("component_type_name" in component) and (component["component_type_name"] == "FlaskVideoDisplay"):
-            pod_dict["ports"] = ["{flask_port_counter}:{flask_port_counter}"]
+            pod_dict["ports"] = [f"{flask_port_counter}:{flask_port_counter}"]
             flask_port_counter += 1
 
 
