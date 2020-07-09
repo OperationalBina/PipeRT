@@ -1,7 +1,7 @@
-import pipert.core.shared_memory as sm
+import pipert.core.multiprocessing_shared_memory as sm
 
 
-class DummySharedMemoryGenerator(sm.SharedMemoryGenerator):
+class DummySharedMemoryGenerator(sm.MpSharedMemoryGenerator):
     def __init__(self):
         super().__init__("dummy_component", max_count=5)
 
