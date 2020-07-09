@@ -1,4 +1,5 @@
 import time
+import traceback
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from enum import Enum
@@ -303,7 +304,12 @@ class Routine(ABC):
         while not self.stop_event.is_set():
             self._fire_event(Events.BEFORE_LOGIC)
             tick = time.time()
-            self.state.output = self.main_logic()
+            try:
+                self.state.output = self.main_logic()
+            except Exception as error:
+                self.logger.error("The routine has crashed: " + str(error))
+                self.logger.error(str(traceback.format_exc()))
+                self.state.output = False
             self.state.count += 1
             tock = time.time()
 
