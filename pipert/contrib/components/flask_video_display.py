@@ -57,15 +57,16 @@ class FlaskVideoDisplay(BaseComponent):
             try:
                 msg = q.get(block=False)
                 image = msg.get_payload()
-                ret, frame = cv2.imencode('.jpg', image)
-                frame = frame.tobytes()
-                yield (b'--frame\r\n'
-                       b'Pragma-directive: no-cache\r\n'
-                       b'Cache-directive: no-cache\r\n'
-                       b'Cache-control: no-cache\r\n'
-                       b'Pragma: no-cache\r\n'
-                       b'Expires: 0\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+                if image is not None:
+                    ret, frame = cv2.imencode('.jpg', image)
+                    frame = frame.tobytes()
+                    yield (b'--frame\r\n'
+                           b'Pragma-directive: no-cache\r\n'
+                           b'Cache-directive: no-cache\r\n'
+                           b'Cache-control: no-cache\r\n'
+                           b'Pragma: no-cache\r\n'
+                           b'Expires: 0\r\n'
+                           b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
             except Empty:
                 time.sleep(0)
 

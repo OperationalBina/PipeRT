@@ -3,7 +3,7 @@ from queue import Empty
 from urllib.parse import urlparse
 
 from pipert.core.message_handlers import RedisHandler
-from pipert.core.message import message_encode
+from pipert.core.message import message_encode, FramePayload
 from pipert.core.routine import Routine, RoutineTypes
 import os
 
@@ -25,7 +25,7 @@ class MessageToRedis(Routine):
         try:
             msg = self.message_queue.get(block=False)
             msg.record_exit(self.component_name, self.logger)
-            encoded_msg = message_encode(msg)
+            encoded_msg = message_encode(msg, generator=self.generator)
             self.msg_handler.send(self.redis_send_key, encoded_msg)
             time.sleep(0)
             return True

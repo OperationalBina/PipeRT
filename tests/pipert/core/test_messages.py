@@ -1,7 +1,11 @@
 import logging
 import time
 import numpy as np
-from pipert.core.multiprocessing_shared_memory import MpSharedMemoryGenerator
+import sys
+if sys.version_info.minor == 8:
+    from pipert.core.multiprocessing_shared_memory import MpSharedMemoryGenerator as smGen
+else:
+    from pipert.core.shared_memory import SharedMemoryGenerator as smGen
 from pipert.core.message import Message, FramePayload, message_encode, \
     message_decode, PredictionPayload, FrameMetadataPayload
 
@@ -12,7 +16,7 @@ class DummyMessage(Message):
         super().__init__(data, stream_address)
 
 
-class DummyGenerator(MpSharedMemoryGenerator):
+class DummyGenerator(smGen):
     def __init__(self):
         super().__init__("Dummy_generator")
 
