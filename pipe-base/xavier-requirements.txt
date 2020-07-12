@@ -12,7 +12,6 @@ redisAI
 ml2rt
 pytest
 prometheus-client
-SQLAlchemy
-flask-sqlalchemy
+scikit-image
 jsonschema
 requests
