@@ -159,119 +159,123 @@ def create_pod(pod_template, pod_name, pod_config):
     return pod_name
 
 
-flask_port_counter = 5000
+if __name__ == "__main__":
+    flask_port_counter = 5000
 
-GENERATED_CONFIG_FILES_FOLDER = "pipert/utils/config_files/"
+    GENERATED_CONFIG_FILES_FOLDER = "pipert/utils/config_files/"
 
-docker_compose_dictionary = {
-    "version": "3.7",
-    "services": {
-        "redis": {
-            "container_name": "redis",
-            "image": "redis:5.0.7-buster",
-            "logging": {
-                "driver": "none"
+    docker_compose_dictionary = {
+        "version": "3.7",
+        "services": {
+            "redis": {
+                "container_name": "redis",
+                "image": "redis:5.0.7-buster",
+                "logging": {
+                    "driver": "none"
+                },
+                "networks": {
+                    "default": {
+                        "aliases": [
+                            "redis"
+                        ]
+                    }
+                },
+                "restart": "always",
+                "ports": [
+                    "6379:6379"
+                ]
             },
-            "networks": {
-                "default": {
-                    "aliases": [
-                        "redis"
-                    ]
-                }
-            },
-            "restart": "always",
-            "ports": [
-                "6379:6379"
-            ]
-        },
-        "base-pipert": {
-            "container_name": "base-pipert",
-            "logging": {
-                "driver": "none"
-            },
-            "build": {
-                "context": "pipe-base/."
-            },
-            "networks": {
-                "default": {
-                    "aliases": [
-                        "base-pipert"
-                    ]
+            "base-pipert": {
+                "container_name": "base-pipert",
+                "logging": {
+                    "driver": "none"
+                },
+                "ipc": "host",
+                "build": {
+                    "context": "pipe-base/."
+                },
+                "networks": {
+                    "default": {
+                        "aliases": [
+                            "base-pipert"
+                        ]
+                    }
                 }
             }
         }
     }
-}
 
-config_file = get_config_file()
+    config_file = get_config_file()
 
-monitoring_system = config_file["monitoring_system"]
-if monitoring_system.lower() == "prometheus":
-    prometheus_handler(pods=config_file["pods"])
+    monitoring_system = config_file["monitoring_system"]
+    if monitoring_system.lower() == "prometheus":
+        prometheus_handler(pods=config_file["pods"])
 
-# Create the first pod
-pipeline_first_pod = {
-    "container_name": "",
-    "image": "pipert_pipert",
-    "build": {
-        "context": ".",
-        "args": {
-            "SPLUNK": "no",
-            "DETECTRON": "no",
-            "TORCHVISION": 'no'
+    # Create the first pod
+    pipeline_first_pod = {
+        "container_name": "",
+        "image": "pipert_pipert",
+        "build": {
+            "context": ".",
+            "args": {
+                "SPLUNK": "no",
+                "DETECTRON": "no",
+                "TORCHVISION": 'no'
+            }
+        },
+        "ipc": "host",
+        "networks": {
+            "default": {
+                "aliases": [
+                    "pipert"
+                ]
+            }
+        },
+        "depends_on": [
+            "redis",
+            "base-pipert"
+        ],
+        "environment": {
+            "REDIS_URL": "redis://redis:6379/0",
+            "UI": "${UI:-false}",
+            "UI_PORT": "${UI_PORT:-5005}",
+            "CLI_ENDPOINT": "${CLI_ENDPOINT:-4001}",
+            "CONFIG_PATH": ""
         }
-    },
-    "networks": {
-        "default": {
-            "aliases": [
-                "pipert"
-            ]
-        }
-    },
-    "depends_on": [
-        "redis",
-        "base-pipert"
-    ],
-    "environment": {
-        "REDIS_URL": "redis://redis:6379/0",
-        "UI": "${UI:-false}",
-        "UI_PORT": "${UI_PORT:-5005}",
-        "CLI_ENDPOINT": "${CLI_ENDPOINT:-4001}",
-        "CONFIG_PATH": ""
     }
-}
-first_pod_name, first_pod_config = config_file["pods"].popitem()
-first_pod_name = create_pod(pod_template=pipeline_first_pod,
-                            pod_name=first_pod_name,
-                            pod_config=first_pod_config)
+    first_pod_name, first_pod_config = config_file["pods"].popitem()
+    first_pod_name = create_pod(pod_template=pipeline_first_pod,
+                                pod_name=first_pod_name,
+                                pod_config=first_pod_config)
 
-PIPELINE_OTHER_PODS_TEMPLATE = {
-    "container_name": "",
-    "image": "pipert_pipert",
-    "networks": {
-        "default": {
-            "aliases": [
-                "pipert"
-            ]
+    PIPELINE_OTHER_PODS_TEMPLATE = {
+        "container_name": "",
+        "image": "pipert_pipert",
+        "networks": {
+            "default": {
+                "aliases": [
+                    "pipert"
+                ]
+            }
+        },
+        "ipc": "host",
+        "depends_on": [first_pod_name],
+        "environment": {
+            "REDIS_URL": "redis://redis:6379/0",
+            "UI": "${UI:-false}",
+            "UI_PORT": "${UI_PORT:-5005}",
+            "CLI_ENDPOINT": "${CLI_ENDPOINT:-4001}",
+            "CONFIG_PATH": ""
         }
-    },
-    "depends_on": [first_pod_name],
-    "environment": {
-        "REDIS_URL": "redis://redis:6379/0",
-        "UI": "${UI:-false}",
-        "UI_PORT": "${UI_PORT:-5005}",
-        "CLI_ENDPOINT": "${CLI_ENDPOINT:-4001}",
-        "CONFIG_PATH": ""
     }
-}
 
-# Create all other pods
-for pod_name, pod_config in config_file["pods"].items():
-    create_pod(pod_template=PIPELINE_OTHER_PODS_TEMPLATE.copy(),
-               pod_name=pod_name,
-               pod_config=pod_config)
+    # Create all other pods
+    for pod_name, pod_config in config_file["pods"].items():
+        create_pod(pod_template=PIPELINE_OTHER_PODS_TEMPLATE.copy(),
+                pod_name=pod_name,
+                pod_config=pod_config)
 
-# write the docker compose file
-with open("docker-compose.yaml", 'w') as generated_compose:
-    yaml.dump(docker_compose_dictionary, generated_compose)
-    print("Generated the docker compose")
+    # write the docker compose file
+    with open("docker-compose.yaml", 'w') as generated_compose:
+        yaml.dump(docker_compose_dictionary, generated_compose)
+        print("Generated the docker compose")

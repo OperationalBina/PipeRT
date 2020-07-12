@@ -1,7 +1,11 @@
 import collections
 from abc import ABC, abstractmethod
 
-from pipert.core.multiprocessing_shared_memory import get_shared_memory_object
+import sys
+if sys.version_info.minor == 8:
+    from pipert.core.multiprocessing_shared_memory import get_shared_memory_object
+else:
+    from pipert.core.shared_memory import get_shared_memory_object
 
 import numpy as np
 import time
@@ -33,25 +37,36 @@ class FramePayload(Payload):
 
     def __init__(self, data):
         super().__init__(data)
+        self.shape = None
+        self.dtype = None
 
     def decode(self):
         if isinstance(self.data, str):
             decoded_img = self._get_frame()
         else:
-            decoded_img = cv2.imdecode(np.fromstring(self.data,
-                                                     dtype=np.uint8),
-                                       cv2.IMREAD_COLOR)
+            decoded_img = np.frombuffer(self.data, dtype=self.dtype)
+            decoded_img = decoded_img.reshape(self.shape)
         self.data = decoded_img
         self.encoded = False
 
     def encode(self, generator):
-        buf = cv2.imencode('.jpeg', self.data)[1].tobytes()
+        self.shape = self.data.shape
+        self.dtype = self.data.dtype
+        buf = self.data.tobytes()
         if generator is None:
             self.data = buf
         else:
-            memory = generator.get_next_shared_memory(size=len(buf))
-            memory.buf[:] = bytes(buf)
-            self.data = memory.name
+            if sys.version_info.minor == 8:
+                memory = generator.get_next_shared_memory(size=len(buf))
+                memory.buf[:] = bytes(buf)
+                self.data = memory.name
+            else:
+                memory_name = generator.get_next_shared_memory(size=len(buf))
+                memory = get_shared_memory_object(memory_name)
+                memory.acquire_semaphore()
+                memory.write_to_memory(buf)
+                memory.release_semaphore()
+                self.data = memory_name
         self.encoded = True
 
     def is_empty(self):
@@ -60,10 +75,15 @@ class FramePayload(Payload):
     def _get_frame(self):
         memory = get_shared_memory_object(self.data)
         if memory:
-            data = bytes(memory.buf)
-            memory.close()
-            frame = np.fromstring(data, dtype=np.uint8)
-            return cv2.imdecode(frame, cv2.IMREAD_COLOR)
+            if sys.version_info.minor == 8:
+                data = bytes(memory.buf)
+                memory.close()
+            else:
+                memory.acquire_semaphore()
+                data = memory.read_from_memory()
+                memory.release_semaphore()
+            frame = np.frombuffer(data, dtype=self.dtype)
+            return frame.reshape(self.shape)
         return None
 
 
@@ -84,12 +104,68 @@ class PredictionPayload(Payload):
             return False
 
 
+class FrameMetadataPayload(Payload):
+
+    def __init__(self, data):
+        super().__init__(data)
+        self.shape = None
+        self.dtype = None
+
+    def decode(self):
+        if isinstance(self.data, str):
+            decoded_img = self._get_frame()
+        else:
+            decoded_img = np.frombuffer(self.data[0], dtype=self.dtype)
+            decoded_img = decoded_img.reshape(self.shape)
+        self.data = (decoded_img, self.data[1])
+        self.encoded = False
+
+    def encode(self, generator):
+        self.shape = self.data[0].shape
+        self.dtype = self.data[0].dtype
+        buf = self.data[0].tobytes()
+        if generator is None:
+            self.data = (buf, self.data[1])
+        else:
+            if sys.version_info.minor == 8:
+                memory = generator.get_next_shared_memory(size=len(buf))
+                memory.buf[:] = bytes(buf)
+                self.data = (memory.name, self.data[1])
+            else:
+                memory_name = generator.get_next_shared_memory(size=len(buf))
+                memory = get_shared_memory_object(memory_name)
+                memory.acquire_semaphore()
+                memory.write_to_memory(buf)
+                memory.release_semaphore()
+                self.data = (memory_name, self.data[1])
+        self.encoded = True
+
+    def is_empty(self):
+        return self.data is None
+
+    def _get_frame(self):
+        memory = get_shared_memory_object(self.data[0])
+        if memory:
+            if sys.version_info.minor == 8:
+                data = bytes(memory.buf)
+                memory.close()
+            else:
+                memory.acquire_semaphore()
+                data = memory.read_from_memory()
+                memory.release_semaphore()
+            frame = np.frombuffer(data, dtype=self.dtype)
+            return frame.reshape(self.shape)
+        return None
+
+
 class Message:
     counter = 0
 
     def __init__(self, data, source_address):
         if isinstance(data, np.ndarray):
             self.payload = FramePayload(data)
+        elif isinstance(data, tuple):
+            self.payload = FrameMetadataPayload(data)
         else:
             self.payload = PredictionPayload(data)
         self.source_address = source_address

@@ -1,3 +1,5 @@
+import logging
+
 from pipert.core.routine import Routine
 
 
@@ -5,6 +7,9 @@ class DummyRoutineWithQueue(Routine):
     def __init__(self, queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.queue = queue
+
+    def _setup_logger(self):
+        self.logger = logging.getLogger("test_logs.log")
 
     def main_logic(self, *args, **kwargs):
         self.metrics_collector.collect_latency(0.1, self.component_name)

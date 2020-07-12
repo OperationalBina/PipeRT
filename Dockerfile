@@ -1,8 +1,5 @@
 FROM pipert_base-pipert
 
-# Copy all necessary files for PipeRT
-COPY . .
-
 # Install splunk if needed
 ARG SPLUNK
 ENV SPLUNK=${SPLUNK}
@@ -20,5 +17,12 @@ RUN if [ "$TORCHVISION" = "yes" ]; then pip install torchvision; fi
 
 ENV PYTHONPATH='/'
 ENV PYTHONUNBUFFERED=1
+
+# Copy all necessary files for PipeRT
+COPY . .
+
+# Create folder for log files
+ENV LOGS_FOLDER_PATH pipert/utils/log_files
+RUN mkdir $LOGS_FOLDER_PATH
 
 ENTRYPOINT ["python3", "pipert/utils/scripts/main.py"]

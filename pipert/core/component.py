@@ -10,7 +10,11 @@ from typing import Union
 import signal
 import gevent
 from pipert.core.metrics_collector import NullCollector
-from pipert.core.multiprocessing_shared_memory import MpSharedMemoryGenerator
+import sys
+if sys.version_info.minor == 8:
+    from pipert.core.multiprocessing_shared_memory import MpSharedMemoryGenerator as smGen
+else:
+    from pipert.core.shared_memory import SharedMemoryGenerator as smGen
 from pipert.core.errors import RegisteredException, QueueDoesNotExist
 from pipert.core.class_factory import ClassFactory
 from queue import Queue
@@ -42,7 +46,7 @@ class BaseComponent:
         if ("shared_memory" in component_parameters) and \
                 (component_parameters["shared_memory"]):
             self.use_memory = True
-            self.generator = MpSharedMemoryGenerator(self.name)
+            self.generator = smGen(self.name)
 
         if "monitoring_system" in component_parameters:
             self.set_monitoring_system(component_parameters["monitoring_system"])
