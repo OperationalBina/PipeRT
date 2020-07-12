@@ -21,7 +21,4 @@ RUN if [ "$TORCHVISION" = "yes" ]; then pip install torchvision; fi
 ENV PYTHONPATH='/'
 ENV PYTHONUNBUFFERED=1
 
-RUN pip3 install pyyaml
-RUN python --version
-
 ENTRYPOINT ["python3", "pipert/utils/scripts/main.py"]

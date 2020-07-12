@@ -108,8 +108,6 @@ RUN pip3 install --upgrade pip \
     && rm -fr /root/.cache && \
     rm xavier-requirements.txt
 
-RUN pip3 install pyyaml
-
 # Install pycocotools
 RUN pip3 install --upgrade cython
 RUN pip3 install pycocotools
