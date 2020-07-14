@@ -33,5 +33,5 @@ if __name__ == '__main__':
         component_class = BaseComponent
 
     zpc = zerorpc.Server(component_class(component_config))
-    zpc.bind(f"tcp://0.0.0.0:{opts.port}")
+    zpc.bind("tcp://0.0.0.0:{0}".format(opts.port))
     zpc.run()
