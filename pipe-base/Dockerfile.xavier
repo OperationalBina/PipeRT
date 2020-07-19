@@ -113,3 +113,5 @@ RUN pip3 install --upgrade cython
 RUN pip3 install pycocotools
 
 RUN pip3 install posix-ipc
+
+RUN pip3 install --upgrade numpy
