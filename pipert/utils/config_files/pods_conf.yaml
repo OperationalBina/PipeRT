@@ -1,4 +1,5 @@
 monitoring_system: Prometheus
+dockerfile: Dockerfile
 pods:
   FlaskPod:
     components:

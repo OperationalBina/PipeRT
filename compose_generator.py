@@ -159,6 +159,19 @@ def create_pod(pod_template, pod_name, pod_config):
     return pod_name
 
 
+def dockerfile_name_handler(config_dict):
+    global docker_compose_dictionary
+
+    dockerfile_name = config_dict.get("dockerfile", "Dockerfile")
+    docker_compose_dictionary["services"]["base-pipert"]["build"]["dockerfile"] = dockerfile_name
+
+
+def monitoring_system_handler(config_dict):
+    monitoring_system = config_dict.get("monitoring_system", "no_monitor")
+    if monitoring_system.lower() == "prometheus":
+        prometheus_handler(pods=config_dict["pods"])
+
+
 if __name__ == "__main__":
     flask_port_counter = 5000
 
@@ -192,7 +205,8 @@ if __name__ == "__main__":
                 },
                 "ipc": "host",
                 "build": {
-                    "context": "pipe-base/."
+                    "context": "pipe-base/.",
+                    "dockerfile": "Dockerfile"
                 },
                 "networks": {
                     "default": {
@@ -207,9 +221,9 @@ if __name__ == "__main__":
 
     config_file = get_config_file()
 
-    monitoring_system = config_file["monitoring_system"]
-    if monitoring_system.lower() == "prometheus":
-        prometheus_handler(pods=config_file["pods"])
+    monitoring_system_handler(config_dict=config_file)
+
+    dockerfile_name_handler(config_dict=config_file)
 
     # Create the first pod
     pipeline_first_pod = {
