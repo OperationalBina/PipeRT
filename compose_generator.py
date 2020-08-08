@@ -156,13 +156,17 @@ def create_pod(pod_template, pod_name, pod_config):
 
     add_ports_if_needed(pod_template, pod_config["components"])
 
-    # TODO - Currently the subnet is 192.169.30.0/16
-    #  so you can only choose ip in this range, maybe let the client choose it ?
-
     # static ip of container
     if "ip" in pod_config:
         pod_template["networks"]["static-network"] = {}
         pod_template["networks"]["static-network"]["ipv4_address"] = pod_config["ip"]
+
+        if len(docker_compose_dictionary["networks"]["static-network"]["ipam"]["config"]) == 0:
+            docker_compose_dictionary["networks"]["static-network"]["ipam"]["config"].append(
+                {
+                    "subnet": pod_config["ip"].rsplit(".", 1)[0] + ".0/16"
+                }
+            )
 
     docker_compose_dictionary["services"][pod_name] = pod_template
 
@@ -231,7 +235,7 @@ if __name__ == "__main__":
             "static-network": {
                 "ipam": {
                     "config": [
-                        {"subnet": "192.169.30.0/16"}
+
                     ]
                 }
             }
