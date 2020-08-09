@@ -152,8 +152,22 @@ def create_pod(pod_template, pod_name, pod_config):
 
     pod_template["container_name"] = pod_name
     pod_template["environment"]["CONFIG_PATH"] = pod_config_path
+    pod_template["networks"]["default"]["aliases"].append(pod_name)
 
     add_ports_if_needed(pod_template, pod_config["components"])
+
+    # static ip of container
+    if "ip" in pod_config:
+        pod_template["networks"]["static-network"] = {}
+        pod_template["networks"]["static-network"]["ipv4_address"] = pod_config["ip"]
+
+        if len(docker_compose_dictionary["networks"]["static-network"]["ipam"]["config"]) == 0:
+            docker_compose_dictionary["networks"]["static-network"]["ipam"]["config"].append(
+                {
+                    "subnet": pod_config["ip"].rsplit(".", 1)[0] + ".0/16"
+                }
+            )
+
     docker_compose_dictionary["services"][pod_name] = pod_template
 
     return pod_name
@@ -216,6 +230,15 @@ if __name__ == "__main__":
                     }
                 }
             }
+        },
+        "networks": {
+            "static-network": {
+                "ipam": {
+                    "config": [
+
+                    ]
+                }
+            }
         }
     }
 
@@ -241,7 +264,6 @@ if __name__ == "__main__":
         "networks": {
             "default": {
                 "aliases": [
-                    "pipert"
                 ]
             }
         },
@@ -268,7 +290,6 @@ if __name__ == "__main__":
         "networks": {
             "default": {
                 "aliases": [
-                    "pipert"
                 ]
             }
         },
@@ -286,8 +307,8 @@ if __name__ == "__main__":
     # Create all other pods
     for pod_name, pod_config in config_file["pods"].items():
         create_pod(pod_template=PIPELINE_OTHER_PODS_TEMPLATE.copy(),
-                pod_name=pod_name,
-                pod_config=pod_config)
+                   pod_name=pod_name,
+                   pod_config=pod_config)
 
     # write the docker compose file
     with open("docker-compose.yaml", 'w') as generated_compose:

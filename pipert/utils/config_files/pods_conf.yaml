@@ -13,6 +13,7 @@ pods:
             message_queue: flask_display
             redis_read_key: cam
             routine_type_name: MessageFromRedis
+    ip: 192.169.30.4
   StreamPod:
     components:
       Stream:
