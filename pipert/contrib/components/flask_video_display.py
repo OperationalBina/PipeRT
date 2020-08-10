@@ -13,7 +13,10 @@ class FlaskVideoDisplay(BaseComponent):
         component_name, _ = list(component_config.items())[0]
         self.display_queue_name = "flask_display"
         component_config[component_name]["queues"].append(self.display_queue_name)
-        self.port = component_config[component_name]["component_args"]["port"]
+        try:
+            self.port = component_config[component_name]["component_args"]["port"]
+        except KeyError:
+            self.port = 5000
 
         app = Flask(__name__)
 

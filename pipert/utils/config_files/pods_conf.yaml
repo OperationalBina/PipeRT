@@ -7,6 +7,8 @@ pods:
         execution_mode: process
         shared_memory: False
         component_type_name: FlaskVideoDisplay
+        component_args:
+          port: 5000
         queues: []
         routines:
           from_redis:
