@@ -13,6 +13,10 @@ class FlaskVideoDisplay(BaseComponent):
         component_name, _ = list(component_config.items())[0]
         self.display_queue_name = "flask_display"
         component_config[component_name]["queues"].append(self.display_queue_name)
+        try:
+            self.port = component_config[component_name]["component_args"]["port"]
+        except KeyError:
+            self.port = 5000
 
         app = Flask(__name__)
 
@@ -40,7 +44,7 @@ class FlaskVideoDisplay(BaseComponent):
 
     def _start(self):
         super()._start()
-        self.server = Thread(target=self.flask_app.run, kwargs={"host": '0.0.0.0'})
+        self.server = Thread(target=self.flask_app.run, kwargs={"host": '0.0.0.0', "port": self.port})
         self.server.start()
 
     def stop_run(self):

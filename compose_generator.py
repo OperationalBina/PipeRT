@@ -114,11 +114,10 @@ def prometheus_handler(pods):
 
 def add_ports_if_needed(pod_dict, components):
     # Add to the services ports if they expose flask server
-    global flask_port_counter
     for component in components.values():
         if ("component_type_name" in component) and (component["component_type_name"] == "FlaskVideoDisplay"):
-            pod_dict["ports"] = [f"{flask_port_counter}:{flask_port_counter}"]
-            flask_port_counter += 1
+            port = str(component["component_args"]["port"])
+            pod_dict["ports"].append(port + ":" + port)
 
 
 def get_config_file():
@@ -277,7 +276,8 @@ if __name__ == "__main__":
             "UI_PORT": "${UI_PORT:-5005}",
             "CLI_ENDPOINT": "${CLI_ENDPOINT:-4001}",
             "CONFIG_PATH": ""
-        }
+        },
+        "ports": []
     }
     first_pod_name, first_pod_config = config_file["pods"].popitem()
     first_pod_name = create_pod(pod_template=pipeline_first_pod,
@@ -301,7 +301,8 @@ if __name__ == "__main__":
             "UI_PORT": "${UI_PORT:-5005}",
             "CLI_ENDPOINT": "${CLI_ENDPOINT:-4001}",
             "CONFIG_PATH": ""
-        }
+        },
+        "ports": []
     }
 
     # Create all other pods
