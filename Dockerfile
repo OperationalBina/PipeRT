@@ -25,4 +25,9 @@ COPY . .
 ENV LOGS_FOLDER_PATH pipert/utils/log_files
 RUN mkdir $LOGS_FOLDER_PATH
 
+RUN python --version
+RUN python3 --version 
+
 ENTRYPOINT ["python3", "pipert/utils/scripts/main.py"]
+
+RUN ls

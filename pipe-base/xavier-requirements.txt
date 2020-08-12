@@ -15,3 +15,8 @@ prometheus-client
 scikit-image
 jsonschema
 requests
+Pillow==6.2.1
+scipy
+cython
+pycocotools
+posix-ipc
