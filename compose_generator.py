@@ -151,7 +151,6 @@ def create_pod(pod_template, pod_name, pod_config):
 
     pod_template["container_name"] = pod_name
     pod_template["environment"]["CONFIG_PATH"] = pod_config_path
-    pod_template["networks"]["default"]["aliases"].append(pod_name)
 
     add_ports_if_needed(pod_template, pod_config["components"])
 
@@ -263,6 +262,7 @@ if __name__ == "__main__":
         "networks": {
             "default": {
                 "aliases": [
+                    "pipert"
                 ]
             }
         },
@@ -290,6 +290,7 @@ if __name__ == "__main__":
         "networks": {
             "default": {
                 "aliases": [
+                    "pipert"
                 ]
             }
         },
