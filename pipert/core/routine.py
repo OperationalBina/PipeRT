@@ -48,7 +48,7 @@ class RoutineTypes(Enum):
 class Routine(ABC):
     routine_type = RoutineTypes.NO_TYPE
 
-    def __init__(self, name="", component_name="", metrics_collector=NullCollector()):
+    def __init__(self, name="", component_name="", metrics_collector=NullCollector(), *args, **kwargs):
 
         self.name = name
 
