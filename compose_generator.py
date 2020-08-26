@@ -114,10 +114,12 @@ def prometheus_handler(pods):
 
 def add_ports_if_needed(pod_dict, components):
     # Add to the services ports if they expose flask server
-    for component in components.values():
-        if ("component_type_name" in component) and ("flask" in component["component_type_name"].lower()):
-            port = str(component["component_args"]["port"])
-            pod_dict["ports"].append(port + ":" + port)
+    if hasattr(components, 'items'):
+        for key, value in components.items():
+            if key == 'port':
+                pod_dict["ports"].append("{0}:{0}/{1}".format(value, components.get('port_type', 'tcp')))
+            if isinstance(value, dict):
+                add_ports_if_needed(pod_dict, value)
 
 
 def get_config_file():
@@ -151,6 +153,7 @@ def create_pod(pod_template, pod_name, pod_config):
 
     pod_template["container_name"] = pod_name
     pod_template["environment"]["CONFIG_PATH"] = pod_config_path
+    pod_template["networks"]["default"]["aliases"].append(pod_name)
 
     add_ports_if_needed(pod_template, pod_config["components"])
 
@@ -262,7 +265,6 @@ if __name__ == "__main__":
         "networks": {
             "default": {
                 "aliases": [
-                    "pipert"
                 ]
             }
         },
@@ -290,7 +292,6 @@ if __name__ == "__main__":
         "networks": {
             "default": {
                 "aliases": [
-                    "pipert"
                 ]
             }
         },
