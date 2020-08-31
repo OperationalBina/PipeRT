@@ -114,10 +114,12 @@ def prometheus_handler(pods):
 
 def add_ports_if_needed(pod_dict, components):
     # Add to the services ports if they expose flask server
-    for component in components.values():
-        if ("component_type_name" in component) and ("flask" in component["component_type_name"].lower()):
-            port = str(component["component_args"]["port"])
-            pod_dict["ports"].append(port + ":" + port)
+    if hasattr(components, 'items'):
+        for key, value in components.items():
+            if key == 'port':
+                pod_dict["ports"].append("{0}:{0}/{1}".format(value, components.get('port_type', 'tcp')))
+            if isinstance(value, dict):
+                add_ports_if_needed(pod_dict, value)
 
 
 def get_config_file():
