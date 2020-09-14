@@ -1,6 +1,5 @@
 import time
 from queue import Empty
-
 import cv2
 
 from imutils import resize
@@ -43,10 +42,19 @@ class ListenToStream(Routine):
         self.begin_capture()
 
     def grab_frame(self):
-        grabbed, frame = self.stream.read()
-        msg = Message(frame, self.stream_address)
-        msg.record_entry(self.component_name, self.logger)
-        return grabbed, msg
+        if self.stream.isOpened():
+            grabbed, frame = self.stream.read()
+            if grabbed:
+                msg = Message(frame, self.stream_address)
+                msg.record_entry(self.component_name, self.logger)
+            else:
+                msg = None
+            return grabbed, msg
+        else:
+            self.logger.info("Failed to open stream")
+            self.logger.info("Retrying...")
+            self.begin_capture()
+            return False, None
 
     def main_logic(self, *args, **kwargs):
         if self.updated_config:
@@ -56,7 +64,7 @@ class ListenToStream(Routine):
         grabbed, msg = self.grab_frame()
         if grabbed:
             frame = msg.get_payload()
-            frame = resize(frame, 640, 480)
+            # frame = resize(frame, 640, 480)
             # if the stream is from a webcam, flip the frame
             if self.stream_address == 0:
                 frame = cv2.flip(frame, 1)
