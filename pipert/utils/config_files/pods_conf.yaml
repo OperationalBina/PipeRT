@@ -7,12 +7,15 @@ pods:
         execution_mode: process
         shared_memory: False
         component_type_name: FlaskVideoDisplay
+        component_args:
+          port: 5000
         queues: []
         routines:
           from_redis:
             message_queue: flask_display
             redis_read_key: cam
             routine_type_name: MessageFromRedis
+    ip: 192.169.30.4
   StreamPod:
     components:
       Stream:
