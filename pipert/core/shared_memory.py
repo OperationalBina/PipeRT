@@ -94,7 +94,7 @@ class SharedMemoryGenerator:
     and is responsible for cleaning up shared memories if the count that
     exists now exceeds the max or the proccess has ended.
     """
-    def __init__(self, component_name, max_count=5):
+    def __init__(self, component_name, max_count=50):
         self.memory_id_gen = MemoryIdGenerator(component_name, max_count)
         self.max_count = max_count
         self.shared_memories = {}
