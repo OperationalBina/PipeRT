@@ -15,7 +15,7 @@ ARG TORCHVISION
 ENV TORCHVISION=${TORCHVISION}
 RUN if [ "$TORCHVISION" = "yes" ]; then pip install torchvision; fi
 
-ENV PYTHONPATH=''
+ENV PYTHONPATH='/'
 ENV PYTHONUNBUFFERED=1
 
 # Copy all necessary files for PipeRT
