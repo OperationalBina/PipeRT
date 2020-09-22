@@ -33,6 +33,7 @@ class BaseComponent:
         self._routines = {}
         self.metrics_collector = NullCollector()
         self.setup_component(component_config)
+        self.metrics_collector.setup()
         if start_component:
             self.run_comp()
 
@@ -90,7 +91,6 @@ class BaseComponent:
         self.stop_event.clear()
         self._start()
         gevent.signal_handler(signal.SIGTERM, self.stop_run)
-        self.metrics_collector.setup()
 
     def register_routine(self, routine: Union[Routine, Process, Thread]):
         """
