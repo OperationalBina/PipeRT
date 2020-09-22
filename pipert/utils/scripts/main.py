@@ -11,9 +11,6 @@ class CliConnection(object):
 
     def __init__(self, pipeline_manager):
         self.pipeline_manager = pipeline_manager
-        components = open_config_file(os.environ.get("CONFIG_PATH", ""))
-        if not isinstance(components, str):
-            self.pipeline_manager.setup_components(components)
 
     def execute_method(self, method_name, parameters_values):
         return getattr(self.pipeline_manager, method_name)(**parameters_values)
@@ -32,6 +29,9 @@ class CliConnection(object):
 
 
 pipeline_manager = PipelineManager()
+components = open_config_file(os.environ.get("CONFIG_PATH", ""))
+if not isinstance(components, str):
+    pipeline_manager.setup_components(components)
 
 if not os.environ.get("UI", "").lower() == 'true':
     cli_server = zerorpc.Server(CliConnection(pipeline_manager))
@@ -83,6 +83,45 @@ else:
 
     @app.route("/run", methods=['PUT'])
     def start_components():
-        return_response(pipeline_manager.run_all_components())
+        return return_response(pipeline_manager.run_all_components())
+
+
+    @app.route("/alive", methods=['GET'])
+    def check_connections():
+        return return_response(pipeline_manager.checkconnection())
+
+    @app.route("/id_msg", methods=["GET"])
+    def identification_message():
+        print(request.args)
+        print(request.get_json())
+
+        return Response({
+            "Version": "1",
+            "SN": "1",
+            "BIT": "True"
+        }, 200)
+
+
+    @app.route("/src_conf_msg", methods=["GET"])
+    def source_configuration_message():
+        print(request.args)
+        print(request.get_json())
+
+        return Response({}, 200)
+
+
+    @app.route("/mission_conf_msg", methods=["GET"])
+    def mission_configuration_message():
+        print(request.args)
+        print(request.get_json())
+
+        paramters = {}  # MessageId, SetMission, MissionName, SelfPostion, Locations
+
+        if paramters["SetMission"] == 1:
+            pipeline_manager.run_all_components()
+        elif paramters["SetMission"] == 0:
+            pipeline_manager.stop_all_components()
+
+        return Response({}, 200)
 
     app.run(port=os.environ.get("UI_PORT", 5005), host='0.0.0.0')
