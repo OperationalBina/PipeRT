@@ -12,7 +12,10 @@ from jsonschema import validate, ValidationError
 import functools
 
 
-# import gc
+def recreate_connection(self, component_name):
+    self.components[component_name] = zerorpc.Client()
+    self.components[component_name].connect("tcp://localhost:" + self.component_ports[component_name])
+
 
 def component_name_existence_error(need_to_be_exist):
     def decorator(func):
@@ -25,6 +28,7 @@ def component_name_existence_error(need_to_be_exist):
                     False,
                     f"Component named {kwargs['component_name']} {error_word} exist"
                 )
+            recreate_connection(self=self, component_name=kwargs['component_name'])
             return func(self, *args, **kwargs)
 
         return function_wrapper
@@ -40,6 +44,7 @@ class PipelineManager:
         """
         super().__init__()
         self.components = {}
+        self.component_ports = {}
         self.ROUTINES_FOLDER_PATH = "pipert/contrib/routines"
         self.COMPONENTS_FOLDER_PATH = "pipert/contrib/components"
         self.ports_counter = 20000
@@ -193,18 +198,16 @@ class PipelineManager:
                 )
 
     def run_all_components(self):
-        for component in self.components.values():
-            if not self._does_component_running(component):
-                component.run_comp()
+        for component in self.components.keys():
+            self.run_component(component_name=component)
         return self._create_response(
             True,
             "All of the components are running"
         )
 
     def stop_all_components(self):
-        for component in self.components.values():
-            if self._does_component_running(component):
-                component.stop_run()
+        for component in self.components.keys():
+            self.stop_component(component_name=component)
         return self._create_response(
             True,
             "All of the components have been stopped"
@@ -315,10 +318,11 @@ class PipelineManager:
                     yaml.dump(current_component_dict, file)
 
                 component_port = str(self.get_random_available_port())
-                cmd = "python " + COMPONENT_FACTORY_PATH + " -cp " + component_file_path + " -p " + component_port
+                cmd = "python3 " + COMPONENT_FACTORY_PATH + " -cp " + component_file_path + " -p " + component_port
                 subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
                 self.components[component_name] = zerorpc.Client()
                 self.components[component_name].connect("tcp://localhost:" + component_port)
+                self.component_ports[component_name] = component_port
             except ValidationError as error:
                 responses.append(self._create_response(
                     False,
