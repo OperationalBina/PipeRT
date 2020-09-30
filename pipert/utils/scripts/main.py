@@ -85,11 +85,6 @@ else:
     def start_components():
         return return_response(pipeline_manager.run_all_components())
 
-
-    @app.route("/alive", methods=['GET'])
-    def check_connections():
-        return return_response(pipeline_manager.checkconnection())
-
     @app.route("/Identification", methods=["GET"])
     def identification_message():
         data = request.get_json()
