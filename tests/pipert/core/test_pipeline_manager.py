@@ -15,8 +15,8 @@ def return_routine_class_object_by_name(name):
         return None
 
 
+@patch("pipert.core.pipeline_manager.recreate_connection", side_effect=lambda *args, **kwargs: None)
 @pytest.fixture(scope="function")
-@patch("pipert.core.pipeline_manager.recreate_connectsion", side_effect=lambda *args, **kwargs: None)
 def pipeline_manager():
     pipeline_manager = PipelineManager()
     pipeline_manager.ROUTINES_FOLDER_PATH = "tests/pipert/core/utils/routines"
