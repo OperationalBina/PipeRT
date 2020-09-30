@@ -15,13 +15,13 @@ def return_routine_class_object_by_name(name):
         return None
 
 
-@patch("pipert.core.pipeline_manager.recreate_connection", side_effect=lambda *args, **kwargs: None)
 @pytest.fixture(scope="function")
 def pipeline_manager():
     pipeline_manager = PipelineManager()
     pipeline_manager.ROUTINES_FOLDER_PATH = "tests/pipert/core/utils/routines"
     pipeline_manager.COMPONENTS_FOLDER_PATH = "tests/pipert/core/utils/components"
     pipeline_manager._get_routine_class_object_by_type_name = MagicMock(side_effect=return_routine_class_object_by_name)
+    pipeline_manager.recreate_connection = MagicMock(side_effect=lambda *args, **kwargs: None)
     return pipeline_manager
 
 
