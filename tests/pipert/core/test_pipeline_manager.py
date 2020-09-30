@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 import pytest
 
 from pipert.core.component import BaseComponent
@@ -6,6 +6,7 @@ from tests.pipert.core.utils.routines.dummy_routine_with_queue import DummyRouti
 from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
 from pipert.core.pipeline_manager import PipelineManager
 
+@patch("pipert.core.pipeline_manager.recreate_connection", side_effect=lambda *args, **kwargs: None)
 
 def return_routine_class_object_by_name(name):
     if name == "DummyRoutineWithQueue":
