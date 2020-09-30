@@ -12,11 +12,6 @@ from jsonschema import validate, ValidationError
 import functools
 
 
-def recreate_connection(self, component_name):
-    self.components[component_name] = zerorpc.Client()
-    self.components[component_name].connect("tcp://localhost:" + self.component_ports[component_name])
-
-
 def component_name_existence_error(need_to_be_exist):
     def decorator(func):
         @functools.wraps(func)
@@ -28,7 +23,7 @@ def component_name_existence_error(need_to_be_exist):
                     False,
                     f"Component named {kwargs['component_name']} {error_word} exist"
                 )
-            recreate_connection(self=self, component_name=kwargs['component_name'])
+            self.recreate_connection(component_name=kwargs['component_name'])
             return func(self, *args, **kwargs)
 
         return function_wrapper
@@ -364,3 +359,7 @@ class PipelineManager:
     def get_random_available_port(self):
         self.ports_counter += 1
         return self.ports_counter
+
+    def recreate_connection(self, component_name):
+        self.components[component_name] = zerorpc.Client()
+        self.components[component_name].connect("tcp://localhost:" + self.component_ports[component_name])
