@@ -90,10 +90,11 @@ else:
     def check_connections():
         return return_response(pipeline_manager.checkconnection())
 
-    @app.route("/id_msg", methods=["GET"])
+    @app.route("/Identification", methods=["GET"])
     def identification_message():
-        print(request.args)
-        print(request.get_json())
+        data = request.get_json()
+        print(data)
+        # MessageId, Version, ObservationUnit 
 
         return Response({
             "Version": "1",
@@ -102,20 +103,21 @@ else:
         }, 200)
 
 
-    @app.route("/src_conf_msg", methods=["GET"])
+    @app.route("/SourceConfig", methods=["GET"])
     def source_configuration_message():
-        print(request.args)
-        print(request.get_json())
+        data = request.get_json()
+        print(data)
+        # DetectionTypesMask, ... 
 
+        #TODO - We currently don't have a way to decide between ATR or VMD
         return Response({}, 200)
 
 
-    @app.route("/mission_conf_msg", methods=["GET"])
+    @app.route("/MissionConfig", methods=["GET"])
     def mission_configuration_message():
-        print(request.args)
-        print(request.get_json())
-
-        paramters = {}  # MessageId, SetMission, MissionName, SelfPostion, Locations
+        paramters = request.get_json()
+        print(paramters)
+        # MessageId, SetMission, MissionName, SelfPosition, Locations
 
         if paramters["SetMission"] == 1:
             pipeline_manager.run_all_components()
