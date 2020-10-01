@@ -135,6 +135,20 @@ def test_run_and_stop_component(pipeline_manager_with_component_and_queue_and_ro
     assert pipeline_manager_with_component_and_queue_and_routine. \
         components["comp"].stop_event.is_set()
 
+def test_run_and_stop_all_components(pipeline_manager_with_component_and_queue_and_routine):
+    assert pipeline_manager_with_component_and_queue_and_routine. \
+        components["comp"].stop_event.is_set()
+    response = pipeline_manager_with_component_and_queue_and_routine. \
+        run_all_components()
+    assert response["Succeeded"], response["Message"]
+    assert not pipeline_manager_with_component_and_queue_and_routine. \
+        components["comp"].stop_event.is_set()
+
+    response = pipeline_manager_with_component_and_queue_and_routine. \
+        stop_all_components
+    assert response["Succeeded"], response["Message"]
+    assert pipeline_manager_with_component_and_queue_and_routine. \
+        components["comp"].stop_event.is_set()
 
 def test_get_routine_type_object_by_name(pipeline_manager):
     assert pipeline_manager._get_routine_class_object_by_type_name("DummyRoutine") is DummyRoutine
