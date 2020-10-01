@@ -145,7 +145,7 @@ def test_run_and_stop_all_components(pipeline_manager_with_component_and_queue_a
         components["comp"].stop_event.is_set()
 
     response = pipeline_manager_with_component_and_queue_and_routine. \
-        stop_all_components
+        stop_all_components()
     assert response["Succeeded"], response["Message"]
     assert pipeline_manager_with_component_and_queue_and_routine. \
         components["comp"].stop_event.is_set()
