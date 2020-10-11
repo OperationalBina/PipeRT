@@ -85,33 +85,30 @@ else:
     def start_components():
         return return_response(pipeline_manager.run_all_components())
 
-    @app.route("/Identification", methods=["GET"])
+    @app.route("/Identification", methods=["POST"])
     def identification_message():
         data = request.get_json()
-        print(data)
-        # MessageId, Version, ObservationUnit 
+        # MessageId, Version, ObservationUnit
 
-        return Response({
+        return jsonify({
             "Version": "1",
             "SN": "1",
             "BIT": "True"
-        }, 200)
+        })
 
 
-    @app.route("/SourceConfig", methods=["GET"])
+    @app.route("/SourceConfig", methods=["POST"])
     def source_configuration_message():
         data = request.get_json()
-        print(data)
-        # DetectionTypesMask, ... 
+        # DetectionTypesMask, ...
 
         #TODO - We currently don't have a way to decide between ATR or VMD
-        return Response({}, 200)
+        return jsonify({})
 
 
-    @app.route("/MissionConfig", methods=["GET"])
+    @app.route("/MissionConfig", methods=["POST"])
     def mission_configuration_message():
         paramters = request.get_json()
-        print(paramters)
         # MessageId, SetMission, MissionName, SelfPosition, Locations
 
         if paramters["SetMission"] == 1:
@@ -119,6 +116,6 @@ else:
         elif paramters["SetMission"] == 0:
             pipeline_manager.stop_all_components()
 
-        return Response({}, 200)
+        return jsonify({})
 
     app.run(port=os.environ.get("UI_PORT", 5005), host='0.0.0.0')
