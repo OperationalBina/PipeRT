@@ -12,57 +12,73 @@ The second is to write one on your own.
 Here is an example of how a config file looks like and an explanation on its structure:
 
 .. configuration-block::
-1.     components:
-2.       FlaskDisplay:
-3.          component_type_name: FlaskVideoDisplay
-4.          queues:
-5.          - messages
-6.          routines:
-7.            create_image:
-8.              in_queue: messages
-9.              out_queue: flask_display
-10.             routine_type_name: VisLogic
-11.           get_frames_and_pred:
-12.             image_meta_queue: messages
-13.             redis_read_image_key: cam
-14.             redis_read_meta_key: camera:1
-15.             routine_type_name: MetaAndFrameFromRedis
-16.       Stream:
-17.         queues:
-18.         - video
-19.         routines:
-20.           capture_frame:
-21.             fps: 23.976023976023978
-22.             out_queue: video
-23.             routine_type_name: ListenToStream
-24.             stream_address: pipert/contrib/test.mp4
-25.           upload_redis:
-26.             max_stream_length: 10
-27.             message_queue: video
-28.             redis_send_key: camera:0
-29.             routine_type_name: MessageToRedis
+1. monitoring_system: Prometheus
+2. pods:
+3.   FlaskPod:
+4.     components:
+5.       FlaskDisplay:
+6.         shared_memory: False
+7.         component_type_name: FlaskVideoDisplay
+8.         component_args:
+9.          port: 5000
+10.        queues: []
+11.        routines:
+12.          from_redis:
+13.            message_queue: flask_display
+14.            redis_read_key: cam
+15.            routine_type_name: MessageFromRedis
+16.    ip: 192.169.30.4
+17.  StreamPod:
+18.    components:
+19.      Stream:
+20.        shared_memory: True
+21.        queues:
+22.        - video
+23.        routines:
+24.          capture_frame:
+25.            fps: 30
+26.            out_queue: video
+27.            routine_type_name: ListenToStream
+28.            stream_address: pipert/contrib/test.mp4
+29.          upload_redis:
+30.            max_stream_length: 10
+31.            message_queue: video
+32.            redis_send_key: cam
+33.            routine_type_name: MessageToRedis
 
-To make it more clear, the file is a list of component objects.
 
-Line 1: start of new components dictionary.
+To make it more clear, the pods is a list of component objects in each pod.
+Each pod running in different container
 
-Line 2: start a new component and setting its name.
+Line 1: declaring which monitoring system to use (Optional).
 
-Line 3: name of premade component (not a necessary field)
+Line 2: start of new pods dictionary.
 
-Line 4: start an array of queue names.
+Line 3: start a new pod and setting its name.
 
-Line 5: name of the queues.
+Line 4: start of new components dictionary.
 
-Line 6: start a new dictionary of routines.
+Line 5: start a new component and setting its name.
 
-Line 7: start a new routine and setting its name.
+Line 6: Use the shared memory to communicate between components (Optional, Default is False)
 
-Lines 8-10: setting the routine constructor parameters.
+Line 7: name of premade component (not a necessary field)
 
-Lines 11-15: create a new routine.
+Line 8: starting a new dictionary for the component arguments
 
-Lines 16-29: create a new component and reapiting itself
+Line 9: setting the component arguments
+
+Line 10: start an array of queue names.
+
+Line 11: start a new dictionary of routines.
+
+Line 12: start a new routine and setting its name.
+
+Lines 13-15: setting the routine constructor parameters.
+
+Lines 16: setting the ip of the pod (Optional, The ip network part must be 192.169)
+
+Lines 17-33: create a new pod and reapiting itself
 
 Additional notes:
 

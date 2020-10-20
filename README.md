@@ -42,9 +42,13 @@ Installation
 Usage
 ============
 - Running the pipeline for the first time:
-    - docker-compose up -d
-
-- Build the pipeline after changes:
-    - docker-compose up -d --build
+    1. Running the [compose_generator.py script](compose_generator.py) with your configuration file path.<br/>
+        **Example**: python3 compose_generator.py -cp path_to_config_file
     
-- After the pipeline is up run the [cli.py script](pipert/utils/scripts/cli.py) and connect (The default endpoint is tcp://0.0.0.0:4002)
+    2. **Building the pipeline and activating it:** docker-compose up -d --build
+
+- Build the pipeline after changes in the config file:
+    - Running it like its the first time
+     it:
+- Build the pipeline after changes in code:
+    - docker-compose up -d --build
