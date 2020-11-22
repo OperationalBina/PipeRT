@@ -19,8 +19,8 @@ def setup_logger():
     logger = logging.getLogger("Pipe.PipelineManager")
     logger.setLevel(logging.DEBUG)
     logger.propagate = False
-    log_file = os.environ.get("LOGS_FOLDER_PATH", "pipert/utils/log_files") + "/" + \
-               "Pipe-PipelineManager.log"
+    log_file = os.environ.get("LOGS_FOLDER_PATH",
+                              "pipert/utils/log_files") + "/" + "Pipe-PipelineManager.log"
     file_handler = TimedRotatingFileHandler(log_file, when='midnight')
     file_handler.setFormatter(logging.Formatter(
         "%(asctime)s - %(levelname)s - %(name)s - %(message)s"))
