@@ -12,6 +12,9 @@ class FlaskVideoDisplay(BaseComponent):
     def __init__(self, component_config):
         component_name, _ = list(component_config.items())[0]
         self.display_queue_name = "flask_display"
+        self.last_frame_time = time.time()
+        self.counter_frame_fps = 0
+        self.fps = 0
         component_config[component_name]["queues"].append(self.display_queue_name)
         try:
             self.port = component_config[component_name]["component_args"]["port"]
@@ -60,8 +63,17 @@ class FlaskVideoDisplay(BaseComponent):
         while not self.stop_event.is_set():
             try:
                 msg = q.get(block=False)
-                image = msg.get_payload()
+                image, metadata = msg.get_payload()
+
                 if image is not None:
+                    self.counter_frame_fps += 1
+                    frame_time = time.time()
+                    if frame_time - self.last_frame_time >= 1:
+                        self.fps = str(round(self.counter_frame_fps/(frame_time - self.last_frame_time), 2))
+                        self.counter_frame_fps = 0
+                        self.last_frame_time = time.time()
+
+                    image = cv2.putText(image, self.fps, (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
                     ret, frame = cv2.imencode('.jpg', image)
                     frame = frame.tobytes()
                     yield (b'--frame\r\n'
@@ -76,7 +88,7 @@ class FlaskVideoDisplay(BaseComponent):
 
     def _teardown_callback(self, *args, **kwargs):
         # self.server.terminate()
-        _ = requests.get("http://127.0.0.1:5000/shutdown")
+        _ = requests.get("http://127.0.0.1:{0}/shutdown".format(self.port))
         # self.server.terminate()
         # print("kill!!!")
         # self.server.kill()
