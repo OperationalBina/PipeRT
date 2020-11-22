@@ -20,3 +20,4 @@ scipy
 cython
 pycocotools
 posix-ipc
+protobuf
