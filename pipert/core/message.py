@@ -10,7 +10,6 @@ else:
 import numpy as np
 import time
 import pickle
-import cv2
 
 
 class Payload(ABC):
@@ -41,33 +40,35 @@ class FramePayload(Payload):
         self.dtype = None
 
     def decode(self):
-        if isinstance(self.data, str):
-            decoded_img = self._get_frame()
-        else:
-            decoded_img = np.frombuffer(self.data, dtype=self.dtype)
-            decoded_img = decoded_img.reshape(self.shape)
-        self.data = decoded_img
-        self.encoded = False
+        if self.encoded:
+            if isinstance(self.data, str):
+                decoded_img = self._get_frame()
+            else:
+                decoded_img = np.frombuffer(self.data, dtype=self.dtype)
+                decoded_img = decoded_img.reshape(self.shape)
+            self.data = decoded_img
+            self.encoded = False
 
     def encode(self, generator):
-        self.shape = self.data.shape
-        self.dtype = self.data.dtype
-        buf = self.data.tobytes()
-        if generator is None:
-            self.data = buf
-        else:
-            if sys.version_info.minor == 8:
-                memory = generator.get_next_shared_memory(size=len(buf))
-                memory.buf[:] = bytes(buf)
-                self.data = memory.name
+        if not self.encoded:
+            self.shape = self.data.shape
+            self.dtype = self.data.dtype
+            buf = self.data.tobytes()
+            if generator is None:
+                self.data = buf
             else:
-                memory_name = generator.get_next_shared_memory(size=len(buf))
-                memory = get_shared_memory_object(memory_name)
-                memory.acquire_semaphore()
-                memory.write_to_memory(buf)
-                memory.release_semaphore()
-                self.data = memory_name
-        self.encoded = True
+                if sys.version_info.minor == 8:
+                    memory = generator.get_next_shared_memory(size=len(buf))
+                    memory.buf[:] = bytes(buf)
+                    self.data = memory.name
+                else:
+                    memory_name = generator.get_next_shared_memory(size=len(buf))
+                    memory = get_shared_memory_object(memory_name)
+                    memory.acquire_semaphore()
+                    memory.write_to_memory(buf)
+                    memory.release_semaphore()
+                    self.data = memory_name
+            self.encoded = True
 
     def is_empty(self):
         return self.data is None
@@ -112,33 +113,35 @@ class FrameMetadataPayload(Payload):
         self.dtype = None
 
     def decode(self):
-        if isinstance(self.data[0], str):
-            decoded_img = self._get_frame()
-        else:
-            decoded_img = np.frombuffer(self.data[0], dtype=self.dtype)
-            decoded_img = decoded_img.reshape(self.shape)
-        self.data = (decoded_img, self.data[1])
-        self.encoded = False
+        if self.encoded:
+            if isinstance(self.data[0], str):
+                decoded_img = self._get_frame()
+            else:
+                decoded_img = np.frombuffer(self.data[0], dtype=self.dtype)
+                decoded_img = decoded_img.reshape(self.shape)
+            self.data = (decoded_img, self.data[1])
+            self.encoded = False
 
     def encode(self, generator):
-        self.shape = self.data[0].shape
-        self.dtype = self.data[0].dtype
-        buf = self.data[0].tobytes()
-        if generator is None:
-            self.data = (buf, self.data[1])
-        else:
-            if sys.version_info.minor == 8:
-                memory = generator.get_next_shared_memory(size=len(buf))
-                memory.buf[:] = bytes(buf)
-                self.data = (memory.name, self.data[1])
+        if not self.encoded:
+            self.shape = self.data[0].shape
+            self.dtype = self.data[0].dtype
+            buf = self.data[0].tobytes()
+            if generator is None:
+                self.data = (buf, self.data[1])
             else:
-                memory_name = generator.get_next_shared_memory(size=len(buf))
-                memory = get_shared_memory_object(memory_name)
-                memory.acquire_semaphore()
-                memory.write_to_memory(buf)
-                memory.release_semaphore()
-                self.data = (memory_name, self.data[1])
-        self.encoded = True
+                if sys.version_info.minor == 8:
+                    memory = generator.get_next_shared_memory(size=len(buf))
+                    memory.buf[:] = bytes(buf)
+                    self.data = (memory.name, self.data[1])
+                else:
+                    memory_name = generator.get_next_shared_memory(size=len(buf))
+                    memory = get_shared_memory_object(memory_name)
+                    memory.acquire_semaphore()
+                    memory.write_to_memory(buf)
+                    memory.release_semaphore()
+                    self.data = (memory_name, self.data[1])
+            self.encoded = True
 
     def is_empty(self):
         return self.data is None

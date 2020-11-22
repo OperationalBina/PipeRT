@@ -18,11 +18,13 @@ else:
 from pipert.core.errors import RegisteredException, QueueDoesNotExist
 from pipert.core.class_factory import ClassFactory
 from queue import Queue
+import logging
+from logging.handlers import TimedRotatingFileHandler
 
 
 class BaseComponent:
 
-    def __init__(self, component_config, start_component=True):
+    def __init__(self, component_config, start_component=False):
         self.name = ""
         self.ROUTINES_FOLDER_PATH = "pipert/contrib/routines"
         self.MONITORING_SYSTEMS_FOLDER_PATH = "pipert/contrib/metrics_collectors"
@@ -33,8 +35,20 @@ class BaseComponent:
         self._routines = {}
         self.metrics_collector = NullCollector()
         self.setup_component(component_config)
+        self.metrics_collector.setup()
         if start_component:
             self.run_comp()
+
+    def _setup_logger(self):
+        self.logger = logging.getLogger(self.name)
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.propagate = False
+        log_file = os.environ.get("LOGS_FOLDER_PATH", "pipert/utils/log_files") + "/" + \
+                   self.name + ".log"
+        file_handler = TimedRotatingFileHandler(log_file, when='midnight')
+        file_handler.setFormatter(logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(name)s - %(message)s"))
+        self.logger.addHandler(file_handler)
 
     def setup_component(self, component_config):
         if (component_config is None) or (type(component_config) is not dict) or\
@@ -42,6 +56,8 @@ class BaseComponent:
             return
         component_name, component_parameters = list(component_config.items())[0]
         self.name = component_name
+
+        self._setup_logger()
 
         if ("shared_memory" in component_parameters) and \
                 (component_parameters["shared_memory"]):
@@ -55,7 +71,8 @@ class BaseComponent:
             self.create_queue(queue_name=queue, queue_size=1)
 
         routine_factory = ClassFactory(self.ROUTINES_FOLDER_PATH)
-        for routine_name, routine_parameters in component_parameters["routines"].items():
+        for routine_name, routine_parameters_real in component_parameters["routines"].items():
+            routine_parameters = routine_parameters_real.copy()
             routine_parameters["name"] = routine_name
             routine_parameters['metrics_collector'] = self.metrics_collector
             routine_class = routine_factory.get_class(routine_parameters.pop("routine_type_name", ""))
@@ -80,17 +97,19 @@ class BaseComponent:
         Goes over the component's routines registered in self.routines and
         starts running them.
         """
+        self.logger.info("Running all routines")
         for routine in self._routines.values():
             routine.start()
+            self.logger.info("{0} Started".format(routine.name))
 
     def run_comp(self):
         """
         Starts running all the component's routines.
         """
+        self.logger.info("Running component")
         self.stop_event.clear()
         self._start()
         gevent.signal_handler(signal.SIGTERM, self.stop_run)
-        self.metrics_collector.setup()
 
     def register_routine(self, routine: Union[Routine, Process, Thread]):
         """
@@ -98,9 +117,12 @@ class BaseComponent:
         Args:
             routine: the routine to register
         """
+        self.logger.info("Registering routine")
+        self.logger.info(routine)
         # TODO - write this function in a cleaner way?
         if isinstance(routine, Routine):
             if routine.name in self._routines:
+                self.logger.error("Routine name already exist")
                 raise RegisteredException("routine name already exist")
             if routine.stop_event is None:
                 routine.stop_event = self.stop_event
@@ -108,9 +130,12 @@ class BaseComponent:
                     routine.use_memory = self.use_memory
                     routine.generator = self.generator
             else:
+                self.logger.error("Routine is already registered")
                 raise RegisteredException("routine is already registered")
+            self.logger.info("Routine registered")
             self._routines[routine.name] = routine
         else:
+            self.logger.info("Routine registered")
             self._routines[routine.__str__()] = routine
 
     def _teardown_callback(self, *args, **kwargs):
@@ -125,6 +150,7 @@ class BaseComponent:
         """
         Signals all the component's routines to stop.
         """
+        self.logger.info("Stopping component")
         if self.stop_event.is_set():
             return 0
         self.stop_event.set()
@@ -132,12 +158,15 @@ class BaseComponent:
         try:
             self._teardown_callback()
             if self.use_memory:
+                self.logger.info("Cleaning shared memory")
                 self.generator.cleanup()
             for routine in self._routines.values():
+                self.logger.info("Stopping routine {0}".format(routine.name))
                 if isinstance(routine, Routine):
                     routine.runner.join()
                 elif isinstance(routine, (Process, Thread)):
                     routine.join()
+                self.logger.info("Routine {0} stopped".format(routine.name))
             return 0
         except RuntimeError:
             return 1
@@ -268,3 +297,8 @@ class BaseComponent:
             self.metrics_collector = monitoring_system_class(**monitoring_system_parameters)
         except TypeError:
             print("Bad parameters given for the monitoring system " + monitoring_system_name)
+
+    def set_routine_attribute(self, routine_name, attribute_name, attribute_value):
+        routine = self._routines.get(routine_name, None)
+        if routine is not None:
+            setattr(routine, attribute_name, attribute_value)
