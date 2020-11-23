@@ -1,10 +1,19 @@
 from unittest.mock import MagicMock
 import pytest
+import logging
 
 from pipert.core.component import BaseComponent
 from tests.pipert.core.utils.routines.dummy_routine_with_queue import DummyRoutineWithQueue
 from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
 from pipert.core.pipeline_manager import PipelineManager
+
+
+class DummyPipelineManager(PipelineManager):
+    def __init__(self):
+        super().__init__()
+
+    def _setup_logger(self):
+        self.logger = logging.getLogger("test_logs.log")
 
 
 def return_routine_class_object_by_name(name):
@@ -18,7 +27,7 @@ def return_routine_class_object_by_name(name):
 
 @pytest.fixture(scope="function")
 def pipeline_manager():
-    pipeline_manager = PipelineManager()
+    pipeline_manager = DummyPipelineManager()
     pipeline_manager.ROUTINES_FOLDER_PATH = "tests/pipert/core/utils/routines"
     pipeline_manager.COMPONENTS_FOLDER_PATH = "tests/pipert/core/utils/components"
     pipeline_manager._get_routine_class_object_by_type_name = MagicMock(side_effect=return_routine_class_object_by_name)

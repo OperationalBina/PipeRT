@@ -15,22 +15,6 @@ from logging.handlers import TimedRotatingFileHandler
 import os
 
 
-def setup_logger():
-    logger = logging.getLogger("Pipe.PipelineManager")
-    logger.setLevel(logging.DEBUG)
-    logger.propagate = False
-    log_file = os.environ.get("LOGS_FOLDER_PATH",
-                              "pipert/utils/log_files") + "/" + "Pipe-PipelineManager.log"
-    file_handler = TimedRotatingFileHandler(log_file, when='midnight')
-    file_handler.setFormatter(logging.Formatter(
-        "%(asctime)s - %(levelname)s - %(name)s - %(message)s"))
-    logger.addHandler(file_handler)
-    return logger
-
-
-p_logger = setup_logger()
-
-
 def component_name_existence_error(need_to_be_exist):
     def decorator(func):
         @functools.wraps(func)
@@ -63,6 +47,18 @@ class PipelineManager:
         self.COMPONENTS_FOLDER_PATH = "pipert/contrib/components"
         self.ports_counter = 20000
         self.logger = None
+        self._setup_logger()
+
+    def _setup_logger(self):
+        self.logger = logging.getLogger("Pipe.PipelineManager")
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.propagate = False
+        log_file = os.environ.get("LOGS_FOLDER_PATH",
+                                  "pipert/utils/log_files") + "/" + "Pipe-PipelineManager.log"
+        file_handler = TimedRotatingFileHandler(log_file, when='midnight')
+        file_handler.setFormatter(logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(name)s - %(message)s"))
+        self.logger.addHandler(file_handler)
 
     @component_name_existence_error(need_to_be_exist=True)
     def add_routine_to_component(self, component_name,
