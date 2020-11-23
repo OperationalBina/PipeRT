@@ -15,6 +15,9 @@ class DummyPipelineManager(PipelineManager):
     def _setup_logger(self):
         self.logger = logging.getLogger("test_logs.log")
 
+    def recreate_connection(self, component_name):
+        pass
+
 
 def return_routine_class_object_by_name(name):
     if name == "DummyRoutineWithQueue":
