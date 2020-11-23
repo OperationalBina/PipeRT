@@ -34,6 +34,7 @@ class BaseComponent:
         self.queues = {}
         self._routines = {}
         self.metrics_collector = NullCollector()
+        self.logger = logging.getLogger(self.name)
         self.setup_component(component_config)
         self.metrics_collector.setup()
         if start_component:
