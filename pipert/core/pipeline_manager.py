@@ -208,13 +208,13 @@ class PipelineManager:
                 )
 
     def run_all_components(self):
-        p_logger.info("*****************Running all components*****************")
-        p_logger.info(self.components.keys())
+        self.logger.info("*****************Running all components*****************")
+        self.logger.info(self.components.keys())
         for component_name in self.components.keys():
             is_component_running = self._does_component_running(component_name=component_name)
-            p_logger.info("Checking if component {0} is running {1}".format(component_name, is_component_running))
+            self.logger.info("Checking if component {0} is running {1}".format(component_name, is_component_running))
             if not is_component_running:
-                p_logger.info("Running component: " + component_name)
+                self.logger.info("Running component: " + component_name)
                 self.run_component(component_name=component_name)
         return self._create_response(
             True,
@@ -222,13 +222,13 @@ class PipelineManager:
         )
 
     def stop_all_components(self):
-        p_logger.info("*****************Stopping all components*****************")
-        p_logger.info(self.components.keys())
+        self.logger.info("*****************Stopping all components*****************")
+        self.logger.info(self.components.keys())
         for component_name in self.components.keys():
             is_component_running = self._does_component_running(component_name=component_name)
-            p_logger.info("Checking if component {0} is running {1}".format(component_name, is_component_running))
+            self.logger.info("Checking if component {0} is running {1}".format(component_name, is_component_running))
             if is_component_running:
-                p_logger.info("Stopping component: " + component_name)
+                self.logger.info("Stopping component: " + component_name)
                 # component.stop_run()
                 self.stop_component(component_name=component_name)
         return self._create_response(
@@ -392,5 +392,5 @@ class PipelineManager:
 
     @component_name_existence_error(need_to_be_exist=True)
     def set_routine_parameter_in_component(self, component_name, routine_name, attribute_name, attribute_value):
-        p_logger.info(component_name + ", " + routine_name + ", " + attribute_name + ", " + attribute_value)
+        self.logger.info(component_name + ", " + routine_name + ", " + attribute_name + ", " + attribute_value)
         self.components[component_name].set_routine_attribute(routine_name, attribute_name, attribute_value)

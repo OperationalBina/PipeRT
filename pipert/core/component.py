@@ -51,13 +51,13 @@ class BaseComponent:
         self.logger.addHandler(file_handler)
 
     def setup_component(self, component_config):
+        self._setup_logger()
+
         if (component_config is None) or (type(component_config) is not dict) or\
                 (component_config == {}):
             return
         component_name, component_parameters = list(component_config.items())[0]
         self.name = component_name
-
-        self._setup_logger()
 
         if ("shared_memory" in component_parameters) and \
                 (component_parameters["shared_memory"]):
