@@ -21,3 +21,4 @@ cython
 pycocotools
 posix-ipc
 protobuf
+pyshark
