@@ -97,8 +97,6 @@ RUN pip3 install --upgrade pip \
 RUN pip3 install --upgrade cython
 RUN pip3 install --upgrade numpy
 
-RUN pip install protobuf
-RUN pip install pyshark
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y tshark
 
 # Install OPENCV
