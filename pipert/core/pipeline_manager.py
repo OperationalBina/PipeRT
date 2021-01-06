@@ -10,9 +10,10 @@ from os import listdir
 from os.path import isfile, join
 from jsonschema import validate, ValidationError
 import functools
+import logging
+from logging.handlers import TimedRotatingFileHandler
+import os
 
-
-# import gc
 
 def component_name_existence_error(need_to_be_exist):
     def decorator(func):
@@ -25,6 +26,7 @@ def component_name_existence_error(need_to_be_exist):
                     False,
                     f"Component named {kwargs['component_name']} {error_word} exist"
                 )
+            self.recreate_connection(component_name=kwargs['component_name'])
             return func(self, *args, **kwargs)
 
         return function_wrapper
@@ -40,14 +42,28 @@ class PipelineManager:
         """
         super().__init__()
         self.components = {}
+        self.component_ports = {}
         self.ROUTINES_FOLDER_PATH = "pipert/contrib/routines"
         self.COMPONENTS_FOLDER_PATH = "pipert/contrib/components"
         self.ports_counter = 20000
+        self.logger = None
+        self._setup_logger()
+
+    def _setup_logger(self):
+        self.logger = logging.getLogger("Pipe.PipelineManager")
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.propagate = False
+        log_file = os.environ.get("LOGS_FOLDER_PATH",
+                                  "pipert/utils/log_files") + "/" + "Pipe-PipelineManager.log"
+        file_handler = TimedRotatingFileHandler(log_file, when='midnight')
+        file_handler.setFormatter(logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(name)s - %(message)s"))
+        self.logger.addHandler(file_handler)
 
     @component_name_existence_error(need_to_be_exist=True)
     def add_routine_to_component(self, component_name,
                                  routine_type_name, **routine_parameters_kwargs):
-        if self._does_component_running(self.components[component_name]):
+        if self._does_component_running(component_name=component_name):
             return self._create_response(
                 False,
                 "You can't add a routine while your component is running"
@@ -104,7 +120,7 @@ class PipelineManager:
 
     @component_name_existence_error(need_to_be_exist=True)
     def remove_routine_from_component(self, component_name, routine_name):
-        if self._does_component_running(self.components[component_name]):
+        if self._does_component_running(component_name=component_name):
             return self._create_response(
                 False,
                 "You can't remove a routine while your component is running"
@@ -160,7 +176,7 @@ class PipelineManager:
 
     @component_name_existence_error(need_to_be_exist=True)
     def run_component(self, component_name):
-        if self._does_component_running(self.components[component_name]):
+        if self._does_component_running(component_name=component_name):
             return self._create_response(
                 False,
                 f"The component {component_name} already running"
@@ -174,7 +190,7 @@ class PipelineManager:
 
     @component_name_existence_error(need_to_be_exist=True)
     def stop_component(self, component_name):
-        if not self._does_component_running(self.components[component_name]):
+        if not self._does_component_running(component_name=component_name):
             return self._create_response(
                 False,
                 f"The component {component_name} is not running running"
@@ -188,23 +204,33 @@ class PipelineManager:
             else:
                 return self._create_response(
                     False,
-                    "An error has occurred, can't "
-                    f"stop the component {component_name}"
+                    f"An error has occurred, can't stop the component {component_name}"
                 )
 
     def run_all_components(self):
-        for component in self.components.values():
-            if not self._does_component_running(component):
-                component.run_comp()
+        self.logger.info("*****************Running all components*****************")
+        self.logger.info(self.components.keys())
+        for component_name in self.components.keys():
+            is_component_running = self._does_component_running(component_name=component_name)
+            self.logger.info("Checking if component {0} is running {1}".format(component_name, is_component_running))
+            if not is_component_running:
+                self.logger.info("Running component: " + component_name)
+                self.run_component(component_name=component_name)
         return self._create_response(
             True,
             "All of the components are running"
         )
 
     def stop_all_components(self):
-        for component in self.components.values():
-            if self._does_component_running(component):
-                component.stop_run()
+        self.logger.info("*****************Stopping all components*****************")
+        self.logger.info(self.components.keys())
+        for component_name in self.components.keys():
+            is_component_running = self._does_component_running(component_name=component_name)
+            self.logger.info("Checking if component {0} is running {1}".format(component_name, is_component_running))
+            if is_component_running:
+                self.logger.info("Stopping component: " + component_name)
+                # component.stop_run()
+                self.stop_component(component_name=component_name)
         return self._create_response(
             True,
             "All of the components have been stopped"
@@ -269,7 +295,6 @@ class PipelineManager:
     def setup_components(self, components):
         """
         vvv Expecting to get vvv
-
           "components": {
             "component_name": {
               "queues": [str],
@@ -315,10 +340,11 @@ class PipelineManager:
                     yaml.dump(current_component_dict, file)
 
                 component_port = str(self.get_random_available_port())
-                cmd = "python " + COMPONENT_FACTORY_PATH + " -cp " + component_file_path + " -p " + component_port
+                cmd = "python3 " + COMPONENT_FACTORY_PATH + " -cp " + component_file_path + " -p " + component_port
                 subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
                 self.components[component_name] = zerorpc.Client()
                 self.components[component_name].connect("tcp://localhost:" + component_port)
+                self.component_ports[component_name] = component_port
             except ValidationError as error:
                 responses.append(self._create_response(
                     False,
@@ -340,9 +366,8 @@ class PipelineManager:
     def _does_component_exist(self, component_name):
         return component_name in self.components
 
-    @staticmethod
-    def _does_component_running(component):
-        return component.does_component_running()
+    def _does_component_running(self, component_name):
+        return self.components[component_name].does_component_running()
 
     @staticmethod
     def _create_response(succeeded, message):
@@ -360,3 +385,12 @@ class PipelineManager:
     def get_random_available_port(self):
         self.ports_counter += 1
         return self.ports_counter
+
+    def recreate_connection(self, component_name):
+        self.components[component_name] = zerorpc.Client()
+        self.components[component_name].connect("tcp://localhost:" + self.component_ports[component_name])
+
+    @component_name_existence_error(need_to_be_exist=True)
+    def set_routine_parameter_in_component(self, component_name, routine_name, attribute_name, attribute_value):
+        self.logger.info(component_name + ", " + routine_name + ", " + attribute_name + ", " + attribute_value)
+        self.components[component_name].set_routine_attribute(routine_name, attribute_name, attribute_value)
