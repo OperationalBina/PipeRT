@@ -46,8 +46,11 @@ class ListenToStream(Routine):
             grabbed, frame = self.stream.read()
             if grabbed:
                 msg = Message(frame, self.stream_address)
+                msg.id = f"{self.stream_address}_{self.counter}"
+                self.counter += 1
                 msg.record_entry(self.component_name, self.logger)
             else:
+                self.logger.info("Failed to capture frame")
                 msg = None
             return grabbed, msg
         else:
@@ -62,24 +65,14 @@ class ListenToStream(Routine):
             self.updated_config = {}
 
         grabbed, msg = self.grab_frame()
+        time.sleep(0.03)
         if grabbed:
-            frame = msg.get_payload()
-            # frame = resize(frame, 640, 480)
-            # if the stream is from a webcam, flip the frame
-            if self.stream_address == 0:
-                frame = cv2.flip(frame, 1)
             try:
                 self.out_queue.get(block=False)
             except Empty:
                 pass
             finally:
-                msg.update_payload(frame)
                 self.out_queue.put(msg)
-                if self.isFile:
-                    self.time = time.time()
-                    wait = time.time() - self.time
-                    time.sleep(max(1 / self.fps - wait, 0))
-                # self.queue.put(frame, block=False)
                 time.sleep(0)
                 return True
 
