@@ -164,7 +164,8 @@ def test_setup_extensions():
         }
     }
     r = DummyRoutine(extensions=extension)
-    assert r.has_event_handler(r._extension_dummy, Events.AFTER_LOGIC)
+    print(r._event_handlers)
+    assert r.has_event_handler(r._extension_dummy)
 
 
 def test_setup_not_existing_extension():

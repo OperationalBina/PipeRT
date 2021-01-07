@@ -75,6 +75,7 @@ class Routine(ABC):
         for extension_name, extension_params in extensions.items():
             try:
                 getattr(self, "_extension_" + extension_name)(**extension_params)
+                print("Registered event")
             except AttributeError:
                 self.logger.error("No extension with name '%s' was found", extension_name)
 
