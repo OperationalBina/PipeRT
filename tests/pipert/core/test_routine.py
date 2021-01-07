@@ -145,6 +145,7 @@ def test_pacer_faster_pace():
     fast_routine.start()
     fast_routine.runner.join()
     elapsed_time = time.time()
+    print("1: " + str(round(elapsed_time - start_time, 1)))
     assert round(elapsed_time - start_time, 1) == round(1, 1)
 
 
@@ -159,4 +160,5 @@ def test_pacer_slower_pace():
     slow_routine.start()
     slow_routine.runner.join()
     elapsed_time = time.time()
+    print("2: " + str(round(elapsed_time - start_time, 1)))
     assert round(elapsed_time - start_time, 1) == round(1 / 1, 1)
