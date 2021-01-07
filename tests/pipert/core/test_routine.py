@@ -135,7 +135,7 @@ def test_remove_event_handler():
 
 def test_pacer_faster_pace():
     fast_routine = DummySleepRoutine(1 / 60)
-    fast_routine.pace(1)
+    fast_routine._extension_pace(2)
     fast_routine.add_event_handler(Events.AFTER_LOGIC,
                                    dummy_before_stop_handler,
                                    first=True)
@@ -149,7 +149,7 @@ def test_pacer_faster_pace():
 
 def test_pacer_slower_pace():
     slow_routine = DummySleepRoutine(1 / 1)
-    slow_routine.pace(2)
+    slow_routine._extension_pace(2)
     slow_routine.add_event_handler(Events.AFTER_LOGIC,
                                    dummy_before_stop_handler,
                                    first=True)
