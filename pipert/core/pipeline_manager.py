@@ -63,7 +63,7 @@ class PipelineManager:
     @component_name_existence_error(need_to_be_exist=True)
     def add_routine_to_component(self, component_name,
                                  routine_type_name, **routine_parameters_kwargs):
-        if self._does_component_running(component_name=component_name):
+        if self._is_component_running(component_name=component_name):
             return self._create_response(
                 False,
                 "You can't add a routine while your component is running"
@@ -120,7 +120,7 @@ class PipelineManager:
 
     @component_name_existence_error(need_to_be_exist=True)
     def remove_routine_from_component(self, component_name, routine_name):
-        if self._does_component_running(component_name=component_name):
+        if self._is_component_running(component_name=component_name):
             return self._create_response(
                 False,
                 "You can't remove a routine while your component is running"
@@ -176,7 +176,7 @@ class PipelineManager:
 
     @component_name_existence_error(need_to_be_exist=True)
     def run_component(self, component_name):
-        if self._does_component_running(component_name=component_name):
+        if self._is_component_running(component_name=component_name):
             return self._create_response(
                 False,
                 f"The component {component_name} already running"
@@ -190,7 +190,7 @@ class PipelineManager:
 
     @component_name_existence_error(need_to_be_exist=True)
     def stop_component(self, component_name):
-        if not self._does_component_running(component_name=component_name):
+        if not self._is_component_running(component_name=component_name):
             return self._create_response(
                 False,
                 f"The component {component_name} is not running running"
@@ -211,7 +211,7 @@ class PipelineManager:
         self.logger.info("*****************Running all components*****************")
         self.logger.info(self.components.keys())
         for component_name in self.components.keys():
-            is_component_running = self._does_component_running(component_name=component_name)
+            is_component_running = self._is_component_running(component_name=component_name)
             self.logger.info("Checking if component {0} is running {1}".format(component_name, is_component_running))
             if not is_component_running:
                 self.logger.info("Running component: " + component_name)
@@ -225,7 +225,7 @@ class PipelineManager:
         self.logger.info("*****************Stopping all components*****************")
         self.logger.info(self.components.keys())
         for component_name in self.components.keys():
-            is_component_running = self._does_component_running(component_name=component_name)
+            is_component_running = self._is_component_running(component_name=component_name)
             self.logger.info("Checking if component {0} is running {1}".format(component_name, is_component_running))
             if is_component_running:
                 self.logger.info("Stopping component: " + component_name)
@@ -366,8 +366,9 @@ class PipelineManager:
     def _does_component_exist(self, component_name):
         return component_name in self.components
 
-    def _does_component_running(self, component_name):
-        return self.components[component_name].does_component_running()
+    @component_name_existence_error(need_to_be_exist=True)
+    def _is_component_running(self, component_name):
+        return self.components[component_name].is_component_running()
 
     @staticmethod
     def _create_response(succeeded, message):
