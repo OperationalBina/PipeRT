@@ -1,7 +1,7 @@
 import logging
 
-from pipert.core.routine import Routine
-
+from pipert.core.routine import Routine, Events
+from tests.pipert.core.test_routine import dummy_before_stop_handler
 
 class DummyRoutine(Routine):
     @staticmethod
@@ -27,3 +27,7 @@ class DummyRoutine(Routine):
     def cleanup(self, *args, **kwargs):
         pass
 
+    def _extension_dummy(self):
+        self.add_event_handler(Events.AFTER_LOGIC,
+                               dummy_before_stop_handler,
+                               first=True)

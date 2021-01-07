@@ -3,6 +3,7 @@ import logging
 import pytest
 import time
 import os
+
 if os.environ.get('TORCHVISION', 'no') == 'yes':
     from torch.multiprocessing import Event
 else:
@@ -160,3 +161,25 @@ def test_pacer_slower_pace():
     slow_routine.runner.join()
     elapsed_time = time.time()
     assert round(elapsed_time - start_time, 1) == round(1 / 1, 1)
+
+
+def test_setup_extensions():
+    extension = {
+        "dummy": {
+        }
+    }
+    r = DummyRoutine(extensions=extension)
+    assert r.has_event_handler(r._extension_dummy, Events.AFTER_LOGIC)
+
+
+def test_setup_not_existing_extension():
+    extension = {
+        "dummy123": {
+            "bla": 2
+        }
+    }
+    r = DummyRoutine(extensions=extension)
+    with open("test_logs.log", "r") as f:
+        lines = f.read().splitlines()
+        last_line = lines[-1]
+        assert "No extension with name" in last_line
