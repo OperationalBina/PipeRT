@@ -239,13 +239,11 @@ class Routine(ABC):
             if excess_time > 0:
                 time.sleep(excess_time)
 
-        self.add_event_handler(Events.BEFORE_LOGIC, start_time, first=True, logger=self.logger)
+        self.add_event_handler(Events.BEFORE_LOGIC, start_time, first=True)
         self.add_event_handler(Events.AFTER_LOGIC,
                                start_pacing,
                                last=True,
-                               logger=self.logger,
                                required_fps=fps)
-        print("singed pacer")
 
     def on(self, event_name, *args, **kwargs):
         """

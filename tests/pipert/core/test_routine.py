@@ -29,7 +29,6 @@ class DummySleepRoutine(Routine):
         self.logger = logging.getLogger("test_logs.log")
 
     def main_logic(self, *args, **kwargs):
-        time.sleep(self.sleep_time)
         return True
 
     def setup(self, *args, **kwargs):
