@@ -1,7 +1,12 @@
 import logging
 
 from pipert.core.routine import Routine, Events
-from tests.pipert.core.test_routine import dummy_before_stop_handler
+
+
+def dummy_before_stop_handler(routine):
+    print("Stopping routine")
+    routine.stop_event.set()
+
 
 class DummyRoutine(Routine):
     @staticmethod

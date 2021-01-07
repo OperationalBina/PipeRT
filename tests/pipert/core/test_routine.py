@@ -10,7 +10,7 @@ else:
     from multiprocessing import Event
 from pipert.core.routine import Routine, Events
 from pipert.core.errors import NoRunnerException
-from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
+from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine, dummy_before_stop_handler
 
 
 class DummySleepRoutine(Routine):
@@ -50,11 +50,6 @@ def dummy_before_handler(routine):
 def dummy_after_handler(routine):
     assert routine.state.dummy == 666
     routine.state.dummy += 1
-
-
-def dummy_before_stop_handler(routine):
-    print("Stopping routine")
-    routine.stop_event.set()
 
 
 def test_routine_as_thread():
