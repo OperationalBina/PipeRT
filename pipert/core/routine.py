@@ -245,6 +245,7 @@ class Routine(ABC):
                                last=True,
                                logger=self.logger,
                                required_fps=fps)
+        print("singed pacer")
 
     def on(self, event_name, *args, **kwargs):
         """

@@ -52,6 +52,7 @@ def dummy_after_handler(routine):
 
 
 def dummy_before_stop_handler(routine):
+    print("Stopping routine")
     routine.stop_event.set()
 
 
