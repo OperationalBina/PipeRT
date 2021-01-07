@@ -164,8 +164,7 @@ def test_setup_extensions():
         }
     }
     r = DummyRoutine(extensions=extension)
-    print(r._event_handlers)
-    assert r.has_event_handler(r._extension_dummy)
+    assert r.has_event_handler(dummy_before_stop_handler)
 
 
 def test_setup_not_existing_extension():
@@ -175,7 +174,4 @@ def test_setup_not_existing_extension():
         }
     }
     r = DummyRoutine(extensions=extension)
-    with open("test_logs.log", "r") as f:
-        lines = f.read().splitlines()
-        last_line = lines[-1]
-        assert "No extension with name" in last_line
+    assert len(r._event_handlers) == 0
