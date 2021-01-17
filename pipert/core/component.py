@@ -249,7 +249,7 @@ class BaseComponent:
                 return True
         return False
 
-    def does_component_running(self):
+    def is_component_running(self):
         return not self.stop_event.is_set()
 
     def get_routines(self):
