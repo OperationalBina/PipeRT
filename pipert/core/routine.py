@@ -48,7 +48,7 @@ class RoutineTypes(Enum):
 class Routine(ABC):
     routine_type = RoutineTypes.NO_TYPE
 
-    def __init__(self, name="", component_name="", metrics_collector=NullCollector(), *args, **kwargs):
+    def __init__(self, name="", component_name="", extensions=None, metrics_collector=NullCollector(), *args, **kwargs):
 
         self.name = name
 
@@ -66,6 +66,18 @@ class Routine(ABC):
         self.runner_creator = None
         self.runner_creator_kwargs = {}
         self._setup_logger()
+        self._setup_extensions(extensions=extensions)
+
+    def _setup_extensions(self, extensions):
+        if extensions is None:
+            return
+
+        for extension_name, extension_params in extensions.items():
+            try:
+                getattr(self, "_extension_" + extension_name)(**extension_params)
+                print("Registered event")
+            except AttributeError:
+                self.logger.error("No extension with name '%s' was found", extension_name)
 
     def _setup_logger(self):
         self.logger = logging.getLogger(self.component_name + "." + self.name)
@@ -212,7 +224,7 @@ class Routine(ABC):
                              " event handlers".format(handler))
         self._event_handlers[event_name] = new_event_handlers
 
-    def pace(self, fps):
+    def _extension_pace(self, fps):
         """
         Pace the routine to work at a wanted fps
 
@@ -223,11 +235,10 @@ class Routine(ABC):
             routine.state.start_time = time.time()
 
         def start_pacing(routine: Routine, required_fps=0):
-            if routine.state.output:
-                elapsed_time = (time.time() - routine.state.start_time)
-                excess_time = (1 / required_fps) - elapsed_time
-                if excess_time > 0:
-                    time.sleep(excess_time)
+            elapsed_time = (time.time() - routine.state.start_time)
+            excess_time = (1 / required_fps) - elapsed_time
+            if excess_time > 0:
+                time.sleep(excess_time)
 
         self.add_event_handler(Events.BEFORE_LOGIC, start_time, first=True)
         self.add_event_handler(Events.AFTER_LOGIC,

@@ -3,13 +3,14 @@ import logging
 import pytest
 import time
 import os
+
 if os.environ.get('TORCHVISION', 'no') == 'yes':
     from torch.multiprocessing import Event
 else:
     from multiprocessing import Event
 from pipert.core.routine import Routine, Events
 from pipert.core.errors import NoRunnerException
-from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
+from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine, dummy_before_stop_handler
 
 
 class DummySleepRoutine(Routine):
@@ -49,10 +50,6 @@ def dummy_before_handler(routine):
 def dummy_after_handler(routine):
     assert routine.state.dummy == 666
     routine.state.dummy += 1
-
-
-def dummy_before_stop_handler(routine):
-    routine.stop_event.set()
 
 
 def test_routine_as_thread():
@@ -135,7 +132,7 @@ def test_remove_event_handler():
 
 def test_pacer_faster_pace():
     fast_routine = DummySleepRoutine(1 / 60)
-    fast_routine.pace(1)
+    fast_routine._extension_pace(2)
     fast_routine.add_event_handler(Events.AFTER_LOGIC,
                                    dummy_before_stop_handler,
                                    first=True)
@@ -144,12 +141,12 @@ def test_pacer_faster_pace():
     fast_routine.start()
     fast_routine.runner.join()
     elapsed_time = time.time()
-    assert round(elapsed_time - start_time, 1) == round(1, 1)
+    assert round(elapsed_time - start_time, 1) == round(0.5, 1)  # 2 fps is 0.5 sec for frame
 
 
 def test_pacer_slower_pace():
     slow_routine = DummySleepRoutine(1 / 1)
-    slow_routine.pace(2)
+    slow_routine._extension_pace(2)
     slow_routine.add_event_handler(Events.AFTER_LOGIC,
                                    dummy_before_stop_handler,
                                    first=True)
@@ -159,3 +156,22 @@ def test_pacer_slower_pace():
     slow_routine.runner.join()
     elapsed_time = time.time()
     assert round(elapsed_time - start_time, 1) == round(1 / 1, 1)
+
+
+def test_setup_extensions():
+    extension = {
+        "dummy": {
+        }
+    }
+    r = DummyRoutine(extensions=extension)
+    assert r.has_event_handler(dummy_before_stop_handler)
+
+
+def test_setup_not_existing_extension():
+    extension = {
+        "dummy123": {
+            "bla": 2
+        }
+    }
+    r = DummyRoutine(extensions=extension)
+    assert len(r._event_handlers) == 0
