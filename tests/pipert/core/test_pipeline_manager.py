@@ -41,6 +41,7 @@ def pipeline_manager():
 def pipeline_manager_with_component(pipeline_manager):
     pipeline_manager.components["comp"] = BaseComponent(component_config={}, start_component=False)
     pipeline_manager.components["comp"].name = "comp"
+    pipeline_manager.components["comp"].logger = logging.getLogger("test_logs.log")
     return pipeline_manager
 
 
