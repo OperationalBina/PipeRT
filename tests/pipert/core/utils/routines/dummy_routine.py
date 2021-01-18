@@ -17,10 +17,7 @@ class DummyRoutine(Routine):
         return False
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def _setup_logger(self):
-        self.logger = logging.getLogger("test_logs.log")
+        super().__init__(logger=logging.getLogger("test_logs.log"), *args, **kwargs)
 
     def main_logic(self, *args, **kwargs):
         self.metrics_collector.collect_latency(0.1, self.component_name)
