@@ -1,3 +1,4 @@
+import logging
 import time
 from threading import Thread
 
@@ -16,6 +17,7 @@ def component_with_queue():
     comp = DummyComponent({})
     comp.MONITORING_SYSTEMS_FOLDER_PATH = os.getcwd() + "/" + "tests/pipert/core/utils/metrics_collectors"
     comp.name = "Comp1"
+    comp.logger = logging.getLogger("test_logs.log")
     assert comp.create_queue("que1", 1)
     return comp
 
