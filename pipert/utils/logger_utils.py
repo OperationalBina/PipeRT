@@ -4,7 +4,7 @@ from logging.handlers import SocketHandler, TimedRotatingFileHandler
 
 
 def create_parent_logger(name):
-    logger_type = os.environ.get('LOGGER', 'cutelog').lower()
+    logger_type = os.environ.get('LOGGER', 'file').lower()
     return getattr(LoggerGenerator, f"_create_{logger_type}_logger")(name)
 
 
