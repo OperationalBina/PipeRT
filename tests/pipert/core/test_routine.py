@@ -1,5 +1,3 @@
-import logging
-
 import pytest
 import time
 import os
@@ -8,33 +6,10 @@ if os.environ.get('TORCHVISION', 'no') == 'yes':
     from torch.multiprocessing import Event
 else:
     from multiprocessing import Event
-from pipert.core.routine import Routine, Events
+from pipert.core.routine import Events
 from pipert.core.errors import NoRunnerException
-from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine, dummy_before_stop_handler
-
-
-class DummySleepRoutine(Routine):
-    @staticmethod
-    def get_constructor_parameters():
-        pass
-
-    def does_routine_use_queue(self, queue):
-        pass
-
-    def __init__(self, sleep_time, name=""):
-        super().__init__(logger=logging.getLogger("test_logs.log"), name=name)
-        self.stop_event = Event()
-        self.sleep_time = sleep_time
-
-    def main_logic(self, *args, **kwargs):
-        time.sleep(self.sleep_time)
-        return True
-
-    def setup(self, *args, **kwargs):
-        pass
-
-    def cleanup(self, *args, **kwargs):
-        pass
+from tests.pipert.core.utils.routines.dummy_routines import DummySleepRoutine, \
+    DummyRoutine, dummy_before_stop_handler, DummyCrashingRoutine
 
 
 def dummy_before_handler(routine):
@@ -125,6 +100,19 @@ def test_remove_event_handler():
     assert not r.has_event_handler(dummy_before_handler)
     with pytest.raises(ValueError):
         r.remove_event_handler(dummy_before_handler, Events.BEFORE_LOGIC)
+
+
+def test_routine_crash_message(caplog):
+    r = DummyCrashingRoutine()
+    e = Event()
+    r.stop_event = e
+    r.as_thread()
+    r.start()
+    time.sleep(0.01)
+    e.set()
+    r.runner.join()
+    logs_text_list = [record[2] for record in (record_tuple for record_tuple in caplog.record_tuples)]
+    assert any("The routine has crashed" in log for log in logs_text_list)
 
 
 def test_pacer_faster_pace():

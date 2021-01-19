@@ -3,8 +3,7 @@ import pytest
 import logging
 
 from pipert.core.component import BaseComponent
-from tests.pipert.core.utils.routines.dummy_routine_with_queue import DummyRoutineWithQueue
-from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
+from tests.pipert.core.utils.routines.dummy_routines import DummyRoutineWithQueue, DummyRoutine
 from pipert.core.pipeline_manager import PipelineManager
 
 
