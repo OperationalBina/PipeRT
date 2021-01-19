@@ -1,4 +1,5 @@
 import os
+import time
 from pipert.core.routine import Routine, Events
 if os.environ.get('TORCHVISION', 'no') == 'yes':
     from torch.multiprocessing import Event
