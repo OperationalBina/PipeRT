@@ -74,8 +74,8 @@ class Routine(ABC):
 
         for extension_name, extension_params in extensions.items():
             try:
-                getattr(self, "_extension_" + extension_name)(**extension_params)
-                print("Registered event")
+                getattr(self, str("_extension_" + extension_name))(**extension_params)
+                self.logger.info(f"Registered extension {extension_name}")
             except AttributeError:
                 self.logger.error("No extension with name '%s' was found", extension_name)
 
@@ -223,6 +223,32 @@ class Routine(ABC):
             raise ValueError("Input handler '{}' is not found among registered"
                              " event handlers".format(handler))
         self._event_handlers[event_name] = new_event_handlers
+
+    def _extension_log_fps(self, fps_time_interval):
+        """
+        Log the fps of routine every fps_time_interval seconds
+
+        Args:
+            fps_time_interval: Interval time between each log.
+        """
+
+        self.last_fps_time = time.time()
+        self.success_frame_counter_fps = 0
+
+        def log_fps(routine: Routine, time_interval):
+            routine.success_frame_counter_fps += 1
+            current_time = time.time()
+
+            if current_time - routine.last_fps_time >= time_interval:
+                fps = round(routine.success_frame_counter_fps / (current_time - routine.last_fps_time), 2)
+                routine.logger.info(f"fps: {fps}")
+                routine.last_fps_time = current_time
+                routine.success_frame_counter_fps = 0
+
+        self.add_event_handler(Events.AFTER_LOGIC,
+                               log_fps,
+                               time_interval=fps_time_interval,
+                               first=True)
 
     def _extension_pace(self, fps):
         """
