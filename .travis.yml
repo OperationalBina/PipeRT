@@ -26,6 +26,7 @@ jobs:
       before_install:
         - export PYTHONPATH=$PYTHONPATH:$(pwd)
         - export LOGS_FOLDER_PATH="$PYTHONPATH/tests/pipert/core/"
+        - mkdir -p "$LOGS_FOLDER_PATH"
       install:
         - pip install -r pipe-base/requirements.txt
         - pip install -r tests/requirements.txt
