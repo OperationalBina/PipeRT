@@ -3,7 +3,7 @@ import os
 from logging.handlers import SocketHandler, TimedRotatingFileHandler
 
 
-def create_parent_logger(name):
+def create_parent_logger(name: str) -> logging.Logger:
     logger_type = os.environ.get('LOGGER', 'file').lower()
     return getattr(LoggerGenerator, f"_create_{logger_type}_logger")(name)
 
@@ -13,7 +13,7 @@ class LoggerGenerator:
         pass
 
     @staticmethod
-    def _create_cutelog_logger(name):
+    def _create_cutelog_logger(name: str) -> logging.Logger:
         logger = logging.getLogger(name)
         logger.setLevel(logging.DEBUG)
         logger.propagate = False
@@ -24,7 +24,7 @@ class LoggerGenerator:
         return logger
 
     @staticmethod
-    def _create_file_logger(name):
+    def _create_file_logger(name: str) -> logging.Logger:
         class FileLogger(logging.Logger):
             def __init__(self, name, level=logging.NOTSET):
                 super().__init__(name=name, level=level)
@@ -33,7 +33,7 @@ class LoggerGenerator:
                 return self.create_file_logger('-'.join((self.name, suffix)))
 
             @staticmethod
-            def create_file_logger(name):
+            def create_file_logger(name: str) -> logging.Logger:
                 logger = FileLogger(name)
                 logger.setLevel(logging.DEBUG)
                 logger.propagate = False
