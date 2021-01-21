@@ -1,3 +1,4 @@
+import logging
 import time
 from threading import Thread
 
@@ -5,9 +6,8 @@ import pytest
 from multiprocessing import Process
 
 from pipert.core.metrics_collector import NullCollector
-from tests.pipert.core.utils.routines.dummy_routine import DummyRoutine
+from tests.pipert.core.utils.routines.dummy_routines import DummyRoutine, DummyRoutineWithQueue
 from tests.pipert.core.utils.component.dummy_component import DummyComponent
-from tests.pipert.core.utils.routines.dummy_routine_with_queue import DummyRoutineWithQueue
 import os
 
 
@@ -16,6 +16,7 @@ def component_with_queue():
     comp = DummyComponent({})
     comp.MONITORING_SYSTEMS_FOLDER_PATH = os.getcwd() + "/" + "tests/pipert/core/utils/metrics_collectors"
     comp.name = "Comp1"
+    comp.logger = logging.getLogger("test_logs.log")
     assert comp.create_queue("que1", 1)
     return comp
 

@@ -1,11 +1,8 @@
 import time
-import traceback
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from enum import Enum
-import logging
 import threading
-from logging.handlers import TimedRotatingFileHandler
 import os
 if os.environ.get('TORCHVISION', 'no') == 'yes':
     import torch.multiprocessing as mp
@@ -48,7 +45,8 @@ class RoutineTypes(Enum):
 class Routine(ABC):
     routine_type = RoutineTypes.NO_TYPE
 
-    def __init__(self, name="", component_name="", extensions=None, metrics_collector=NullCollector(), *args, **kwargs):
+    def __init__(self, logger, name="", component_name="",
+                 extensions=None, metrics_collector=NullCollector(), *args, **kwargs):
 
         self.name = name
 
@@ -65,7 +63,7 @@ class Routine(ABC):
         self.runner = None
         self.runner_creator = None
         self.runner_creator_kwargs = {}
-        self._setup_logger()
+        self.logger = logger
         self._setup_extensions(extensions=extensions)
 
     def _setup_extensions(self, extensions):
@@ -78,17 +76,6 @@ class Routine(ABC):
                 print("Registered event")
             except AttributeError:
                 self.logger.error("No extension with name '%s' was found", extension_name)
-
-    def _setup_logger(self):
-        self.logger = logging.getLogger(self.component_name + "." + self.name)
-        self.logger.setLevel(logging.DEBUG)
-        self.logger.propagate = False
-        log_file = os.environ.get("LOGS_FOLDER_PATH", "pipert/utils/log_files") + "/" +\
-            self.component_name + "-" + self.name + ".log"
-        file_handler = TimedRotatingFileHandler(log_file, when='midnight')
-        file_handler.setFormatter(logging.Formatter(
-            "%(asctime)s - %(levelname)s - %(name)s - %(message)s"))
-        self.logger.addHandler(file_handler)
 
     def register_events(self, *event_names):
         """
@@ -318,8 +305,7 @@ class Routine(ABC):
             try:
                 self.state.output = self.main_logic()
             except Exception as error:
-                self.logger.error("The routine has crashed: " + str(error))
-                self.logger.error(str(traceback.format_exc()))
+                self.logger.exception("The routine has crashed: " + str(error))
                 self.state.output = False
             self.state.count += 1
             tock = time.time()

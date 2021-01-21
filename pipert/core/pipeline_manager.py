@@ -10,9 +10,7 @@ from os import listdir
 from os.path import isfile, join
 from jsonschema import validate, ValidationError
 import functools
-import logging
-from logging.handlers import TimedRotatingFileHandler
-import os
+from pipert.utils.logger_utils import create_parent_logger
 
 
 def component_name_existence_error(need_to_be_exist):
@@ -46,19 +44,7 @@ class PipelineManager:
         self.ROUTINES_FOLDER_PATH = "pipert/contrib/routines"
         self.COMPONENTS_FOLDER_PATH = "pipert/contrib/components"
         self.ports_counter = 20000
-        self.logger = None
-        self._setup_logger()
-
-    def _setup_logger(self):
-        self.logger = logging.getLogger("Pipe.PipelineManager")
-        self.logger.setLevel(logging.DEBUG)
-        self.logger.propagate = False
-        log_file = os.environ.get("LOGS_FOLDER_PATH",
-                                  "pipert/utils/log_files") + "/" + "Pipe-PipelineManager.log"
-        file_handler = TimedRotatingFileHandler(log_file, when='midnight')
-        file_handler.setFormatter(logging.Formatter(
-            "%(asctime)s - %(levelname)s - %(name)s - %(message)s"))
-        self.logger.addHandler(file_handler)
+        self.logger = create_parent_logger("Pipe-PipelineManager")
 
     @component_name_existence_error(need_to_be_exist=True)
     def add_routine_to_component(self, component_name,
