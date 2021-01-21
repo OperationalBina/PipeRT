@@ -25,8 +25,7 @@ jobs:
         - redis-server
       before_install:
         - export PYTHONPATH=$PYTHONPATH:$(pwd)
-        - export LOGS_FOLDER_PATH pipert/utils/log_files
-        - mkdir -p "$LOGS_FOLDER_PATH"
+        - export LOGS_FOLDER_PATH="/"
       install:
         - pip install -r pipe-base/requirements.txt
         - pip install -r tests/requirements.txt
