@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 import time
 import os
@@ -113,6 +115,20 @@ def test_routine_crash_message(caplog):
     r.runner.join()
     logs_text_list = [record[2] for record in (record_tuple for record_tuple in caplog.record_tuples)]
     assert any("The routine has crashed" in log for log in logs_text_list)
+
+
+def test_extension_log_fps(caplog):
+    caplog.set_level(logging.INFO)
+    routine = DummySleepRoutine(0.01)
+    routine._extension_log_fps(0.02)
+    e = routine.stop_event
+    routine.as_thread()
+    routine.start()
+    time.sleep(0.05)
+    e.set()
+    routine.runner.join()
+    logs_text_list = [record[2] for record in (record_tuple for record_tuple in caplog.record_tuples)]
+    assert sum("fps" in log for log in logs_text_list) == 2
 
 
 def test_pacer_faster_pace():
