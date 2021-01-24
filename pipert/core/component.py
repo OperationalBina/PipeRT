@@ -1,4 +1,3 @@
-import threading
 import os
 if os.environ.get('TORCHVISION', 'no') == 'yes':
     from torch.multiprocessing import Event, Process
@@ -18,8 +17,7 @@ else:
 from pipert.core.errors import RegisteredException, QueueDoesNotExist
 from pipert.core.class_factory import ClassFactory
 from queue import Queue
-import logging
-from logging.handlers import TimedRotatingFileHandler
+from pipert.utils.logger_utils import create_parent_logger
 
 
 class BaseComponent:
@@ -34,22 +32,12 @@ class BaseComponent:
         self.queues = {}
         self._routines = {}
         self.metrics_collector = NullCollector()
-        self.logger = logging.getLogger(self.name)
+        self.parent_logger = None
+        self.logger = None
         self.setup_component(component_config)
         self.metrics_collector.setup()
         if start_component:
             self.run_comp()
-
-    def _setup_logger(self):
-        self.logger = logging.getLogger(self.name)
-        self.logger.setLevel(logging.DEBUG)
-        self.logger.propagate = False
-        log_file = os.environ.get("LOGS_FOLDER_PATH",
-                                  "pipert/utils/log_files") + "/" + self.name + ".log"
-        file_handler = TimedRotatingFileHandler(log_file, when='midnight')
-        file_handler.setFormatter(logging.Formatter(
-            "%(asctime)s - %(levelname)s - %(name)s - %(message)s"))
-        self.logger.addHandler(file_handler)
 
     def setup_component(self, component_config):
         if (component_config is None) or (type(component_config) is not dict) or\
@@ -58,7 +46,8 @@ class BaseComponent:
         component_name, component_parameters = list(component_config.items())[0]
         self.name = component_name
 
-        self._setup_logger()
+        self.parent_logger = create_parent_logger(self.name)
+        self.logger = self.parent_logger.getChild(self.name)
 
         if ("shared_memory" in component_parameters) and \
                 (component_parameters["shared_memory"]):
@@ -76,6 +65,7 @@ class BaseComponent:
             routine_parameters = routine_parameters_real.copy()
             routine_parameters["name"] = routine_name
             routine_parameters['metrics_collector'] = self.metrics_collector
+            routine_parameters["logger"] = self.parent_logger.getChild(routine_name)
             routine_class = routine_factory.get_class(routine_parameters.pop("routine_type_name", ""))
             if routine_class is None:
                 continue
