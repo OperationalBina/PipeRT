@@ -77,8 +77,12 @@ def get_shared_memory_object(name):
     Params:
         -name: The name of a shared memory.
     """
-    memory = posix_ipc.SharedMemory(name, posix_ipc.O_CREAT)
-    semaphore = posix_ipc.Semaphore(name, posix_ipc.O_CREAT)
+    try:
+        memory = posix_ipc.SharedMemory(name)
+        semaphore = posix_ipc.Semaphore(name)
+    except posix_ipc.ExistentialError:
+        return None
+
     mapfile = mmap.mmap(memory.fd, memory.size)
 
     memory.close_fd()
