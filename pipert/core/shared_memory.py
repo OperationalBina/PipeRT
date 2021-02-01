@@ -1,5 +1,5 @@
-import mmap
 import posix_ipc
+import mmap
 
 
 class MemoryIdGenerator:
@@ -20,15 +20,15 @@ class MemoryIdGenerator:
         Generates the next id to use for the shared memory and return
         the name of a shared memory to free if necessary.
         """
-        next_name = "{0}_{1}".format(self.component_name, self.name_count)
-        name_to_unlink = ""
+        next_name = "{0}_{1}".format(self.component_name, (self.name_count % self.max_count))
+        # name_to_unlink = ""
         self.name_count += 1
-        if self.name_count >= self.max_count:
-            name_to_unlink = "{0}_{1}".format(self.component_name,
-                                              (self.name_count
-                                               - self.max_count))
-
-        return next_name, name_to_unlink
+        # if self.name_count >= self.max_count:
+        #     name_to_unlink = "{0}_{1}".format(self.component_name,
+        #                                       (self.name_count
+        #                                        - self.max_count))
+        # return next_name, name_to_unlink
+        return next_name
 
 
 class SharedMemory:
@@ -49,15 +49,17 @@ class SharedMemory:
         Params:
             -b: A frame converted to byte code.
         """
+        self.mapfile.flush()
         self.mapfile.seek(0)
         self.mapfile.write(b)
+        self.size = len(b)
 
-    def read_from_memory(self):
+    def read_from_memory(self, size=0):
         """
         Reads what is currently in the shared memory.
         """
         self.mapfile.seek(0)
-        file_content = self.mapfile.read(self.mapfile.size())
+        file_content = self.mapfile.read(size)
 
         return file_content
 
@@ -66,9 +68,10 @@ class SharedMemory:
         cleans what is on the memory and deletes it.
         """
         self.mapfile.close()
-        self.memory.unlink()
+        self.memory.close_fd()
         self.semaphore.release()
         self.semaphore.unlink()
+        self.memory.unlink()
 
 
 def get_shared_memory_object(name):
@@ -77,8 +80,14 @@ def get_shared_memory_object(name):
     Params:
         -name: The name of a shared memory.
     """
-    memory = posix_ipc.SharedMemory(name, posix_ipc.O_CREAT)
-    semaphore = posix_ipc.Semaphore(name, posix_ipc.O_CREAT)
+    try:
+        memory = posix_ipc.SharedMemory(name)
+        semaphore = posix_ipc.Semaphore(name)
+    except posix_ipc.ExistentialError:
+        return None
+    except Exception:
+        return None
+
     mapfile = mmap.mmap(memory.fd, memory.size)
 
     memory.close_fd()
@@ -94,38 +103,56 @@ class SharedMemoryGenerator:
     and is responsible for cleaning up shared memories if the count that
     exists now exceeds the max or the proccess has ended.
     """
-    def __init__(self, component_name, max_count=50):
+    def __init__(self, component_name, max_count=50, size=5000000):
         self.memory_id_gen = MemoryIdGenerator(component_name, max_count)
         self.max_count = max_count
         self.shared_memories = {}
+        for _ in range(self.max_count):
+            next_name = self.memory_id_gen.get_next()
+            memory = posix_ipc.SharedMemory(next_name, posix_ipc.O_CREAT,
+                                            size=size)
+            semaphore = posix_ipc.Semaphore(next_name, posix_ipc.O_CREAT)
+            mapfile = mmap.mmap(memory.fd, memory.size)
+            memory.close_fd()
+
+            semaphore.release()
+            self.shared_memories[next_name] = SharedMemory(memory, semaphore,
+                                                           mapfile)
 
     def get_next_shared_memory(self, size=5000000):
-        next_name, name_to_unlink = self.memory_id_gen.get_next()
+        # next_name, name_to_unlink = self.memory_id_gen.get_next()
+        next_name = self.memory_id_gen.get_next()
 
-        memory = posix_ipc.SharedMemory(next_name, posix_ipc.O_CREAT,
-                                        size=size)
-        semaphore = posix_ipc.Semaphore(next_name, posix_ipc.O_CREAT)
-        mapfile = mmap.mmap(memory.fd, memory.size)
+        # memory = posix_ipc.SharedMemory(next_name, posix_ipc.O_CREAT,
+        #                                 size=size)
+        # semaphore = posix_ipc.Semaphore(next_name, posix_ipc.O_CREAT)
+        # print(f"Shared Memory:\nfd: {memory.fd}\nmode: {memory.mode}\nname: {memory.name}\nsize: {memory.size}")
+        # mapfile = mmap.mmap(memory.fd, memory.size)
+        #
+        # memory.close_fd()
+        #
+        # self.shared_memories[next_name] = SharedMemory(memory, semaphore,
+        #                                                mapfile)
+        #
+        # if name_to_unlink:
+        #     if name_to_unlink in self.shared_memories:
+        #         self._destroy_memory(name_to_unlink)
 
-        memory.close_fd()
-
-        self.shared_memories[next_name] = SharedMemory(memory, semaphore,
-                                                       mapfile)
-
-        if name_to_unlink:
-            if name_to_unlink in self.shared_memories:
-                self._destroy_memory(name_to_unlink)
-
-        semaphore.release()
+        # semaphore.release()
 
         return next_name
 
     def cleanup(self):
         for _ in range(self.max_count):
-            _, name_to_unlink = self.memory_id_gen.get_next()
+            name_to_unlink = self.memory_id_gen.get_next()
             if name_to_unlink:
                 if name_to_unlink in self.shared_memories:
                     self._destroy_memory(name_to_unlink)
+        # for _ in range(self.max_count):
+        #     _, name_to_unlink = self.memory_id_gen.get_next()
+        #     if name_to_unlink:
+        #         if name_to_unlink in self.shared_memories:
+        #             self._destroy_memory(name_to_unlink)
 
     def _destroy_memory(self, name_to_unlink):
         self.shared_memories[name_to_unlink].free_memory()

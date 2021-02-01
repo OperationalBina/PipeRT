@@ -38,6 +38,7 @@ class FramePayload(Payload):
         super().__init__(data)
         self.shape = None
         self.dtype = None
+        self.frame_size = 0
 
     def decode(self):
         if self.encoded:
@@ -62,7 +63,8 @@ class FramePayload(Payload):
                     memory.buf[:] = bytes(buf)
                     self.data = memory.name
                 else:
-                    memory_name = generator.get_next_shared_memory(size=len(buf))
+                    self.frame_size = len(buf)
+                    memory_name = generator.get_next_shared_memory()
                     memory = get_shared_memory_object(memory_name)
                     memory.acquire_semaphore()
                     memory.write_to_memory(buf)
@@ -81,7 +83,7 @@ class FramePayload(Payload):
                 memory.close()
             else:
                 memory.acquire_semaphore()
-                data = memory.read_from_memory()
+                data = memory.read_from_memory(self.frame_size)
                 memory.release_semaphore()
             frame = np.frombuffer(data, dtype=self.dtype)
             return frame.reshape(self.shape)
@@ -111,6 +113,7 @@ class FrameMetadataPayload(Payload):
         super().__init__(data)
         self.shape = None
         self.dtype = None
+        self.frame_size = 0
 
     def decode(self):
         if self.encoded:
@@ -135,7 +138,8 @@ class FrameMetadataPayload(Payload):
                     memory.buf[:] = bytes(buf)
                     self.data = (memory.name, self.data[1])
                 else:
-                    memory_name = generator.get_next_shared_memory(size=len(buf))
+                    self.frame_size = len(buf)
+                    memory_name = generator.get_next_shared_memory()
                     memory = get_shared_memory_object(memory_name)
                     memory.acquire_semaphore()
                     memory.write_to_memory(buf)
@@ -147,14 +151,17 @@ class FrameMetadataPayload(Payload):
         return self.data is None
 
     def _get_frame(self):
-        memory = get_shared_memory_object(self.data[0])
+        try:
+            memory = get_shared_memory_object(self.data[0])
+        except Exception:
+            return None
         if memory:
             if sys.version_info.minor == 8:
                 data = bytes(memory.buf)
                 memory.close()
             else:
                 memory.acquire_semaphore()
-                data = memory.read_from_memory()
+                data = memory.read_from_memory(self.frame_size)
                 memory.release_semaphore()
             frame = np.frombuffer(data, dtype=self.dtype)
             return frame.reshape(self.shape)
