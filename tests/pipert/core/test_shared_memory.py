@@ -40,9 +40,10 @@ def test_write_and_read_from_memory():
     memory = sm.get_shared_memory_object(memory_name)
     memory.acquire_semaphore()
     memory.write_to_memory(b"AAA")
+    message_size = len(b"AAA")
     memory.release_semaphore()
     memory.acquire_semaphore()
-    data = memory.read_from_memory()
+    data = memory.read_from_memory(message_size)
     memory.release_semaphore()
     assert data == b"AAA"
     generator.cleanup()
