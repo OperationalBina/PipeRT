@@ -27,16 +27,16 @@ def test_get_next_shared_memory():
 def test_max_count():
     generator = DummySharedMemoryGenerator()
     first_memory = generator.get_next_shared_memory()
-    for _ in range(generator.max_count):
+    for _ in range(generator.max_count - 1):
         generator.get_next_shared_memory()
 
-    assert first_memory not in generator.shared_memories
+    assert first_memory == generator.get_next_shared_memory()
     generator.cleanup()
 
 
 def test_write_and_read_from_memory():
     generator = DummySharedMemoryGenerator()
-    memory_name = generator.get_next_shared_memory(size=3)
+    memory_name = generator.get_next_shared_memory()
     memory = sm.get_shared_memory_object(memory_name)
     memory.acquire_semaphore()
     memory.write_to_memory(b"AAA")
