@@ -84,5 +84,18 @@ class SharedMemoryGenerator(metaclass=Singleton):
         Cleans all of the allocated shared memories to free up the ram.
 
         """
-        for shared_memory in self.shared_memories.values():
-            shared_memory.free_memory()
+        for _ in range(self.max_count):
+            name_to_unlink = self.memory_id_gen.get_next()
+            if name_to_unlink in self.shared_memories:
+                self._destroy_memory(name_to_unlink)
+
+    def _destroy_memory(self, memory_to_destroy):
+        """
+        Destroys a specified shared memory.
+
+        Args:
+            memory_to_destroy: The name of the existing shared memory.
+
+        """
+        self.shared_memories[memory_to_destroy].free_memory()
+        self.shared_memories.pop(memory_to_destroy)
