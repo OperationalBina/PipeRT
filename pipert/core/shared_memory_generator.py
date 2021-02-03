@@ -1,6 +1,6 @@
 import posix_ipc
 import mmap
-from shared_memory import SharedMemory
+from pipert.core.shared_memory import SharedMemory
 
 
 class Singleton(type):
