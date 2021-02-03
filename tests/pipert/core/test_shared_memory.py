@@ -1,4 +1,4 @@
-import pipert.core.shared_memory as sm
+import pipert.core.shared_memory_generator as sm
 
 
 class DummySharedMemoryGenerator(sm.SharedMemoryGenerator):
@@ -37,7 +37,7 @@ def test_max_count():
 def test_write_and_read_from_memory():
     generator = DummySharedMemoryGenerator()
     memory_name = generator.get_next_shared_memory()
-    memory = sm.get_shared_memory_object(memory_name)
+    memory = generator.get_shared_memory_object(memory_name)
     memory.acquire_semaphore()
     memory.write_to_memory(b"AAA")
     message_size = len(b"AAA")
