@@ -2,10 +2,10 @@ import collections
 from abc import ABC, abstractmethod
 
 import sys
-if sys.version_info.minor == 8:
+if sys.version_info.minor >= 8:
     from pipert.core.multiprocessing_shared_memory import get_shared_memory_object
 else:
-    from pipert.core.shared_memory import get_shared_memory_object
+    from pipert.core.shared_memory_generator import SharedMemoryGenerator
 
 import numpy as np
 import time
@@ -58,14 +58,14 @@ class FramePayload(Payload):
             if generator is None:
                 self.data = buf
             else:
-                if sys.version_info.minor == 8:
+                if sys.version_info.minor >= 8:
                     memory = generator.get_next_shared_memory(size=len(buf))
                     memory.buf[:] = bytes(buf)
                     self.data = memory.name
                 else:
                     self.frame_size = len(buf)
                     memory_name = generator.get_next_shared_memory()
-                    memory = get_shared_memory_object(memory_name)
+                    memory = generator.get_shared_memory_object(memory_name)
                     memory.acquire_semaphore()
                     memory.write_to_memory(buf)
                     memory.release_semaphore()
@@ -76,9 +76,15 @@ class FramePayload(Payload):
         return self.data is None
 
     def _get_frame(self):
-        memory = get_shared_memory_object(self.data)
+        if sys.version_info.minor >= 8:
+            memory = get_shared_memory_object(self.data)
+        else:
+            # Get the generator based on the component name.
+            # The message data is "{component_name}_{memory_id}"
+            generator = SharedMemoryGenerator(self.data.split('_')[0])
+            memory = generator.get_shared_memory_object(self.data)
         if memory:
-            if sys.version_info.minor == 8:
+            if sys.version_info.minor >= 8:
                 data = bytes(memory.buf)
                 memory.close()
             else:
@@ -133,7 +139,7 @@ class FrameMetadataPayload(Payload):
             if generator is None:
                 self.data = (buf, self.data[1])
             else:
-                if sys.version_info.minor == 8:
+                if sys.version_info.minor >= 8:
                     memory = generator.get_next_shared_memory(size=len(buf))
                     memory.buf[:] = bytes(buf)
                     self.data = (memory.name, self.data[1])
@@ -151,12 +157,15 @@ class FrameMetadataPayload(Payload):
         return self.data is None
 
     def _get_frame(self):
-        try:
+        if sys.version_info.minor >= 8:
             memory = get_shared_memory_object(self.data[0])
-        except Exception:
-            return None
+        else:
+            # Get the generator based on the component name.
+            # The message data is "{component_name}_{memory_id}"
+            generator = SharedMemoryGenerator(self.data[0].split('_')[0])
+            memory = generator.get_shared_memory_object(self.data)
         if memory:
-            if sys.version_info.minor == 8:
+            if sys.version_info.minor >= 8:
                 data = bytes(memory.buf)
                 memory.close()
             else:
