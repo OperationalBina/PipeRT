@@ -26,7 +26,7 @@ class MemoryIdIterator:
 
 class SharedMemory:
     """
-    A wrapper for posix_ipc.SharedMemory, posix_ipc.Semaphore and the correlating mapfile to simply usage.
+   A wrapper for posix_ipc.SharedMemory, posix_ipc.Semaphore and the correlating mapfile to simplify usage.
     """
     def __init__(self, memory, semaphore, mapfile):
         self.memory = memory
