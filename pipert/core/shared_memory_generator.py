@@ -3,15 +3,6 @@ import mmap
 from pipert.core.shared_memory import SharedMemory
 
 
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
 class MemoryIdIterator:
     """
     Iterates over a set amount of id's. The id's are in the following format:
@@ -35,7 +26,7 @@ class MemoryIdIterator:
         return next_name
 
 
-class SharedMemoryGenerator(metaclass=Singleton):
+class SharedMemoryGenerator:
     """
     Generates a set 'max_count' amount of shared memories to be used.
     """
@@ -55,25 +46,10 @@ class SharedMemoryGenerator(metaclass=Singleton):
             self.shared_memories[next_name] = SharedMemory(memory, semaphore,
                                                            mapfile)
 
-    def get_next_shared_memory(self):
-        """
-        Iterates over the existing memories in a cycle.
-
-        Returns: The next shared memory that's available to use.
-
-        """
+    def get_next_shared_memory_name(self):
         return self.memory_id_gen.get_next()
 
     def get_shared_memory_object(self, name):
-        """
-        Get an existing shared memory object.
-
-        Args:
-            name: The name of the shared memory.
-
-        Returns: A SharedMemory object.
-
-        """
         try:
             return self.shared_memories[name]
         except KeyError:
