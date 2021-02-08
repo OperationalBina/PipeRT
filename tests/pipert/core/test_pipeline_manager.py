@@ -5,14 +5,13 @@ import logging
 from pipert.core.component import BaseComponent
 from tests.pipert.core.utils.routines.dummy_routines import DummyRoutineWithQueue, DummyRoutine
 from pipert.core.pipeline_manager import PipelineManager
+import zerorpc
+import gevent
 
 
 class DummyPipelineManager(PipelineManager):
     def __init__(self):
         super().__init__()
-
-    def _setup_logger(self):
-        self.logger = logging.getLogger("test_logs.log")
 
     def recreate_connection(self, component_name):
         pass
@@ -185,3 +184,37 @@ def test_get_pipeline_creation(pipeline_manager_with_component_and_queue_and_rou
     }
 
     assert EXPECTED_PIPELINE_DICTIONARY == pipeline_manager_with_component_and_queue_and_routine.get_pipeline_creation()
+
+
+def test_recreate_connection():
+    pipeline_manager = PipelineManager()
+    pipeline_manager.ROUTINES_FOLDER_PATH = "tests/pipert/core/utils/routines"
+    pipeline_manager.COMPONENTS_FOLDER_PATH = "tests/pipert/core/utils/components"
+    pipeline_manager._get_routine_class_object_by_type_name = MagicMock(side_effect=return_routine_class_object_by_name)
+
+    # create zerorpc server
+
+    class MySrv(zerorpc.Server):
+
+        def connected(self):
+            return True
+
+    srv = MySrv()
+    port = "30000"
+    endpoint = f"tcp://0.0.0.0:{port}"
+
+    srv.bind(endpoint=endpoint)
+    gevent.spawn(srv.run)
+
+    pipeline_manager.components["comp"] = BaseComponent(component_config={}, start_component=False)
+    pipeline_manager.components["comp"].name = "comp"
+    pipeline_manager.components["comp"].name = "comp"
+    pipeline_manager.components["comp"] = zerorpc.Client()
+    pipeline_manager.components["comp"].connect("tcp://localhost:" + port)
+    pipeline_manager.component_ports["comp"] = port
+    pipeline_manager.components["comp"].logger = logging.getLogger("test_logs.log")
+    assert pipeline_manager.components["comp"].connected()
+    pipeline_manager.recreate_connection(component_name="comp")
+    assert pipeline_manager.components["comp"].connected()
+
+
