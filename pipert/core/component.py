@@ -10,10 +10,10 @@ import signal
 import gevent
 from pipert.core.metrics_collector import NullCollector
 import sys
-if sys.version_info.minor == 8:
+if sys.version_info.minor >= 8:
     from pipert.core.multiprocessing_shared_memory import MpSharedMemoryGenerator as smGen
 else:
-    from pipert.core.shared_memory import SharedMemoryGenerator as smGen
+    from pipert.core.shared_memory_generator import SharedMemoryGenerator as smGen
 from pipert.core.errors import RegisteredException, QueueDoesNotExist
 from pipert.core.class_factory import ClassFactory
 from queue import Queue
