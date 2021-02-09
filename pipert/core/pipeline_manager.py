@@ -374,6 +374,7 @@ class PipelineManager:
         return self.ports_counter
 
     def recreate_connection(self, component_name):
+        self.components[component_name].close()
         self.components[component_name] = zerorpc.Client()
         self.components[component_name].connect("tcp://localhost:" + self.component_ports[component_name])
 
