@@ -2,10 +2,10 @@ import logging
 import time
 import numpy as np
 import sys
-if sys.version_info.minor == 8:
+if sys.version_info.minor >= 8:
     from pipert.core.multiprocessing_shared_memory import MpSharedMemoryGenerator as smGen
 else:
-    from pipert.core.shared_memory import SharedMemoryGenerator as smGen
+    from pipert.core.shared_memory_generator import SharedMemoryGenerator as smGen
 from pipert.core.message import Message, FramePayload, message_encode, \
     message_decode, PredictionPayload, FrameMetadataPayload
 
