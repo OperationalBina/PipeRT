@@ -5,6 +5,7 @@ from pipert.core.pipeline_manager import PipelineManager
 from pipert.utils.useful_methods import open_config_file
 import inspect
 import zerorpc
+from waitress import serve
 
 
 class CliConnection(object):
@@ -85,4 +86,8 @@ else:
     def start_components():
         return_response(pipeline_manager.run_all_components())
 
-    app.run(port=os.environ.get("UI_PORT", 5005), host='0.0.0.0')
+    if os.environ.get("DEBUG", False):
+        app.run(port=os.environ.get("UI_PORT", 5005), host='0.0.0.0')
+    else:
+        serve(app, port=os.environ.get("UI_PORT", 5005), host='0.0.0.0')
+
