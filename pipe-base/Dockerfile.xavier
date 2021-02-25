@@ -104,3 +104,6 @@ COPY build_opencv.sh .
 RUN /bin/bash build_opencv.sh
 
 #RUN apt-get install -y ffmpeg
+
+#TODO - remember to remove this when rebuilding and add it to the requirements file
+RUN pip install waitress
