@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 import sys
 if sys.version_info.minor >= 8:
     from pipert.core.multiprocessing_shared_memory import get_shared_memory_object
+else:
+    from pipert.core.shared_memory_generator import get_shared_memory_object
 
 import numpy as np
 import time
@@ -36,7 +38,6 @@ class FramePayload(Payload):
         super().__init__(data)
         self.shape = None
         self.dtype = None
-        self.generator = None
         self.frame_size = 0
 
     def decode(self):
@@ -64,11 +65,10 @@ class FramePayload(Payload):
                 else:
                     self.frame_size = len(buf)
                     memory_name = generator.get_next_shared_memory_name()
-                    memory = generator.get_shared_memory_object(memory_name)
+                    memory = get_shared_memory_object(memory_name)
                     memory.acquire_semaphore()
                     memory.write_to_memory(buf)
                     memory.release_semaphore()
-                    self.generator = generator
                     self.data = memory_name
             self.encoded = True
 
@@ -76,13 +76,8 @@ class FramePayload(Payload):
         return self.data is None
 
     def _get_frame(self):
-        if sys.version_info.minor >= 8:
-            memory = get_shared_memory_object(self.data)
-        else:
-            if self.generator is not None:
-                memory = self.generator.get_shared_memory_object(self.data)
-            else:
-                memory = None
+        memory = get_shared_memory_object(self.data)
+
         if memory:
             if sys.version_info.minor >= 8:
                 data = bytes(memory.buf)
@@ -119,7 +114,6 @@ class FrameMetadataPayload(Payload):
         super().__init__(data)
         self.shape = None
         self.dtype = None
-        self.generator = None
         self.frame_size = 0
 
     def decode(self):
@@ -147,11 +141,10 @@ class FrameMetadataPayload(Payload):
                 else:
                     self.frame_size = len(buf)
                     memory_name = generator.get_next_shared_memory_name()
-                    memory = generator.get_shared_memory_object(memory_name)
+                    memory = get_shared_memory_object(memory_name)
                     memory.acquire_semaphore()
                     memory.write_to_memory(buf)
                     memory.release_semaphore()
-                    self.generator = generator
                     self.data = (memory_name, self.data[1])
             self.encoded = True
 
@@ -159,13 +152,8 @@ class FrameMetadataPayload(Payload):
         return self.data is None
 
     def _get_frame(self):
-        if sys.version_info.minor >= 8:
-            memory = get_shared_memory_object(self.data[0])
-        else:
-            if self.generator is not None:
-                memory = self.generator.get_shared_memory_object(self.data[0])
-            else:
-                memory = None
+        memory = get_shared_memory_object(self.data[0])
+
         if memory:
             if sys.version_info.minor >= 8:
                 data = bytes(memory.buf)

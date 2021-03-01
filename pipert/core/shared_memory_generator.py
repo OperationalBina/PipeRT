@@ -26,6 +26,30 @@ class MemoryIdIterator:
         return next_name
 
 
+def get_shared_memory_object(name):
+    """
+    Get a SharedMemory object that correlates to the name given.
+    Args:
+        name: The name of a shared memory.
+    Returns: A SharedMemory object.
+    """
+    try:
+        memory = posix_ipc.SharedMemory(name)
+        semaphore = posix_ipc.Semaphore(name)
+    except posix_ipc.ExistentialError:
+        return None
+    except Exception:
+        return None
+
+    mapfile = mmap.mmap(memory.fd, memory.size)
+
+    memory.close_fd()
+
+    semaphore.release()
+
+    return SharedMemory(memory, semaphore, mapfile)
+
+
 class SharedMemoryGenerator:
     """
     Generates a set 'max_count' amount of shared memories to be used.
@@ -48,12 +72,6 @@ class SharedMemoryGenerator:
 
     def get_next_shared_memory_name(self):
         return self.memory_id_gen.get_next()
-
-    def get_shared_memory_object(self, name):
-        try:
-            return self.shared_memories[name]
-        except KeyError:
-            return None
 
     def cleanup(self):
         """
