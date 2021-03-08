@@ -16,6 +16,3 @@ RUN pip3 install -r requirements.txt --no-cache-dir --default-timeout=100
 # Install pycocotools
 RUN pip3 install --upgrade cython
 RUN pip3 install pycocotools
-
-#TODO - remember to remove this when rebuilding and add it to the requirements file
-RUN pip install waitress
