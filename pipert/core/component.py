@@ -99,6 +99,7 @@ class BaseComponent:
         """
         self.logger.info("Running component")
         self.stop_event.clear()
+        self.generator.create_memories()
         self._start()
         gevent.signal_handler(signal.SIGTERM, self.stop_run)
 

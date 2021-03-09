@@ -58,10 +58,14 @@ class SharedMemoryGenerator:
         self.memory_id_gen = MemoryIdIterator(component_name, max_count)
         self.max_count = max_count
         self.shared_memories = {}
+        self.size = size
+        self.create_memories()
+
+    def create_memories(self):
         for _ in range(self.max_count):
             next_name = self.memory_id_gen.get_next()
             memory = posix_ipc.SharedMemory(next_name, posix_ipc.O_CREAT,
-                                            size=size)
+                                            size=self.size)
             semaphore = posix_ipc.Semaphore(next_name, posix_ipc.O_CREAT)
             mapfile = mmap.mmap(memory.fd, memory.size)
             memory.close_fd()
