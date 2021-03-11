@@ -155,6 +155,7 @@ def test_run_and_stop_component_with_shared_memory():
 
     component.setup_component(component_config=component_configuration)
     component.run_comp()
+    component.generator.get_next_shared_memory()
     assert component.generator.shared_memories != {}
     component.stop_run()
     assert component.generator.shared_memories == {}
