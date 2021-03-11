@@ -59,7 +59,6 @@ class SharedMemoryGenerator:
         self.max_count = max_count
         self.shared_memories = {}
         self.size = size
-        self.create_memories()
 
     def create_memories(self):
         for _ in range(self.max_count):
