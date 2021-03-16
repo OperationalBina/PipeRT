@@ -138,6 +138,29 @@ def test_setup_component():
     assert component_configuration == component.get_component_configuration()
 
 
+def test_run_and_stop_component_with_shared_memory():
+    component = DummyComponent(component_config={})
+    component_name = "comp"
+    shared_memory = True
+    queue_names = ["que1", "que2"]
+
+    component_configuration = {
+        component_name: {
+            "shared_memory": shared_memory,
+            "queues": queue_names,
+            "routines": {},
+            "component_type_name": "DummyComponent"
+        }
+    }
+
+    component.setup_component(component_config=component_configuration)
+    component.run_comp()
+    component.generator.get_next_shared_memory()
+    assert component.generator.shared_memories != {}
+    component.stop_run()
+    assert component.generator.shared_memories == {}
+
+
 def test_set_monitoring_with_bad_name(component_with_queue_and_routine):
     component_with_queue_and_routine.set_monitoring_system({
         "name": "BadName"

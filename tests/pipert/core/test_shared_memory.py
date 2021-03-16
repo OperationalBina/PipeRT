@@ -5,6 +5,7 @@ from pipert.core.shared_memory_generator import get_shared_memory_object
 class DummySharedMemoryGenerator(sm.SharedMemoryGenerator):
     def __init__(self):
         super().__init__("dummy_component", max_count=5)
+        self.create_memories()
 
 
 def test_cleanup():
